@@ -1,0 +1,16 @@
+server:
+  port: 8000
+
+spring:
+  h2:
+    console.enabled: true
+  datasource:
+    url: jdbc:h2:mem:default
+    username: h2user
+    password: h2pass
+    driverClassName: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    properties:
+      hibernate:
+        check_nullability: true
