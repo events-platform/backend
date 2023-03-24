@@ -2,7 +2,6 @@ package com.example.eventsplatformbackend.controller;
 
 import com.example.eventsplatformbackend.dto.UserCreationDto;
 import com.example.eventsplatformbackend.dto.UserDto;
-import com.example.eventsplatformbackend.model.User;
 import com.example.eventsplatformbackend.service.UserService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;

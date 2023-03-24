@@ -1,6 +1,6 @@
 package com.example.eventsplatformbackend.service;
 
-import com.example.eventsplatformbackend.dao.UserRepository;
+import com.example.eventsplatformbackend.repository.UserRepository;
 import com.example.eventsplatformbackend.dto.UserDto;
 import com.example.eventsplatformbackend.exceptions.UserNotFoundException;
 import com.example.eventsplatformbackend.mapper.UserMapper;

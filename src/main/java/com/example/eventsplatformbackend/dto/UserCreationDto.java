@@ -15,7 +15,5 @@ public class UserCreationDto {
     @NotNull
     String username;
     @NotNull
-    String email;
-    @NotNull
     String password;
 }

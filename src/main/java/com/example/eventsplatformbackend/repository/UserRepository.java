@@ -1,4 +1,4 @@
-package com.example.eventsplatformbackend.dao;
+package com.example.eventsplatformbackend.repository;
 
 import com.example.eventsplatformbackend.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;

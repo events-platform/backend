@@ -1,6 +1,9 @@
 package com.example.eventsplatformbackend.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.DynamicUpdate;
@@ -18,10 +21,13 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
+    @NotNull
     String username;
     String firstName;
     String lastName;
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @PrimaryKeyJoinColumn
-    UserCredentials userCredentials;
+    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}", message = "Malformed email")
+    String email;
+    @NotNull
+    @Size(min = 6, message = "Password cannot be shorter, than 6 characters")
+    String password;
 }
