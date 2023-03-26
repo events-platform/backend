@@ -1,6 +1,6 @@
 package com.example.eventsplatformbackend.dto;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,8 +12,8 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @ToString
 public class UserCreationDto {
-    @NotNull
+    @NotBlank
     String username;
-    @NotNull
+    @NotBlank
     String password;
 }

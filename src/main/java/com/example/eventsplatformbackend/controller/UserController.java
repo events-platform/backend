@@ -1,8 +1,10 @@
 package com.example.eventsplatformbackend.controller;
 
+import com.example.eventsplatformbackend.dto.ChangeRoleDto;
 import com.example.eventsplatformbackend.dto.UserCreationDto;
-import com.example.eventsplatformbackend.dto.UserDto;
+import com.example.eventsplatformbackend.model.User;
 import com.example.eventsplatformbackend.service.UserService;
+import jakarta.validation.Valid;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +26,15 @@ public class UserController {
         return userService.saveUser(userCreationDto);
     }
 
+    @PostMapping("/role")
+    public ResponseEntity<String> setRole(@Valid @RequestBody ChangeRoleDto changeRoleDto){
+        log.info("changing role of {} to {}", changeRoleDto.getUsername(), changeRoleDto.getRole());
+        return userService.setUserRole(changeRoleDto);
+    }
+
     @SneakyThrows
     @GetMapping(value = "/{username}")
-    public UserDto getUser(@PathVariable String username){
+    public User getUser(@PathVariable String username){
         log.info("getting user {}", username);
         return userService.getUser(username);
     }
