@@ -1,4 +1,4 @@
-package com.example.eventsplatformbackend.dao;
+package com.example.eventsplatformbackend.repository;
 
 import com.example.eventsplatformbackend.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,6 +9,6 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);
-    void deleteByUsername(String username);
+    void deleteUserByUsername(String username);
     Optional<User> findByUsername(String username);
 }

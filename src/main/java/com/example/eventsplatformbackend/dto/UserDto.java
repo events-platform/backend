@@ -1,5 +1,6 @@
 package com.example.eventsplatformbackend.dto;
 
+import com.example.eventsplatformbackend.model.Role;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -15,4 +16,5 @@ public class UserDto {
     String lastName;
     String email;
     String password;
+    Role role;
 }
