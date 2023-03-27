@@ -1,7 +1,8 @@
 package com.example.eventsplatformbackend.controller;
 
+import com.example.eventsplatformbackend.config.JwtUtil;
 import com.example.eventsplatformbackend.dto.ChangeRoleDto;
-import com.example.eventsplatformbackend.dto.UserCreationDto;
+import com.example.eventsplatformbackend.dto.LoginDto;
 import com.example.eventsplatformbackend.model.User;
 import com.example.eventsplatformbackend.service.UserService;
 import jakarta.validation.Valid;
@@ -14,16 +15,33 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "user")
 @Slf4j
 public class UserController {
+    private final JwtUtil jwtUtil;
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    public UserController(JwtUtil jwtUtil, UserService userService) {
+        this.jwtUtil = jwtUtil;
         this.userService = userService;
     }
 
+    @SneakyThrows
     @PostMapping("/create")
-    public ResponseEntity<String> createUser(@RequestBody UserCreationDto userCreationDto){
-        log.info("creating user {}", userCreationDto.toString());
-        return userService.saveUser(userCreationDto);
+    public ResponseEntity<String> createUser(@RequestBody LoginDto loginDto){
+
+        if (userService.registerUser(loginDto)){
+            User user = userService.findByUsername(loginDto.getUsername());
+            return ResponseEntity.ok().body(jwtUtil.generateToken(user));
+        } else {
+            return ResponseEntity.badRequest().body("user already exists");
+        }
+    }
+
+    @SneakyThrows
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@Valid @RequestBody LoginDto loginDto){
+        log.info("user {} logging in", loginDto.getUsername());
+
+        User user = userService.findByUsername(loginDto.getUsername());
+        return ResponseEntity.ok().body(jwtUtil.generateToken(user));
     }
 
     @PostMapping("/role")
@@ -36,7 +54,7 @@ public class UserController {
     @GetMapping(value = "/{username}")
     public User getUser(@PathVariable String username){
         log.info("getting user {}", username);
-        return userService.getUser(username);
+        return userService.findByUsername(username);
     }
 
     @DeleteMapping("/{username}")
