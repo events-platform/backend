@@ -19,7 +19,7 @@ import org.hibernate.annotations.DynamicUpdate;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     @Column(name = "user_id")
     Long id;
     @NotBlank(message = "username is mandatory")

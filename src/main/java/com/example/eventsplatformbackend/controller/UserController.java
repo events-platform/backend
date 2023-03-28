@@ -29,7 +29,7 @@ public class UserController {
 
         if (userService.registerUser(loginDto)){
             User user = userService.findByUsername(loginDto.getUsername());
-            return ResponseEntity.ok().body(jwtUtil.generateToken(user));
+            return ResponseEntity.status(201).body(jwtUtil.generateToken(user));
         } else {
             return ResponseEntity.badRequest().body("user already exists");
         }
