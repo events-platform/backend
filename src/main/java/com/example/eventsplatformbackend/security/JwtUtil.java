@@ -1,4 +1,4 @@
-package com.example.eventsplatformbackend.config;
+package com.example.eventsplatformbackend.security;
 
 import com.example.eventsplatformbackend.model.User;
 import io.jsonwebtoken.Claims;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 @Component
 public class JwtUtil {
@@ -41,7 +40,7 @@ public class JwtUtil {
 
     public String generateToken(User user) {
         HashMap<String, Object> claims = new HashMap<>();
-        claims.put("role", List.of(user.getRole()));
+        claims.put("role", user.getRole());
 
         long expirationSeconds = Long.parseLong(expirationTime);
         Date creationDate = new Date();

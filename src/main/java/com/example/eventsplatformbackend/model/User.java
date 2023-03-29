@@ -37,7 +37,6 @@ public class User {
     @Column(name = "password")
     String password;
     @Builder.Default
-    @Enumerated(value = EnumType.STRING)
-    @Column(name = "role")
-    Role role = Role.USER;
+    @Enumerated(EnumType.STRING)
+    ERole role = ERole.ROLE_USER;
 }

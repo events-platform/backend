@@ -1,6 +1,6 @@
 package com.example.eventsplatformbackend.controller;
 
-import com.example.eventsplatformbackend.config.JwtUtil;
+import com.example.eventsplatformbackend.security.JwtUtil;
 import com.example.eventsplatformbackend.dto.ChangeRoleDto;
 import com.example.eventsplatformbackend.dto.LoginDto;
 import com.example.eventsplatformbackend.model.User;
@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,7 +28,7 @@ public class UserController {
     @PostMapping("/create")
     public ResponseEntity<String> createUser(@RequestBody LoginDto loginDto){
 
-        if (userService.registerUser(loginDto)){
+        if (userService.createUser(loginDto)){
             User user = userService.findByUsername(loginDto.getUsername());
             return ResponseEntity.status(201).body(jwtUtil.generateToken(user));
         } else {
@@ -45,6 +46,7 @@ public class UserController {
     }
 
     @PostMapping("/role")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> setRole(@Valid @RequestBody ChangeRoleDto changeRoleDto){
         log.info("changing role of {} to {}", changeRoleDto.getUsername(), changeRoleDto.getRole());
         return userService.setUserRole(changeRoleDto);
@@ -52,12 +54,14 @@ public class UserController {
 
     @SneakyThrows
     @GetMapping(value = "/{username}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public User getUser(@PathVariable String username){
         log.info("getting user {}", username);
         return userService.findByUsername(username);
     }
 
     @DeleteMapping("/{username}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteUser(@PathVariable String username){
         log.info("deleting user {}", username);
         return userService.deleteUser(username);

@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @Service
 @Slf4j
-public class UserService {
+public class UserService{
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -28,7 +28,7 @@ public class UserService {
     }
 
     @Transactional
-    public boolean registerUser(LoginDto loginDto){
+    public boolean createUser(LoginDto loginDto){
         log.info("creating user {}", loginDto.getUsername());
 
         User userToSave = UserMapper.creationDtoToUser(loginDto);
@@ -86,5 +86,4 @@ public class UserService {
 
         return ResponseEntity.ok().body(String.format("%s id %s now", user.getUsername(), user.getRole()));
     }
-
 }

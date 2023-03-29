@@ -1,6 +1,6 @@
 package com.example.eventsplatformbackend;
 
-import com.example.eventsplatformbackend.config.JwtUtil;
+import com.example.eventsplatformbackend.security.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +13,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
@@ -36,8 +34,7 @@ class MvcTest {
     void shouldGetBadRequest_notAuthorized() throws Exception {
         mockMvc.perform(get("/user/username123"))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(containsString("Cannot find")));
+                .andExpect(status().isForbidden());
     }
 
     @Test

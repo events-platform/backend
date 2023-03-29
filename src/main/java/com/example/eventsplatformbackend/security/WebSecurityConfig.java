@@ -1,20 +1,22 @@
-package com.example.eventsplatformbackend.config;
+package com.example.eventsplatformbackend.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class WebSecurityConfig {
-    private final AuthManager authManager;
+    private final AuthJwtFilter authJwtFilter;
 
-    public WebSecurityConfig(AuthManager authManager) {
-        this.authManager = authManager;
+    public WebSecurityConfig(AuthJwtFilter authJwtFilter) {
+        this.authJwtFilter = authJwtFilter;
     }
 
     @Bean
@@ -26,20 +28,15 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityWebFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .formLogin().disable()
-                .httpBasic().disable();
+                .httpBasic().disable()
+                .authorizeHttpRequests(req -> {
+                    req.requestMatchers("/user/*")
+                            .permitAll();
+                    req.requestMatchers("/post/*")
+                            .permitAll();
+                    });
 
-        http.authorizeHttpRequests(req -> {
-            req.requestMatchers("/user/login", "/user/create")
-                    .permitAll();
-            req.requestMatchers(HttpMethod.GET, "/user/**")
-                    .permitAll();
-            req.requestMatchers(HttpMethod.DELETE, "/user/**")
-                    .hasRole("ADMIN");
-            req.requestMatchers(HttpMethod.POST, "/user/role")
-                    .hasRole("ADMIN");
-        });
-
-        http.authenticationManager(authManager);
+        http.addFilterBefore(authJwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
