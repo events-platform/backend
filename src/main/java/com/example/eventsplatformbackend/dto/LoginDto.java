@@ -11,7 +11,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Getter
 @ToString
-public class UserCreationDto {
+public class LoginDto {
     @NotBlank
     String username;
     @NotBlank

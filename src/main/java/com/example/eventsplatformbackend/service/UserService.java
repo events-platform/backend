@@ -5,32 +5,42 @@ import com.example.eventsplatformbackend.repository.UserRepository;
 import com.example.eventsplatformbackend.exceptions.UserNotFoundException;
 import com.example.eventsplatformbackend.mapper.UserMapper;
 import com.example.eventsplatformbackend.model.User;
-import com.example.eventsplatformbackend.dto.UserCreationDto;
+import com.example.eventsplatformbackend.dto.LoginDto;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.InvalidParameterException;
 import java.util.Optional;
 
 @Service
-public class UserService {
+@Slf4j
+public class UserService{
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @Transactional
-    public ResponseEntity<String> saveUser(UserCreationDto userCreationDto){
-        User userToSave = UserMapper.creationDtoToUser(userCreationDto);
+    public boolean createUser(LoginDto loginDto){
+        log.info("creating user {}", loginDto.getUsername());
+
+        User userToSave = UserMapper.creationDtoToUser(loginDto);
 
         if (userRepository.existsByUsername(userToSave.getUsername())){
-            return new ResponseEntity<>("User already exists", HttpStatus.OK);
+            log.info("user {} already exists", userToSave.getUsername());
+            return false;
         } else {
+            userToSave.setPassword(bCryptPasswordEncoder.encode(userToSave.getPassword()));
             userRepository.save(userToSave);
-            return new ResponseEntity<>("User saved", HttpStatus.CREATED);
+            log.info("user {} saved", userToSave.getUsername());
+            return true;
         }
     }
 
@@ -49,7 +59,7 @@ public class UserService {
         }
     }
 
-    public User getUser(String username) throws InvalidParameterException, UserNotFoundException {
+    public User findByUsername(String username) throws InvalidParameterException, UserNotFoundException {
 
         if (username == null) {
             throw new InvalidParameterException("Username is null");
@@ -76,5 +86,4 @@ public class UserService {
 
         return ResponseEntity.ok().body(String.format("%s id %s now", user.getUsername(), user.getRole()));
     }
-
 }

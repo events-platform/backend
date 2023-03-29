@@ -1,6 +1,6 @@
 package com.example.eventsplatformbackend.dto;
 
-import com.example.eventsplatformbackend.model.Role;
+import com.example.eventsplatformbackend.model.ERole;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -10,5 +10,5 @@ public class ChangeRoleDto {
     @NotBlank
     String username;
     @NotNull
-    Role role;
+    ERole role;
 }

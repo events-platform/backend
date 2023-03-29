@@ -1,6 +1,6 @@
 package com.example.eventsplatformbackend.model;
 
-public enum Role {
-    USER,
-    ADMIN
+public enum ERole {
+    ROLE_USER,
+    ROLE_ADMIN
 }
