@@ -18,5 +18,5 @@ COPY --from=jre-build /customjre $JAVA_HOME
 COPY build/libs/*.jar /app/app.jar
 WORKDIR /app
 
-EXPOSE 8080
+EXPOSE 8000
 ENTRYPOINT [ "/jre/bin/java", "-jar", "-Dspring.profiles.active=test", "/app/app.jar" ]
