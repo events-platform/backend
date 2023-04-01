@@ -41,8 +41,7 @@ public class UserController {
     public ResponseEntity<String> login(@Valid @RequestBody LoginDto loginDto){
         log.info("user {} logging in", loginDto.getUsername());
 
-        User user = userService.findByUsername(loginDto.getUsername());
-        return ResponseEntity.ok().body(jwtUtil.generateToken(user));
+        return userService.login(loginDto);
     }
 
     @PostMapping("/role")

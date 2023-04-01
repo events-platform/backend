@@ -6,6 +6,7 @@ import com.example.eventsplatformbackend.exceptions.UserNotFoundException;
 import com.example.eventsplatformbackend.mapper.UserMapper;
 import com.example.eventsplatformbackend.model.User;
 import com.example.eventsplatformbackend.dto.LoginDto;
+import com.example.eventsplatformbackend.security.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,10 +22,12 @@ import java.util.Optional;
 public class UserService{
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     @Transactional
@@ -85,5 +88,14 @@ public class UserService{
         userRepository.save(user);
 
         return ResponseEntity.ok().body(String.format("%s id %s now", user.getUsername(), user.getRole()));
+    }
+
+    public ResponseEntity<String> login(LoginDto loginDto) throws UserNotFoundException {
+        User user = this.findByUsername(loginDto.getUsername());
+        if(bCryptPasswordEncoder.matches(loginDto.getPassword(), user.getPassword())){
+            return ResponseEntity.ok().body(jwtUtil.generateToken(user));
+        } else {
+            return ResponseEntity.badRequest().body("wrong password!");
+        }
     }
 }
