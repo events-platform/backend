@@ -28,25 +28,6 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityWebFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(req -> {
-                    req.requestMatchers("/user/*")
-                            .permitAll();
-                    req.requestMatchers("/post/*")
-                            .permitAll();
-                    });
-
-        http.addFilterBefore(authJwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-        http.csrf().disable()
-                .formLogin().disable()
-                .httpBasic().disable();
-
-        return http.build();
-    }
-
-    @Bean
     public WebMvcConfigurer corsConfigurer() {
 
         return new WebMvcConfigurer() {
@@ -59,5 +40,27 @@ public class WebSecurityConfig {
                         .allowedOriginPatterns(CorsConfiguration.ALL);
             }
         };
+    }
+
+    @Bean
+    public SecurityFilterChain securityWebFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(req -> {
+                    req.requestMatchers("/user/*")
+                            .permitAll();
+                    req.requestMatchers("/post/*")
+                            .permitAll();
+                    });
+
+        http.addFilterBefore(authJwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        http
+                .cors().and().csrf()
+                .disable()
+                .formLogin().disable()
+                .authorizeHttpRequests().anyRequest().permitAll().and()
+                .httpBasic();
+
+        return http.build();
     }
 }

@@ -34,7 +34,7 @@ class MvcTest {
     void shouldGetBadRequest_notAuthorized() throws Exception {
         mockMvc.perform(get("/user/username123"))
                 .andDo(print())
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
