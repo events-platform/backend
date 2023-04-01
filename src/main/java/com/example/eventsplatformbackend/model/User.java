@@ -29,11 +29,11 @@ public class User {
     String firstName;
     @Column(name = "last_name")
     String lastName;
-    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}", message = "Email does not match regex")
+    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}", message = "email does not match regex")
     @Column(name = "email")
     String email;
     @NotBlank(message = "password is mandatory")
-    @Size(min = 6, message = "Password cannot be shorter, than 6 characters")
+    @Size(min = 8, message = "password cannot be shorter, than 8 characters")
     @Column(name = "password")
     String password;
     @Builder.Default
