@@ -26,7 +26,7 @@ public class UserController {
 
     @SneakyThrows
     @PostMapping("/create")
-    public ResponseEntity<String> createUser(@RequestBody LoginDto loginDto){
+    public ResponseEntity<String> createUser(@Valid @RequestBody LoginDto loginDto){
 
         if (userService.createUser(loginDto)){
             User user = userService.findByUsername(loginDto.getUsername());
