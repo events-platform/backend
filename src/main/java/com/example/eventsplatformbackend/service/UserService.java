@@ -1,6 +1,7 @@
 package com.example.eventsplatformbackend.service;
 
 import com.example.eventsplatformbackend.dto.ChangeRoleDto;
+import com.example.eventsplatformbackend.dto.RegistrationDto;
 import com.example.eventsplatformbackend.repository.UserRepository;
 import com.example.eventsplatformbackend.exceptions.UserNotFoundException;
 import com.example.eventsplatformbackend.mapper.UserMapper;
@@ -30,31 +31,38 @@ public class UserService{
         this.jwtUtil = jwtUtil;
     }
 
-    @Transactional
-    public boolean createUser(LoginDto loginDto){
-        log.info("creating user {}", loginDto.getUsername());
+    public ResponseEntity<String> createUser(RegistrationDto registrationDto){
+        log.info("creating user {}", registrationDto.getUsername());
 
-        User userToSave = UserMapper.creationDtoToUser(loginDto);
+        User userToSave = UserMapper.registrationDtoToUser(registrationDto);
 
-        if (userRepository.existsByUsername(userToSave.getUsername())){
-            log.info("user {} already exists", userToSave.getUsername());
-            return false;
+        if (userRepository.existsUserByUsername(userToSave.getUsername())){
+            log.info("user with username {} already exists", userToSave.getUsername());
+
+            return ResponseEntity
+                    .status(409)
+                    .body(String.format("user with username %s already exists", userToSave.getUsername()));
+        } else if (userRepository.existsUserByEmail(userToSave.getEmail())){
+            log.info("user with email {} already exists", userToSave.getEmail());
+
+            return ResponseEntity
+                    .status(409)
+                    .body(String.format("user with email %s already exists", userToSave.getEmail()));
         } else {
             userToSave.setPassword(bCryptPasswordEncoder.encode(userToSave.getPassword()));
             userRepository.save(userToSave);
             log.info("user {} saved", userToSave.getUsername());
-            return true;
+
+            return ResponseEntity
+                    .ok(jwtUtil.generateToken(userToSave));
         }
     }
 
     @Transactional
     public ResponseEntity<String> deleteUser(String username){
+        log.info("deleting user {}", username);
 
-        if (username == null){
-            return new ResponseEntity<>("Invalid username supplied", HttpStatus.BAD_REQUEST);
-        }
-
-        if (userRepository.existsByUsername(username)) {
+        if (userRepository.existsUserByUsername(username)) {
             userRepository.deleteUserByUsername(username);
             return ResponseEntity.ok("User deleted");
         } else {
@@ -63,27 +71,26 @@ public class UserService{
     }
 
     public User findByUsername(String username) throws InvalidParameterException, UserNotFoundException {
+        log.info("getting user {}", username);
 
-        if (username == null) {
-            throw new InvalidParameterException("Username is null");
-        }
-
-        if (userRepository.existsByUsername(username)) {
-            Optional<User> user = userRepository.findByUsername(username);
-            return user.get();
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (optionalUser.isPresent()) {
+            return optionalUser.get();
         }
 
         throw new UserNotFoundException(String.format("Cannot find user with username %s", username));
     }
 
     public ResponseEntity<String> setUserRole(ChangeRoleDto changeRoleDto){
+        log.info("changing role of {} to {}", changeRoleDto.getUsername(), changeRoleDto.getRole());
 
-        if (!userRepository.existsByUsername(changeRoleDto.getUsername())){
-            return ResponseEntity.badRequest().body(
+        Optional<User> optionalUser = userRepository.findByUsername(changeRoleDto.getUsername());
+        if (optionalUser.isEmpty()){
+            return ResponseEntity.status(404).body(
                     String.format("User with username %s not found", changeRoleDto.getUsername()));
         }
 
-        User user = userRepository.findByUsername(changeRoleDto.getUsername()).get();
+        User user = optionalUser.get();
         user.setRole(changeRoleDto.getRole());
         userRepository.save(user);
 
@@ -91,7 +98,10 @@ public class UserService{
     }
 
     public ResponseEntity<String> login(LoginDto loginDto) throws UserNotFoundException {
+        log.info("user {} logging in", loginDto.getUsername());
+
         User user = this.findByUsername(loginDto.getUsername());
+
         if(bCryptPasswordEncoder.matches(loginDto.getPassword(), user.getPassword())){
             return ResponseEntity.ok().body(jwtUtil.generateToken(user));
         } else {

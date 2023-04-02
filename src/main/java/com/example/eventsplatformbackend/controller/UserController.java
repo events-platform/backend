@@ -1,6 +1,6 @@
 package com.example.eventsplatformbackend.controller;
 
-import com.example.eventsplatformbackend.security.JwtUtil;
+import com.example.eventsplatformbackend.dto.RegistrationDto;
 import com.example.eventsplatformbackend.dto.ChangeRoleDto;
 import com.example.eventsplatformbackend.dto.LoginDto;
 import com.example.eventsplatformbackend.model.User;
@@ -16,53 +16,40 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "user")
 @Slf4j
 public class UserController {
-    private final JwtUtil jwtUtil;
     private final UserService userService;
 
-    public UserController(JwtUtil jwtUtil, UserService userService) {
-        this.jwtUtil = jwtUtil;
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @SneakyThrows
     @PostMapping("/create")
-    public ResponseEntity<String> createUser(@Valid @RequestBody LoginDto loginDto){
-
-        if (userService.createUser(loginDto)){
-            User user = userService.findByUsername(loginDto.getUsername());
-            return ResponseEntity.status(201).body(jwtUtil.generateToken(user));
-        } else {
-            return ResponseEntity.badRequest().body("user already exists");
-        }
+    public ResponseEntity<String> createUser(@Valid @RequestBody RegistrationDto registrationDto){
+        return userService.createUser(registrationDto);
     }
 
     @SneakyThrows
     @PostMapping("/login")
     public ResponseEntity<String> login(@Valid @RequestBody LoginDto loginDto){
-        log.info("user {} logging in", loginDto.getUsername());
-
         return userService.login(loginDto);
-    }
-
-    @PostMapping("/role")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> setRole(@Valid @RequestBody ChangeRoleDto changeRoleDto){
-        log.info("changing role of {} to {}", changeRoleDto.getUsername(), changeRoleDto.getRole());
-        return userService.setUserRole(changeRoleDto);
     }
 
     @SneakyThrows
     @GetMapping(value = "/{username}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public User getUser(@PathVariable String username){
-        log.info("getting user {}", username);
         return userService.findByUsername(username);
+    }
+
+    @PostMapping("/role")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> setRole(@Valid @RequestBody ChangeRoleDto changeRoleDto){
+        return userService.setUserRole(changeRoleDto);
     }
 
     @DeleteMapping("/{username}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteUser(@PathVariable String username){
-        log.info("deleting user {}", username);
         return userService.deleteUser(username);
     }
 }

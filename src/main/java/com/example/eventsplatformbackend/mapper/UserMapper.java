@@ -1,6 +1,6 @@
 package com.example.eventsplatformbackend.mapper;
 
-import com.example.eventsplatformbackend.dto.LoginDto;
+import com.example.eventsplatformbackend.dto.RegistrationDto;
 import com.example.eventsplatformbackend.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -8,10 +8,11 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class UserMapper {
-    public static User creationDtoToUser(LoginDto loginDto){
+    public static User registrationDtoToUser(RegistrationDto registrationDto){
         return User.builder()
-                .username(loginDto.getUsername())
-                .password(loginDto.getPassword())
+                .username(registrationDto.getUsername())
+                .email(registrationDto.getEmail())
+                .password(registrationDto.getPassword())
                 .build();
     }
 }
