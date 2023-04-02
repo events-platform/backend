@@ -13,6 +13,6 @@ public class DatabaseExceptionHandler {
     public ResponseEntity<String> handleInvalidArgumentException(ConstraintViolationException e){
 
         String message = String.format("Constraint violation exception, stacktrace: %s", e.getMessage());
-        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(message, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 }

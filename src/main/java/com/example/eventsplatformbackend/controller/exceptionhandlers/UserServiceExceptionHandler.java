@@ -14,12 +14,12 @@ public class UserServiceExceptionHandler {
     @ExceptionHandler(InvalidParameterException.class)
     public ResponseEntity<String> handleInvalidArgumentException(InvalidParameterException e){
         String message = String.format("Invalid argument, stacktrace: %s", e.getMessage());
-        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(message, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException e){
         String message = String.format("Cannot find user, stacktrace: %s", e.getMessage());
-        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
     }
 }
