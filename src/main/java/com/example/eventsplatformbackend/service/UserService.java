@@ -54,7 +54,7 @@ public class UserService{
             log.info("user {} saved", userToSave.getUsername());
 
             return ResponseEntity
-                    .ok(jwtUtil.generateToken(userToSave));
+                    .status(201).body(jwtUtil.generateToken(userToSave));
         }
     }
 

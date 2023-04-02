@@ -41,6 +41,7 @@ class MvcTest {
     void registerUser_getJwtToken() throws Exception {
         Map<String,Object> body = new HashMap<>();
         body.put("username","dmitry");
+        body.put("email","dmitryemail@gmail.com");
         body.put("password","dmitry123");
 
         mockMvc.perform(post("/user/create")
