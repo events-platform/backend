@@ -1,4 +1,5 @@
 server:
+  files-destination-dir: ~/users_files/
   port: 8000
 
 spring:

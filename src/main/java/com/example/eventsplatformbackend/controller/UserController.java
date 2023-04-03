@@ -11,6 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping(path = "user")
@@ -32,6 +35,12 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@Valid @RequestBody LoginDto loginDto){
         return userService.login(loginDto);
+    }
+
+    @PostMapping("/avatar")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public void uploadImage(@RequestParam("file") MultipartFile uploadedFile, Principal principal){
+        userService.uploadUserAvatar(uploadedFile, principal);
     }
 
     @SneakyThrows
