@@ -117,14 +117,12 @@ public class UserService{
     }
 
     @SneakyThrows
-    public ResponseEntity<String> uploadUserAvatar(MultipartFile uploadedFile, Principal principal){
+    public ResponseEntity<String> uploadFile(MultipartFile uploadedFile, Principal principal){
         log.info("saving file {} from {}", uploadedFile.getOriginalFilename(), principal.getName());
 
         File directory = new File(filesDirectory);
-        if(!directory.exists()){
-            directory.mkdir();
-        }
-        File file = new File(directory.getPath() + uploadedFile.getOriginalFilename());
+        directory.mkdir();
+        File file = new File(directory.getPath() + File.separator + uploadedFile.getOriginalFilename());
 
         try (OutputStream os = new FileOutputStream(file)) {
             os.write(uploadedFile.getBytes());
