@@ -3,7 +3,7 @@ package com.example.eventsplatformbackend.service;
 import com.example.eventsplatformbackend.dto.ChangeRoleDto;
 import com.example.eventsplatformbackend.dto.RegistrationDto;
 import com.example.eventsplatformbackend.repository.UserRepository;
-import com.example.eventsplatformbackend.exceptions.UserNotFoundException;
+import com.example.eventsplatformbackend.exception.UserNotFoundException;
 import com.example.eventsplatformbackend.mapper.UserMapper;
 import com.example.eventsplatformbackend.model.User;
 import com.example.eventsplatformbackend.dto.LoginDto;
@@ -11,14 +11,12 @@ import com.example.eventsplatformbackend.security.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
 import java.security.InvalidParameterException;
 import java.security.Principal;
 import java.util.Optional;
@@ -29,13 +27,13 @@ public class UserService{
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtUtil jwtUtil;
-    @Value("${server.files-destination-dir}")
-    private String filesDirectory;
+    private final FileService fileService;
 
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtil jwtUtil) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtil jwtUtil, FileService fileService) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtUtil = jwtUtil;
+        this.fileService = fileService;
     }
 
     public ResponseEntity<String> createUser(RegistrationDto registrationDto){
@@ -117,20 +115,20 @@ public class UserService{
     }
 
     @SneakyThrows
-    public ResponseEntity<String> uploadFile(MultipartFile uploadedFile, Principal principal){
-        log.info("saving file {} from {}", uploadedFile.getOriginalFilename(), principal.getName());
+    public ResponseEntity<String> uploadUserAvatar(MultipartFile uploadedFile, Principal principal){
+        String pathToFile = fileService.saveUserAvatar(uploadedFile, principal);
 
-        File directory = new File(filesDirectory);
-        directory.mkdir();
-        File file = new File(directory.getPath() + File.separator + uploadedFile.getOriginalFilename());
-
-        try (OutputStream os = new FileOutputStream(file)) {
-            os.write(uploadedFile.getBytes());
-            log.info("file successfully saved to {}", file.getPath());
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return ResponseEntity.internalServerError().body(e.getMessage());
+        // не проверяем на null т.к. у нас есть principal, значит юзер есть в бд
+        User user = userRepository.findByUsername(principal.getName()).get();
+        String oldAvatar = user.getAvatar();
+        if(oldAvatar != null) {
+            fileService.deleteFile(oldAvatar);
         }
+
+        user.setAvatar(pathToFile);
+        userRepository.save(user);
+        log.info("updated user {} avatar to {}", user.getUsername(), pathToFile);
+
+        return ResponseEntity.status(201).build();
     }
 }

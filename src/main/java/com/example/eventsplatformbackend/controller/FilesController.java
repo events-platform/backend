@@ -24,6 +24,6 @@ public class FilesController {
     @PostMapping("/upload")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public void uploadImage(@RequestParam("file") MultipartFile uploadedFile, Principal principal){
-        userService.uploadFile(uploadedFile, principal);
+        userService.uploadUserAvatar(uploadedFile, principal);
     }
 }
