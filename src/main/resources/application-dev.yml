@@ -2,8 +2,6 @@ server:
   files-destination-dir: src/main/resources/files/
   port: 8000
 
-
-
 spring:
   servlet:
     multipart:

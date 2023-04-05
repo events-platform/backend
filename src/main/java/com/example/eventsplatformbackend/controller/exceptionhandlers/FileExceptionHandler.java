@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import java.io.FileNotFoundException;
+
 @ControllerAdvice
 public class FileExceptionHandler {
     @Value("${spring.servlet.multipart.max-file-size}")
@@ -18,8 +20,12 @@ public class FileExceptionHandler {
         return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<String> handleMaxUploadSizeException(Exception e){
+    public ResponseEntity<String> handleMaxUploadSizeException(MaxUploadSizeExceededException e){
         String message = String.format("this file is too big, max file size is %s", maxFileSize);
         return ResponseEntity.badRequest().body(message);
+    }
+    @ExceptionHandler(FileNotFoundException.class)
+    public ResponseEntity<String> handleFileNotFoundException(FileNotFoundException e){
+        return ResponseEntity.status(404).body(e.getMessage());
     }
 }

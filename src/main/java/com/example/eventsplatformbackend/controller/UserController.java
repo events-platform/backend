@@ -8,9 +8,13 @@ import com.example.eventsplatformbackend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping(path = "user")
@@ -38,7 +42,19 @@ public class UserController {
     @GetMapping(value = "/{username}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public User getUser(@PathVariable String username){
-        return userService.findByUsername(username);
+        return userService.getByUsername(username);
+    }
+
+    @PostMapping("/avatar")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile uploadedFile, Principal principal){
+        return userService.setUserAvatar(uploadedFile, principal);
+    }
+    @SneakyThrows
+    @GetMapping(value = "/avatar")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<InputStreamResource> getAvatar(Principal principal){
+        return userService.getUserAvatar(principal);
     }
 
     @PostMapping("/role")
