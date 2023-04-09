@@ -34,32 +34,34 @@ public class UserService{
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtUtil jwtUtil;
     private final FileService fileService;
+    private final EmailServiceStub emailServiceStub;
 
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtil jwtUtil, FileService fileService) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtil jwtUtil, FileService fileService, EmailServiceStub emailServiceStub) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtUtil = jwtUtil;
         this.fileService = fileService;
+        this.emailServiceStub = emailServiceStub;
     }
 
     public ResponseEntity<String> createUser(RegistrationDto registrationDto){
         log.info("creating user {}", registrationDto.getUsername());
-
         User userToSave = UserMapper.registrationDtoToUser(registrationDto);
 
         if (userRepository.existsUserByUsername(userToSave.getUsername())){
-
             log.info("user with username {} already exists", userToSave.getUsername());
+
             return ResponseEntity
                     .status(409)
                     .body(String.format("user with username %s already exists", userToSave.getUsername()));
         } else if (userRepository.existsUserByEmail(userToSave.getEmail())){
-
             log.info("user with email {} already exists", userToSave.getEmail());
+
             return ResponseEntity
                     .status(409)
                     .body(String.format("user with email %s already exists", userToSave.getEmail()));
         } else {
+            emailServiceStub.SendVerificationEmail(userToSave.getEmail());
             userToSave.setPassword(bCryptPasswordEncoder.encode(userToSave.getPassword()));
             userRepository.save(userToSave);
             log.info("user {} saved", userToSave.getUsername());
