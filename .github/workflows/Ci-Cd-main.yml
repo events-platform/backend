@@ -24,6 +24,11 @@ jobs:
     - name: Build with Gradle
       run: |
           ./gradlew clean build
+          
+    - name: Get version
+      id: version
+      run: |
+       echo "::set-output name=VERSION_NAME::$(./gradlew printVersionName)"
     
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
@@ -43,5 +48,4 @@ jobs:
         
     - name: Push to Dockerhub
       run: |
-       echo "name=VERSION_NAME::$(./gradlew printVersionName)" &&
-        docker push nobodyknowsdotcom/events-platform-backend:$VERSION_NAME
+       docker push nobodyknowsdotcom/events-platform-backend:"${{ steps.version.outputs.VERSION_NAME }}"
