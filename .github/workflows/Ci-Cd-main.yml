@@ -50,4 +50,5 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         push: true
+        file: src/main/docker/Dockerfile
         tags: nobodyknowsdotcom/events-plarform-backend:0.0.6
