@@ -52,4 +52,4 @@ jobs:
         
     - name: Push to Dockerhub
       run: |
-       docker push nobodyknowsdotcom/events-platform-backend:${{version_name}}
+       docker push nobodyknowsdotcom/events-platform-backend:${{env.version_name}}
