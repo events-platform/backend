@@ -51,6 +51,6 @@ tasks.named('test') {
 task buildDocker(type: Exec) {
     dependsOn build
     workingDir "$projectDir"
-    commandLine 'docker', 'build', '--rm', '.', '-t', "events-platform-backend", "-f", "$projectDir/src/main/docker/Dockerfile"
+    commandLine 'docker', 'build', '--rm', '.', '-t', "nobodyknowsdotcom/events-platform-backend:${project.version}", "-f", "$projectDir/src/main/docker/Dockerfile"
 }
 
