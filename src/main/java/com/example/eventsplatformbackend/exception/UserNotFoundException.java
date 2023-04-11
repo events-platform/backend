@@ -1,4 +1,4 @@
-package com.example.eventsplatformbackend.exceptions;
+package com.example.eventsplatformbackend.exception;
 
 
 public class UserNotFoundException extends Exception{

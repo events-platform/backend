@@ -1,7 +1,11 @@
 server:
+  files-destination-dir: users_files/
   port: 8000
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 2000KB
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/postgres

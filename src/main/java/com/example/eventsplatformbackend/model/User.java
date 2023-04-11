@@ -36,6 +36,8 @@ public class User {
     @Size(min = 8, message = "password cannot be shorter, than 8 characters")
     @Column(name = "password")
     String password;
+    @Column(name = "avatar")
+    String avatar;
     @Builder.Default
     @Enumerated(EnumType.STRING)
     ERole role = ERole.ROLE_USER;

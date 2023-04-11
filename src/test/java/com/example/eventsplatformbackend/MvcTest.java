@@ -1,5 +1,6 @@
 package com.example.eventsplatformbackend;
 
+import com.example.eventsplatformbackend.model.User;
 import com.example.eventsplatformbackend.security.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -66,7 +67,34 @@ class MvcTest {
                 .getResponse()
                 .getContentAsString();
 
-        assertEquals("token should return owner's username!",jwtUtil.extractUsername(token), "dmitry");
+        assertEquals("token should return owner's username!", "dmitry", jwtUtil.extractUsername(token));
     }
 
+    @Test
+    void getUserAfterLogin() throws Exception {
+        Map<String,String> body = new HashMap<>();
+        body.put("username","dmitry");
+        body.put("password","dmitry123");
+
+        String token = mockMvc.perform(post("/user/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        assertEquals("token should return owner's username", "dmitry", jwtUtil.extractUsername(token));
+
+        String userJson = mockMvc.perform(get("/user/dmitry")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization","Bearer "+token)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        User user = new ObjectMapper().readValue(userJson, User.class);
+        assertEquals("username should be equals", "dmitry", user.getUsername());
+    }
 }

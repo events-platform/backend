@@ -50,6 +50,8 @@ public class WebSecurityConfig {
                             .permitAll();
                     req.requestMatchers("/post/*")
                             .permitAll();
+                    req.requestMatchers("/swagger-ui/*")
+                            .permitAll();
                     });
 
         http.addFilterBefore(authJwtFilter, UsernamePasswordAuthenticationFilter.class);
