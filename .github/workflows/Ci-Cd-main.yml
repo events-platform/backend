@@ -25,10 +25,14 @@ jobs:
       run: |
           ./gradlew clean build
           
-    - name: Get version
-      id: version
+    - name : Retrieve Version
       run: |
-       echo "VERSION_INFORMATION=$(./gradlew printVersionName)" >> $GITHUB_ENV
+       echo "::set-output name=VERSION_NAME::$(./gradlew printVersionName)"
+      id: android_version
+      
+    - name: Get version
+      run: |
+        echo "version_name=${{steps.android_version.outputs.VERSION_NAME}}" >> $GITHUB_ENV
     
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
@@ -48,4 +52,4 @@ jobs:
         
     - name: Push to Dockerhub
       run: |
-       docker push nobodyknowsdotcom/events-platform-backend:$VERSION_INFORMATION
+       docker push nobodyknowsdotcom/events-platform-backend:$version_name
