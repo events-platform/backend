@@ -26,9 +26,9 @@ jobs:
           ./gradlew clean build
     
     - name : Retrieve Version
+      id: version
       run: |
        echo "::set-output name=VERSION_NAME::$(./gradlew printVersionName)"
-      id: version
       
     - name: Get version
       run: |
