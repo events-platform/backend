@@ -3,16 +3,11 @@ package com.example.eventsplatformbackend.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@AllArgsConstructor
-@Getter
-@ToString
+@Data
 public class RegistrationDto {
     @NotBlank
     String username;
