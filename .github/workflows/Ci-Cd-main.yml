@@ -27,7 +27,7 @@ jobs:
           
     - name : Retrieve Version
       run: |
-        echo "PROJECT_VERVION=$(${{github.workspace}}/.gradlew printVersionName)" >> $GITHUB_ENV
+        echo "PROJECT_VERVION=$(/.gradlew printVersionName)" >> $GITHUB_ENV
     
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
