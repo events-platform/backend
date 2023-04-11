@@ -2,17 +2,24 @@ package com.example.eventsplatformbackend.mapper;
 
 import com.example.eventsplatformbackend.dto.RegistrationDto;
 import com.example.eventsplatformbackend.model.User;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
+@NoArgsConstructor
 @Slf4j
 public class UserMapper {
-    public static User registrationDtoToUser(RegistrationDto registrationDto){
+    @Value("${server.default-avatar-dir}")
+    private String defaultAvatarsDirectory;
+    public User registrationDtoToUser(RegistrationDto registrationDto){
+        log.info(defaultAvatarsDirectory);
         return User.builder()
                 .username(registrationDto.getUsername())
                 .email(registrationDto.getEmail())
                 .password(registrationDto.getPassword())
+                .avatar(defaultAvatarsDirectory)
                 .build();
     }
 }

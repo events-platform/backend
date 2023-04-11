@@ -1,2 +1,3 @@
 server:
   files-destination-dir: users_files/
+  default-avatar-dir: templates/avatar.jpg

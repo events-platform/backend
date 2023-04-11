@@ -1,5 +1,6 @@
 server:
   files-destination-dir: src/main/resources/files/
+  default-avatar-dir: templates/avatar.jpg
 
 spring:
   servlet:
@@ -14,4 +15,4 @@ spring:
     database: h2
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
