@@ -45,10 +45,11 @@ jobs:
       with:
         username: ${{secrets.DOCKERHUB_USERNAME}}
         password: ${{secrets.DOCKERHUB_PASSWORD}}
+      
+    - name: Build docker image
+      run: |
+        ./gradlew buildDocker
         
-    - name: Build and push
-      uses: docker/build-push-action@v4
-      with:
-        push: true
-        file: src/main/docker/Dockerfile
-        tags: nobodyknowsdotcom/events-plarform-backend:0.0.6
+    - name: Push to Dockerhub
+      run: |
+        ./docker push nobodyknowsdotcom/events-platform-backend:${{env.version_name}}
