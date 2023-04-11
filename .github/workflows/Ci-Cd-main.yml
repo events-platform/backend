@@ -33,6 +33,9 @@ jobs:
     - name: Get version
       run: |
         echo "version_name=${{steps.project_version.outputs.VERSION_NAME}}" >> $GITHUB_ENV
+      
+    - name: Test
+      run: echo $VERSION_NAME
     
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
