@@ -24,15 +24,10 @@ jobs:
     - name: Build with Gradle
       run: |
           ./gradlew clean build
-  
-    - id : project_version
-      name : Retrieve Version
-      run: |
-        echo "::set-output name=VERSION_NAME::$(./gradlew printVersionName)"
     
-    - name: Get version
+    - name: set project version
       run: |
-        echo "VERSION_NAME=${{steps.project_version.outputs.VERSION_NAME}}" >> $GITHUB_ENV
+        echo "VERSION_NAME=$(./gradlew printVersionName)" >> $GITHUB_ENV
       
     - name: Test
       run: echo $VERSION_NAME
