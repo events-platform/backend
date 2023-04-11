@@ -1,6 +1,6 @@
 server:
   files-destination-dir: src/main/resources/files/
-  port: 8000
+  default-avatar-dir: templates/avatar.jpg
 
 spring:
   servlet:
@@ -15,9 +15,4 @@ spring:
     database: h2
     show-sql: true
     hibernate:
-      ddl-auto: update
-
-
-jwt:
-  secret: KrcPHZWVqWGWtDVyT8Ky5CZmDJnpBJkan1hQkMCI
-  expiration-time: 86400
+      ddl-auto: create-drop
