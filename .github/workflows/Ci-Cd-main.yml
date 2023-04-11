@@ -50,4 +50,4 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         push: true
-        tags: "nobodyknowsdotcom/events-plarform-backend:0.0.6"
+        tags: nobodyknowsdotcom/events-plarform-backend:0.0.6
