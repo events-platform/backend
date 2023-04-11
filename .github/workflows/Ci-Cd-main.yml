@@ -32,7 +32,7 @@ jobs:
       
     - name: Get version
       run: |
-        echo "version_name=${{steps.version.outputs.VERSION_NAME}}" >> $GITHUB_ENV && echo $version_name
+        echo "version_name=${{steps.version.outputs.VERSION_NAME}}" >> $GITHUB_ENV
     
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
@@ -52,4 +52,4 @@ jobs:
         
     - name: Push to Dockerhub
       run: |
-        docker push nobodyknowsdotcom/events-platform-backend:$version_name
+        docker push "nobodyknowsdotcom/events-platform-backend:$version_name"
