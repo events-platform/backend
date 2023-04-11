@@ -27,7 +27,8 @@ jobs:
           
     - name : Retrieve Version
       run: |
-        echo "PROJECT_VERVION=$(/.gradlew printVersionName)" >> $GITHUB_ENV
+        echo "PROJECT_VERSION=$(/.gradlew printVersionName)" >> $GITHUB_ENV
+        && echo $GITHUB_SHA_SHORT
     
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
@@ -45,4 +46,4 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         push: true
-        tags: nobodyknowsdotcom/events-plarform-backend:${{ env.PROJECT_VERVION }}
+        tags: nobodyknowsdotcom/events-plarform-backend:${{ env.PROJECT_VERSION }}
