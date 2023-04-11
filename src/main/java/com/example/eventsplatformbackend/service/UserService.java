@@ -46,7 +46,6 @@ public class UserService{
 
     public ResponseEntity<String> createUser(RegistrationDto registrationDto){
         log.info("creating user {}", registrationDto.getUsername());
-
         User userToSave = userMapper.registrationDtoToUser(registrationDto);
 
         if (userRepository.existsUserByUsername(userToSave.getUsername())){
@@ -140,9 +139,17 @@ public class UserService{
         return ResponseEntity.status(201).build();
     }
 
-    public ResponseEntity<InputStreamResource> getUserAvatar(Principal principal) throws FileNotFoundException, UnsupportedExtensionException {
+    public ResponseEntity<InputStreamResource> getUserAvatar(Principal principal) throws FileNotFoundException, UnsupportedExtensionException, UserNotFoundException {
         String username = principal.getName();
-        User user = userRepository.getUserByUsername(username);
+        return getUserAvatarByUsername(username);
+    }
+
+    public ResponseEntity<InputStreamResource> getUserAvatarByUsername(String username) throws FileNotFoundException, UnsupportedExtensionException, UserNotFoundException {
+        Optional<User> optionalUser = userRepository.findUserByUsername(username);
+        if(optionalUser.isEmpty()){
+            throw new UserNotFoundException(String.format("user %s not found", username));
+        }
+        User user = optionalUser.get();
         String avatarPath = user.getAvatar();
 
         if (avatarPath == null){
