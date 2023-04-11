@@ -53,4 +53,4 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         push: true
-        tags: nobodyknowsdotcom/events-plarform-backend:"${{env.version_name}}"
+        tags: "nobodyknowsdotcom/events-plarform-backend:${{env.version_name}}"
