@@ -6,9 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.ColumnDefault;
 
-@DynamicUpdate
 @Getter
 @Setter
 @Entity
@@ -37,6 +36,7 @@ public class User {
     @Column(name = "password")
     String password;
     @Column(name = "avatar")
+    @ColumnDefault("'src/main/resources/templates/avatar.jpg'")
     String avatar;
     @Builder.Default
     @Enumerated(EnumType.STRING)

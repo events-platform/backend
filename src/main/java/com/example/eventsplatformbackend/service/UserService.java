@@ -31,12 +31,14 @@ import java.util.Optional;
 @Slf4j
 public class UserService{
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtUtil jwtUtil;
     private final FileService fileService;
 
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtil jwtUtil, FileService fileService) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtil jwtUtil, FileService fileService) {
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtUtil = jwtUtil;
         this.fileService = fileService;
@@ -45,7 +47,7 @@ public class UserService{
     public ResponseEntity<String> createUser(RegistrationDto registrationDto){
         log.info("creating user {}", registrationDto.getUsername());
 
-        User userToSave = UserMapper.registrationDtoToUser(registrationDto);
+        User userToSave = userMapper.registrationDtoToUser(registrationDto);
 
         if (userRepository.existsUserByUsername(userToSave.getUsername())){
 

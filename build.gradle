@@ -48,6 +48,10 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
+task printVersionName {
+    println project.version
+}
+
 task buildDocker(type: Exec) {
     dependsOn build
     workingDir "$projectDir"
