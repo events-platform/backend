@@ -1,10 +1,12 @@
-name: Ci Cd main
+name: CI/CD main
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -24,8 +26,8 @@ jobs:
           ./gradlew clean build
           
     - name : Retrieve Version
-    run: |
-     echo "PROJECT_VERVION=$(${{github.workspace}}/.gradlew printVersionName)" >> $GITHUB_ENV
+      run: |
+        echo "PROJECT_VERVION=$(${{github.workspace}}/.gradlew printVersionName)" >> $GITHUB_ENV
     
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
