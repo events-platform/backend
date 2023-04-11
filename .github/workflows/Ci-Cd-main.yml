@@ -28,14 +28,11 @@ jobs:
     - name : Retrieve Version
       run: |
        echo "::set-output name=VERSION_NAME::$(./gradlew printVersionName)"
-      id: android_version
+      id: version
       
     - name: Get version
       run: |
-        echo "version_name=${{steps.android_version.outputs.VERSION_NAME}}" >> $GITHUB_ENV
-      
-    - name: Test
-      run: echo $version_name
+        echo "version_name=${{steps.version.outputs.VERSION_NAME}}" >> $GITHUB_ENV && echo $version_name
     
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
@@ -53,4 +50,4 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         push: true
-        tags: "nobodyknowsdotcom/events-plarform-backend:${{env.version_name}}"
+        tags: "nobodyknowsdotcom/events-plarform-backend:0.0.6"
