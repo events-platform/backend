@@ -33,6 +33,9 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
       run : docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" docker.io
+    - name: test
+      run: |
+        echo ${{secrets.DOCKERHUB_USERNAME}}/${{secrets.BACKEND_REPO_NAME}}:${{steps.vars.outputs.VERSION_NAME}}
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag ${{secrets.DOCKERHUB_USERNAME}}/${{secrets.BACKEND_REPO_NAME}}:${{steps.vars.outputs.VERSION_NAME}}
     - name: Publish dockerimage to docker hub
