@@ -24,7 +24,12 @@ jobs:
     - name: Build with Gradle
       run: |
           ./gradlew clean build
-          
+  
+  docker-cd:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    
     - name : Retrieve Version
       run: |
        echo "::set-output name=VERSION_NAME::$(./gradlew printVersionName)"
