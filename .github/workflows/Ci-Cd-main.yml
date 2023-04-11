@@ -25,10 +25,19 @@ jobs:
       run: |
           ./gradlew clean build
           
-    - name : Retrieve Version
+  build_docker:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+  
+    - id : project_version
+      name : Retrieve Version
       run: |
-        echo "PROJECT_VERVION=$(${{github.workspace}}/.gradlew printVersionName)" >> $GITHUB_ENV
-        && echo $GITHUB_SHA_SHORT
+        echo "::set-output name=VERSION_NAME::$(./gradlew printVersionName)"
+    
+    - name: Get version
+      run: |
+        echo "version_name=${{steps.project_version.outputs.VERSION_NAME}}" >> $GITHUB_ENV
     
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v2
@@ -46,4 +55,4 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         push: true
-        tags: nobodyknowsdotcom/events-plarform-backend:${{ env.PROJECT_VERSION }}
+        tags: nobodyknowsdotcom/events-plarform-backend:${{ env.VERSION_NAME }}
