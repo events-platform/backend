@@ -15,4 +15,4 @@ spring:
     database: h2
     show-sql: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create
