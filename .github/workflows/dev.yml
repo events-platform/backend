@@ -1,4 +1,4 @@
-name: ci
+name: Test via Gradle
 
 on:
   push:
