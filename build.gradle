@@ -58,3 +58,8 @@ task buildDocker(type: Exec) {
     commandLine 'docker', 'build', '--rm', '.', '-t', "nobodyknowsdotcom/events-platform-backend:${project.version}", "-f", "$projectDir/src/main/docker/Dockerfile"
 }
 
+task pushDocker(type: Exec) {
+    workingDir "$projectDir"
+    commandLine 'docker', 'push', "nobodyknowsdotcom/events-platform-backend:${project.version}"
+}
+
