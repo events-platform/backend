@@ -1,5 +1,6 @@
 package com.example.eventsplatformbackend.service;
 
+import com.example.eventsplatformbackend.dto.PasswordChangeDto;
 import com.example.eventsplatformbackend.dto.ChangeRoleDto;
 import com.example.eventsplatformbackend.dto.RegistrationDto;
 import com.example.eventsplatformbackend.exception.UnsupportedExtensionException;
@@ -69,6 +70,35 @@ public class UserService{
         }
     }
 
+    public ResponseEntity<String> login(LoginDto loginDto) throws UserNotFoundException {
+        log.info("user {} logging in", loginDto.getUsername());
+
+        Optional<User> user = userRepository.findUserByUsername(loginDto.getUsername());
+        if(user.isEmpty()){
+            throw new UserNotFoundException(String.format("user %s not found", loginDto.getUsername()));
+        }
+
+        if(bCryptPasswordEncoder.matches(loginDto.getPassword(), user.get().getPassword())){
+            return ResponseEntity.ok().body(jwtUtil.generateToken(user.get()));
+        } else {
+            return ResponseEntity.badRequest().body("wrong password");
+        }
+    }
+
+    public ResponseEntity<String> changePassword(Principal principal, PasswordChangeDto passwordChangeDto){
+        User user = userRepository.getUserByUsername(principal.getName());
+
+        if(bCryptPasswordEncoder.matches(passwordChangeDto.getOldPassword(), user.getPassword())){
+            log.info("user {} changed password", principal.getName());
+            user.setPassword(bCryptPasswordEncoder.encode(passwordChangeDto.getNewPassword()));
+            userRepository.save(user);
+
+            return ResponseEntity.ok().body("password changed successfully");
+        } else {
+            return ResponseEntity.badRequest().body("wrong old password");
+        }
+    }
+
     @Transactional
     public ResponseEntity<String> deleteUser(String username){
         log.info("deleting user {}", username);
@@ -106,21 +136,6 @@ public class UserService{
         userRepository.save(user);
 
         return ResponseEntity.ok().body(String.format("%s id %s now", user.getUsername(), user.getRole()));
-    }
-
-    public ResponseEntity<String> login(LoginDto loginDto) throws UserNotFoundException {
-        log.info("user {} logging in", loginDto.getUsername());
-
-        Optional<User> user = userRepository.findUserByUsername(loginDto.getUsername());
-        if(user.isEmpty()){
-            throw new UserNotFoundException(String.format("user %s not found", loginDto.getUsername()));
-        }
-
-        if(bCryptPasswordEncoder.matches(loginDto.getPassword(), user.get().getPassword())){
-            return ResponseEntity.ok().body(jwtUtil.generateToken(user.get()));
-        } else {
-            return ResponseEntity.badRequest().body("wrong password");
-        }
     }
 
     @SneakyThrows

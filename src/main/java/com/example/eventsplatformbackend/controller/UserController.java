@@ -1,5 +1,6 @@
 package com.example.eventsplatformbackend.controller;
 
+import com.example.eventsplatformbackend.dto.PasswordChangeDto;
 import com.example.eventsplatformbackend.dto.RegistrationDto;
 import com.example.eventsplatformbackend.dto.ChangeRoleDto;
 import com.example.eventsplatformbackend.dto.LoginDto;
@@ -12,6 +13,8 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping(path = "user")
@@ -41,10 +44,16 @@ public class UserController {
     public User getUser(@PathVariable String username){
         return userService.getByUsername(username);
     }
+
     @SneakyThrows
     @GetMapping(value = "/{username}/avatar")
     public ResponseEntity<InputStreamResource> getAvatar(@PathVariable String username){
         return userService.getUserAvatarByUsername(username);
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<String> changePassword(@Valid @RequestBody PasswordChangeDto passwordChangeDto, Principal principal){
+        return userService.changePassword(principal, passwordChangeDto);
     }
 
     @PostMapping("/role")
