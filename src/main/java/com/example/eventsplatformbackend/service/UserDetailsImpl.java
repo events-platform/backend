@@ -1,6 +1,6 @@
 package com.example.eventsplatformbackend.service;
 
-import com.example.eventsplatformbackend.model.User;
+import com.example.eventsplatformbackend.domain.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;

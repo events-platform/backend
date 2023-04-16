@@ -1,4 +1,4 @@
-package com.example.eventsplatformbackend.model;
+package com.example.eventsplatformbackend.domain.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

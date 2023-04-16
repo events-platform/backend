@@ -1,7 +1,7 @@
 package com.example.eventsplatformbackend.service;
 
-import com.example.eventsplatformbackend.model.User;
-import com.example.eventsplatformbackend.repository.UserRepository;
+import com.example.eventsplatformbackend.domain.entity.User;
+import com.example.eventsplatformbackend.adapter.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

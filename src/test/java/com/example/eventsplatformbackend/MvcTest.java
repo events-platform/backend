@@ -1,6 +1,6 @@
 package com.example.eventsplatformbackend;
 
-import com.example.eventsplatformbackend.model.User;
+import com.example.eventsplatformbackend.domain.entity.User;
 import com.example.eventsplatformbackend.security.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

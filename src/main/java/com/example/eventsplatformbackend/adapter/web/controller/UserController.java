@@ -1,10 +1,10 @@
-package com.example.eventsplatformbackend.controller;
+package com.example.eventsplatformbackend.adapter.web.controller;
 
-import com.example.eventsplatformbackend.dto.PasswordChangeDto;
-import com.example.eventsplatformbackend.dto.RegistrationDto;
-import com.example.eventsplatformbackend.dto.ChangeRoleDto;
-import com.example.eventsplatformbackend.dto.LoginDto;
-import com.example.eventsplatformbackend.model.User;
+import com.example.eventsplatformbackend.domain.dto.request.PasswordChangeDto;
+import com.example.eventsplatformbackend.domain.dto.request.RegistrationDto;
+import com.example.eventsplatformbackend.domain.dto.request.ChangeRoleDto;
+import com.example.eventsplatformbackend.domain.dto.request.LoginDto;
+import com.example.eventsplatformbackend.domain.entity.User;
 import com.example.eventsplatformbackend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.SneakyThrows;
@@ -31,37 +31,31 @@ public class UserController {
     public ResponseEntity<String> createUser(@Valid @RequestBody RegistrationDto registrationDto){
         return userService.createUser(registrationDto);
     }
-
     @SneakyThrows
     @PostMapping("/login")
     public ResponseEntity<String> login(@Valid @RequestBody LoginDto loginDto){
         return userService.login(loginDto);
     }
-
     @SneakyThrows
     @GetMapping(value = "/{username}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public User getUser(@PathVariable String username){
         return userService.getByUsername(username);
     }
-
     @SneakyThrows
     @GetMapping(value = "/{username}/avatar")
     public ResponseEntity<InputStreamResource> getAvatar(@PathVariable String username){
         return userService.getUserAvatarByUsername(username);
     }
-
     @PutMapping("/change-password")
     public ResponseEntity<String> changePassword(@Valid @RequestBody PasswordChangeDto passwordChangeDto, Principal principal){
         return userService.changePassword(principal, passwordChangeDto);
     }
-
     @PostMapping("/role")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> setRole(@Valid @RequestBody ChangeRoleDto changeRoleDto){
         return userService.setUserRole(changeRoleDto);
     }
-
     @DeleteMapping("/{username}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteUser(@PathVariable String username){

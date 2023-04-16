@@ -1,7 +1,7 @@
 package com.example.eventsplatformbackend.mapper;
 
-import com.example.eventsplatformbackend.dto.RegistrationDto;
-import com.example.eventsplatformbackend.model.User;
+import com.example.eventsplatformbackend.domain.dto.request.RegistrationDto;
+import com.example.eventsplatformbackend.domain.entity.User;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

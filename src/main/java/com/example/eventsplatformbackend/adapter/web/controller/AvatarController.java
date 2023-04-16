@@ -1,4 +1,4 @@
-package com.example.eventsplatformbackend.controller;
+package com.example.eventsplatformbackend.adapter.web.controller;
 
 import com.example.eventsplatformbackend.service.UserService;
 import lombok.SneakyThrows;

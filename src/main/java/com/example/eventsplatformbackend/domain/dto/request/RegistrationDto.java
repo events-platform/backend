@@ -1,4 +1,4 @@
-package com.example.eventsplatformbackend.dto;
+package com.example.eventsplatformbackend.domain.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

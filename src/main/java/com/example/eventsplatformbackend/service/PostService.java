@@ -1,7 +1,7 @@
 package com.example.eventsplatformbackend.service;
 
-import com.example.eventsplatformbackend.dto.PostCreationDto;
-import com.example.eventsplatformbackend.repository.PostRepository;
+import com.example.eventsplatformbackend.domain.dto.request.PostCreationDto;
+import com.example.eventsplatformbackend.adapter.repository.PostRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 

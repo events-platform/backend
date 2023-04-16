@@ -1,4 +1,4 @@
-package com.example.eventsplatformbackend.controller.exceptionhandlers;
+package com.example.eventsplatformbackend.adapter.web.advice;
 
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;

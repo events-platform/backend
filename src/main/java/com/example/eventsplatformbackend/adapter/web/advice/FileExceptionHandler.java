@@ -1,4 +1,4 @@
-package com.example.eventsplatformbackend.controller.exceptionhandlers;
+package com.example.eventsplatformbackend.adapter.web.advice;
 
 import com.example.eventsplatformbackend.exception.UnsupportedExtensionException;
 import org.springframework.beans.factory.annotation.Value;

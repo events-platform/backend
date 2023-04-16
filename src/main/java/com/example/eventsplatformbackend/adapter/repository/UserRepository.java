@@ -1,6 +1,6 @@
-package com.example.eventsplatformbackend.repository;
+package com.example.eventsplatformbackend.adapter.repository;
 
-import com.example.eventsplatformbackend.model.User;
+import com.example.eventsplatformbackend.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
