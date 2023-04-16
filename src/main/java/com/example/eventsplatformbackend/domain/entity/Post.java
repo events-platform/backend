@@ -11,10 +11,8 @@ import java.util.Date;
 @Entity
 @Table(name = "posts")
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Post {
     @Id
@@ -33,6 +31,6 @@ public class Post {
     String imgSource;
     @ManyToOne
     @NotNull
-    @JoinColumn(name = "owner_user_id")
+    @JoinColumn(name = "user_id")
     User owner;
 }
