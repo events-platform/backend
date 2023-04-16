@@ -3,6 +3,7 @@ package com.example.eventsplatformbackend.service;
 import com.example.eventsplatformbackend.domain.dto.request.PasswordChangeDto;
 import com.example.eventsplatformbackend.domain.dto.request.ChangeRoleDto;
 import com.example.eventsplatformbackend.domain.dto.request.RegistrationDto;
+import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.exception.UnsupportedExtensionException;
 import com.example.eventsplatformbackend.adapter.repository.UserRepository;
 import com.example.eventsplatformbackend.exception.UserNotFoundException;
@@ -111,12 +112,12 @@ public class UserService{
         }
     }
 
-    public User getByUsername(String username) throws InvalidParameterException, UserNotFoundException {
+    public UserDto getByUsername(String username) throws InvalidParameterException, UserNotFoundException {
         log.info("getting user {}", username);
 
         Optional<User> optionalUser = userRepository.findUserByUsername(username);
         if (optionalUser.isPresent()) {
-            return optionalUser.get();
+            return new UserDto(optionalUser.get());
         }
 
         throw new UserNotFoundException(String.format("Cannot find user with username %s", username));

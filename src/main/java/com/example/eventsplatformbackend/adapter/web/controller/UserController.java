@@ -4,7 +4,7 @@ import com.example.eventsplatformbackend.domain.dto.request.PasswordChangeDto;
 import com.example.eventsplatformbackend.domain.dto.request.RegistrationDto;
 import com.example.eventsplatformbackend.domain.dto.request.ChangeRoleDto;
 import com.example.eventsplatformbackend.domain.dto.request.LoginDto;
-import com.example.eventsplatformbackend.domain.entity.User;
+import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.SneakyThrows;
@@ -39,7 +39,7 @@ public class UserController {
     @SneakyThrows
     @GetMapping(value = "/{username}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public User getUser(@PathVariable String username){
+    public UserDto getUser(@PathVariable String username){
         return userService.getByUsername(username);
     }
     @SneakyThrows
