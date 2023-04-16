@@ -1,3 +1,9 @@
 server:
   files-destination-dir: src/main/resources/files/
   default-avatar-dir: src/main/resources/templates/avatar.jpg
+
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop

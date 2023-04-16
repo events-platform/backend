@@ -8,6 +8,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.util.Set;
+
 @Getter
 @Setter
 @Entity
@@ -41,4 +43,21 @@ public class User {
     @Builder.Default
     @Enumerated(EnumType.STRING)
     ERole role = ERole.ROLE_USER;
+    @Column(name = "created_posts")
+    @OneToMany
+    Set<Post> createdPosts;
+    @Column(name = "subscribed_posts")
+    @OneToMany
+    @JoinTable(
+            name = "users_subscriptions",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "post_id"))
+    Set<Post> subscribedPosts;
+    @Column(name = "favorite_posts")
+    @OneToMany
+    @JoinTable(
+            name = "users_favorite_posts",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "post_id"))
+    Set<Post> favoritePosts;
 }
