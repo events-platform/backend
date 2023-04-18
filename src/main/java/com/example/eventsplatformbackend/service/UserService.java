@@ -1,20 +1,20 @@
 package com.example.eventsplatformbackend.service;
 
-import com.example.eventsplatformbackend.domain.dto.request.PasswordChangeDto;
-import com.example.eventsplatformbackend.domain.dto.request.ChangeRoleDto;
-import com.example.eventsplatformbackend.domain.dto.request.RegistrationDto;
+import com.example.eventsplatformbackend.domain.dto.request.*;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.exception.UnsupportedExtensionException;
 import com.example.eventsplatformbackend.adapter.repository.UserRepository;
 import com.example.eventsplatformbackend.exception.UserNotFoundException;
 import com.example.eventsplatformbackend.mapper.UserMapper;
+import com.example.eventsplatformbackend.mapper.UserMapperImpl;
 import com.example.eventsplatformbackend.domain.entity.User;
-import com.example.eventsplatformbackend.domain.dto.request.LoginDto;
 import com.example.eventsplatformbackend.security.JwtUtil;
 import com.google.common.io.Files;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.factory.Mappers;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,41 +33,44 @@ import java.util.Optional;
 @Slf4j
 public class UserService{
     private final UserRepository userRepository;
+    private final UserMapperImpl userMapperImpl;
     private final UserMapper userMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtUtil jwtUtil;
     private final FileService fileService;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtil jwtUtil, FileService fileService) {
+    public UserService(UserRepository userRepository, UserMapperImpl userMapperImpl, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtil jwtUtil, FileService fileService) {
         this.userRepository = userRepository;
-        this.userMapper = userMapper;
+        this.userMapperImpl = userMapperImpl;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtUtil = jwtUtil;
         this.fileService = fileService;
+        this.userMapper = Mappers.getMapper(UserService.getClass());
     }
 
     public ResponseEntity<String> createUser(RegistrationDto registrationDto){
         log.info("creating user {}", registrationDto.getUsername());
-        User userToSave = userMapper.registrationDtoToUser(registrationDto);
+        User user = new User();
+        userMapper.createUserFromRegistrationDto(registrationDto, user);
 
-        if (userRepository.existsUserByUsername(userToSave.getUsername())){
+        if (userRepository.existsUserByUsername(user.getUsername())){
 
-            log.info("user with username {} already exists", userToSave.getUsername());
+            log.info("user with username {} already exists", user.getUsername());
             return ResponseEntity
                     .status(409)
-                    .body(String.format("user with username %s already exists", userToSave.getUsername()));
-        } else if (userRepository.existsUserByEmail(userToSave.getEmail())){
+                    .body(String.format("user with username %s already exists", user.getUsername()));
+        } else if (userRepository.existsUserByEmail(user.getEmail())){
 
-            log.info("user with email {} already exists", userToSave.getEmail());
+            log.info("user with email {} already exists", user.getEmail());
             return ResponseEntity
                     .status(409)
-                    .body(String.format("user with email %s already exists", userToSave.getEmail()));
+                    .body(String.format("user with email %s already exists", user.getEmail()));
         } else {
-            userToSave.setPassword(bCryptPasswordEncoder.encode(userToSave.getPassword()));
-            userRepository.save(userToSave);
-            log.info("user {} saved", userToSave.getUsername());
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+            userRepository.save(user);
+            log.info("user {} saved", user.getUsername());
             return ResponseEntity
-                    .status(201).body(jwtUtil.generateToken(userToSave));
+                    .status(201).body(jwtUtil.generateToken(user));
         }
     }
 
@@ -119,7 +122,6 @@ public class UserService{
         if (optionalUser.isPresent()) {
             return new UserDto(optionalUser.get());
         }
-
         throw new UserNotFoundException(String.format("Cannot find user with username %s", username));
     }
 
@@ -135,8 +137,17 @@ public class UserService{
         User user = optionalUser.get();
         user.setRole(changeRoleDto.getRole());
         userRepository.save(user);
-
         return ResponseEntity.ok().body(String.format("%s id %s now", user.getUsername(), user.getRole()));
+    }
+
+    public ResponseEntity<UserDto> editUserInfo(Principal principal, UserEditDto userEditDto){
+        User user = userRepository.getUserByUsername(principal.getName());
+
+        userMapper.updateUserFromDto(userEditDto, user);
+        userRepository.save(user);
+
+        log.info("updated user {}", user.getUsername());
+        return ResponseEntity.ok(new UserDto(user));
     }
 
     @SneakyThrows
@@ -171,6 +182,7 @@ public class UserService{
         if (avatarPath == null){
             throw new FileNotFoundException(String.format("user %s does not have avatar", username));
         }
+
         InputStream avatar = fileService.getFile(user.getAvatar());
         MediaType mediaType;
         switch (Files.getFileExtension(avatarPath)){

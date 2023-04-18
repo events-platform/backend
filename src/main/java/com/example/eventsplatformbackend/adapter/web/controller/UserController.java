@@ -1,9 +1,6 @@
 package com.example.eventsplatformbackend.adapter.web.controller;
 
-import com.example.eventsplatformbackend.domain.dto.request.PasswordChangeDto;
-import com.example.eventsplatformbackend.domain.dto.request.RegistrationDto;
-import com.example.eventsplatformbackend.domain.dto.request.ChangeRoleDto;
-import com.example.eventsplatformbackend.domain.dto.request.LoginDto;
+import com.example.eventsplatformbackend.domain.dto.request.*;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.service.UserService;
 import jakarta.validation.Valid;
@@ -48,8 +45,14 @@ public class UserController {
         return userService.getUserAvatarByUsername(username);
     }
     @PutMapping("/change-password")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> changePassword(@Valid @RequestBody PasswordChangeDto passwordChangeDto, Principal principal){
         return userService.changePassword(principal, passwordChangeDto);
+    }
+    @PostMapping("/edit")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<UserDto> editUser(@Valid @RequestBody UserEditDto userDto, Principal principal){
+        return userService.editUserInfo(principal, userDto);
     }
     @PostMapping("/role")
     @PreAuthorize("hasRole('ADMIN')")

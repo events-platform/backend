@@ -33,7 +33,7 @@ public class User {
     @Column(name = "email")
     String email;
     @Column(name = "phone")
-    @Pattern(regexp="^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$")
+    @Pattern(regexp="^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$", message = "phone does not match regex")
     String phone;
     @NotBlank(message = "password is mandatory")
     @Size(min = 8, message = "password cannot be shorter, than 8 characters")
