@@ -1,10 +1,7 @@
 package com.example.eventsplatformbackend.domain.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
@@ -25,14 +22,15 @@ public class User {
     @Column(name = "user_id")
     Long id;
     @NotBlank(message = "username is mandatory")
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     String username;
     @Column(name = "about")
     String about;
     @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}", message = "email does not match regex")
-    @Column(name = "email")
+    @NotBlank
+    @Column(name = "email", unique = true)
     String email;
-    @Column(name = "phone")
+    @Column(name = "phone", unique = true)
     @Pattern(regexp="^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$", message = "phone does not match regex")
     String phone;
     @NotBlank(message = "password is mandatory")

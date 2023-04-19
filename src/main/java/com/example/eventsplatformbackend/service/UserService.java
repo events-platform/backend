@@ -6,15 +6,12 @@ import com.example.eventsplatformbackend.exception.UnsupportedExtensionException
 import com.example.eventsplatformbackend.adapter.repository.UserRepository;
 import com.example.eventsplatformbackend.exception.UserNotFoundException;
 import com.example.eventsplatformbackend.mapper.UserMapper;
-import com.example.eventsplatformbackend.mapper.UserMapperImpl;
 import com.example.eventsplatformbackend.domain.entity.User;
 import com.example.eventsplatformbackend.security.JwtUtil;
 import com.google.common.io.Files;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.mapstruct.factory.Mappers;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,38 +30,32 @@ import java.util.Optional;
 @Slf4j
 public class UserService{
     private final UserRepository userRepository;
-    private final UserMapperImpl userMapperImpl;
     private final UserMapper userMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtUtil jwtUtil;
     private final FileService fileService;
 
-    public UserService(UserRepository userRepository, UserMapperImpl userMapperImpl, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtil jwtUtil, FileService fileService) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtil jwtUtil, FileService fileService) {
         this.userRepository = userRepository;
-        this.userMapperImpl = userMapperImpl;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtUtil = jwtUtil;
         this.fileService = fileService;
-        this.userMapper = Mappers.getMapper(UserService.getClass());
+        this.userMapper = userMapper;
     }
 
     public ResponseEntity<String> createUser(RegistrationDto registrationDto){
         log.info("creating user {}", registrationDto.getUsername());
-        User user = new User();
-        userMapper.createUserFromRegistrationDto(registrationDto, user);
+        User user;
+        user = userMapper.registrationDtoToUser(registrationDto);
 
         if (userRepository.existsUserByUsername(user.getUsername())){
-
-            log.info("user with username {} already exists", user.getUsername());
             return ResponseEntity
                     .status(409)
-                    .body(String.format("user with username %s already exists", user.getUsername()));
+                    .body(String.format("User with username %s already exists", user.getUsername()));
         } else if (userRepository.existsUserByEmail(user.getEmail())){
-
-            log.info("user with email {} already exists", user.getEmail());
             return ResponseEntity
                     .status(409)
-                    .body(String.format("user with email %s already exists", user.getEmail()));
+                    .body(String.format("User with email %s already exists", user.getEmail()));
         } else {
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
             userRepository.save(user);
@@ -79,13 +70,13 @@ public class UserService{
 
         Optional<User> user = userRepository.findUserByUsername(loginDto.getUsername());
         if(user.isEmpty()){
-            throw new UserNotFoundException(String.format("user %s not found", loginDto.getUsername()));
+            throw new UserNotFoundException(String.format("User %s not found", loginDto.getUsername()));
         }
 
         if(bCryptPasswordEncoder.matches(loginDto.getPassword(), user.get().getPassword())){
             return ResponseEntity.ok().body(jwtUtil.generateToken(user.get()));
         } else {
-            return ResponseEntity.badRequest().body("wrong password");
+            return ResponseEntity.badRequest().body("Wrong password");
         }
     }
 
@@ -97,9 +88,9 @@ public class UserService{
             user.setPassword(bCryptPasswordEncoder.encode(passwordChangeDto.getNewPassword()));
             userRepository.save(user);
 
-            return ResponseEntity.ok().body("password changed successfully");
+            return ResponseEntity.ok().body("Password changed successfully");
         } else {
-            return ResponseEntity.badRequest().body("wrong old password");
+            return ResponseEntity.badRequest().body("Wrong old password");
         }
     }
 
@@ -143,7 +134,7 @@ public class UserService{
     public ResponseEntity<UserDto> editUserInfo(Principal principal, UserEditDto userEditDto){
         User user = userRepository.getUserByUsername(principal.getName());
 
-        userMapper.updateUserFromDto(userEditDto, user);
+        userMapper.updateUserFromUserEditDto(userEditDto, user);
         userRepository.save(user);
 
         log.info("updated user {}", user.getUsername());
@@ -174,13 +165,13 @@ public class UserService{
     public ResponseEntity<InputStreamResource> getUserAvatarByUsername(String username) throws FileNotFoundException, UnsupportedExtensionException, UserNotFoundException {
         Optional<User> optionalUser = userRepository.findUserByUsername(username);
         if(optionalUser.isEmpty()){
-            throw new UserNotFoundException(String.format("user %s not found", username));
+            throw new UserNotFoundException(String.format("User %s not found", username));
         }
         User user = optionalUser.get();
         String avatarPath = user.getAvatar();
 
         if (avatarPath == null){
-            throw new FileNotFoundException(String.format("user %s does not have avatar", username));
+            throw new FileNotFoundException(String.format("User %s does not have avatar", username));
         }
 
         InputStream avatar = fileService.getFile(user.getAvatar());
@@ -188,7 +179,7 @@ public class UserService{
         switch (Files.getFileExtension(avatarPath)){
             case "png" -> mediaType = MediaType.IMAGE_PNG;
             case "jpeg", "jpg" -> mediaType = MediaType.IMAGE_JPEG;
-            default -> throw new UnsupportedExtensionException(String.format("unsupported content type for %s", avatarPath));
+            default -> throw new UnsupportedExtensionException(String.format("Unsupported content type for %s", avatarPath));
         }
         return ResponseEntity.ok().contentType(mediaType).body(new InputStreamResource(avatar));
     }
