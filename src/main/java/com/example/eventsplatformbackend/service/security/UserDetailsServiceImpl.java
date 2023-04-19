@@ -1,4 +1,4 @@
-package com.example.eventsplatformbackend.service;
+package com.example.eventsplatformbackend.service.security;
 
 import com.example.eventsplatformbackend.domain.entity.User;
 import com.example.eventsplatformbackend.adapter.repository.UserRepository;
@@ -16,9 +16,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findUserByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
+        User user = userRepository.findById(Long.valueOf(id))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with id: " + id));
         return UserDetailsImpl.build(user);
     }
 }

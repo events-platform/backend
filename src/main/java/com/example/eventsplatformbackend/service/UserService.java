@@ -4,10 +4,11 @@ import com.example.eventsplatformbackend.domain.dto.request.*;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.exception.UnsupportedExtensionException;
 import com.example.eventsplatformbackend.adapter.repository.UserRepository;
+import com.example.eventsplatformbackend.exception.UserAlreadyExistsException;
 import com.example.eventsplatformbackend.exception.UserNotFoundException;
+import com.example.eventsplatformbackend.exception.WrongPasswordException;
 import com.example.eventsplatformbackend.mapper.UserMapper;
 import com.example.eventsplatformbackend.domain.entity.User;
-import com.example.eventsplatformbackend.security.JwtUtil;
 import com.google.common.io.Files;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
@@ -32,51 +33,40 @@ public class UserService{
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final JwtUtil jwtUtil;
     private final FileService fileService;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtil jwtUtil, FileService fileService) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, BCryptPasswordEncoder bCryptPasswordEncoder, FileService fileService) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.jwtUtil = jwtUtil;
         this.fileService = fileService;
         this.userMapper = userMapper;
     }
 
-    public ResponseEntity<String> createUser(RegistrationDto registrationDto){
+    public User createUser(RegistrationDto registrationDto) throws UserAlreadyExistsException {
         log.info("creating user {}", registrationDto.getUsername());
-        User user;
-        user = userMapper.registrationDtoToUser(registrationDto);
+        User user = userMapper.registrationDtoToUser(registrationDto);
 
         if (userRepository.existsUserByUsername(user.getUsername())){
-            return ResponseEntity
-                    .status(409)
-                    .body(String.format("User with username %s already exists", user.getUsername()));
+            throw new UserAlreadyExistsException(String.format("User with username %s already exists", user.getUsername()));
         } else if (userRepository.existsUserByEmail(user.getEmail())){
-            return ResponseEntity
-                    .status(409)
-                    .body(String.format("User with email %s already exists", user.getEmail()));
+            throw new UserAlreadyExistsException(String.format("User with email %s already exists", user.getEmail()));
         } else {
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
             userRepository.save(user);
             log.info("user {} saved", user.getUsername());
-            return ResponseEntity
-                    .status(201).body(jwtUtil.generateToken(user));
+
+            return userRepository.getUserByUsername(user.getUsername());
         }
     }
 
-    public ResponseEntity<String> login(LoginDto loginDto) throws UserNotFoundException {
-        log.info("user {} logging in", loginDto.getUsername());
+    public User login(JwtRequest jwtRequest) throws WrongPasswordException {
+        log.info("user {} logging in", jwtRequest.getEmail());
 
-        Optional<User> user = userRepository.findUserByUsername(loginDto.getUsername());
-        if(user.isEmpty()){
-            throw new UserNotFoundException(String.format("User %s not found", loginDto.getUsername()));
-        }
-
-        if(bCryptPasswordEncoder.matches(loginDto.getPassword(), user.get().getPassword())){
-            return ResponseEntity.ok().body(jwtUtil.generateToken(user.get()));
+        User user = userRepository.getUserByEmail(jwtRequest.getEmail());
+        if(bCryptPasswordEncoder.matches(jwtRequest.getPassword(), user.getPassword())){
+            return user;
         } else {
-            return ResponseEntity.badRequest().body("Wrong password");
+            throw new WrongPasswordException("Wrong password");
         }
     }
 
@@ -114,6 +104,10 @@ public class UserService{
             return new UserDto(optionalUser.get());
         }
         throw new UserNotFoundException(String.format("Cannot find user with username %s", username));
+    }
+
+    public Optional<User> findById(Long id){
+        return userRepository.findById(id);
     }
 
     public ResponseEntity<String> setUserRole(ChangeRoleDto changeRoleDto){

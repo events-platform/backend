@@ -22,17 +22,6 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-
-    @SneakyThrows
-    @PostMapping("/create")
-    public ResponseEntity<String> createUser(@Valid @RequestBody RegistrationDto registrationDto){
-        return userService.createUser(registrationDto);
-    }
-    @SneakyThrows
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginDto loginDto){
-        return userService.login(loginDto);
-    }
     @SneakyThrows
     @GetMapping(value = "/{username}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")

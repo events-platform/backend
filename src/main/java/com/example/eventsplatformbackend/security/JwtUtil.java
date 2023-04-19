@@ -13,13 +13,15 @@ import java.util.HashMap;
 
 @Component
 public class JwtUtil {
-    @Value("${jwt.secret}")
-    private String secret;
+    @Value("${jwt.access-secret}")
+    private String accessSecret;
+    @Value("${jwt.refresh-secret}")
+    private String refreshSecret;
     @Value("${jwt.expiration-time}")
     private String expirationTime;
 
     public Claims getClaimsFromToken(String authToken) {
-        String key = Base64.getEncoder().encodeToString(secret.getBytes());
+        String key = Base64.getEncoder().encodeToString(accessSecret.getBytes());
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -27,9 +29,9 @@ public class JwtUtil {
                 .getBody();
     }
 
-    public String extractUsername(String authToken) {
-        return getClaimsFromToken(authToken)
-                .getSubject();
+    public Long extractId(String authToken) {
+        return Long.valueOf(getClaimsFromToken(authToken)
+                .getSubject());
     }
 
     public boolean validateToken(String authToken) {
@@ -38,7 +40,7 @@ public class JwtUtil {
                 .after(new Date());
     }
 
-    public String generateToken(User user) {
+    public String generateAccessToken(User user) {
         HashMap<String, Object> claims = new HashMap<>();
         claims.put("role", user.getRole());
 
@@ -48,11 +50,27 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(user.getUsername())
+                .setSubject(String.valueOf(user.getId()))
                 .setIssuedAt(creationDate)
                 .setExpiration(expirationDate)
-                .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                .signWith(Keys.hmacShaKeyFor(accessSecret.getBytes()))
                 .compact();
     }
 
+    public String generateRefreshToken(User user) {
+        HashMap<String, Object> claims = new HashMap<>();
+
+        long expirationSeconds = Long.parseLong(expirationTime);
+        Date creationDate = new Date();
+        // TODO сделать рефреш токен одноразовым
+        Date expirationDate = new Date(creationDate.getTime() + expirationSeconds * 1000 * 30);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(String.valueOf(user.getId()))
+                .setIssuedAt(creationDate)
+                .setExpiration(expirationDate)
+                .signWith(Keys.hmacShaKeyFor(refreshSecret.getBytes()))
+                .compact();
+    }
 }

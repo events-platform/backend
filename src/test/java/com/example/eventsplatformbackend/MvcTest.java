@@ -1,5 +1,6 @@
 package com.example.eventsplatformbackend;
 
+import com.example.eventsplatformbackend.domain.dto.response.JwtResponse;
 import com.example.eventsplatformbackend.domain.entity.User;
 import com.example.eventsplatformbackend.security.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.springframework.test.util.AssertionErrors.assertEquals;
+import static org.springframework.test.util.AssertionErrors.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -45,7 +47,7 @@ class MvcTest {
         body.put("email","dmitryemail@gmail.com");
         body.put("password","dmitry123");
 
-        mockMvc.perform(post("/user/create")
+        mockMvc.perform(post("/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body))
                 .accept(MediaType.APPLICATION_JSON))
@@ -53,30 +55,26 @@ class MvcTest {
     }
 
     @Test
-    void login_getJwtToken() throws Exception {
+    void loginWithWrongEmail_get422() throws Exception {
         Map<String,String> body = new HashMap<>();
-        body.put("username","dmitry");
+        body.put("email","dmitry");
         body.put("password","dmitry123");
 
-        String token = mockMvc.perform(post("/user/login")
+        mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body))
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
-
-        assertEquals("token should return owner's username!", "dmitry", jwtUtil.extractUsername(token));
+                .andExpect(status().is(422))
+                .andReturn();
     }
 
     @Test
-    void getUserAfterLogin() throws Exception {
+    void login_getJwt() throws Exception {
         Map<String,String> body = new HashMap<>();
-        body.put("username","dmitry");
+        body.put("email","dmitryemail@gmail.com");
         body.put("password","dmitry123");
 
-        String token = mockMvc.perform(post("/user/login")
+        String response = mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body))
                         .accept(MediaType.APPLICATION_JSON))
@@ -84,11 +82,30 @@ class MvcTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        assertEquals("token should return owner's username", "dmitry", jwtUtil.extractUsername(token));
+        JwtResponse jwtResponse = new ObjectMapper().readValue(response, JwtResponse.class);
+        assertNotNull("token should return owner's id!", jwtUtil.extractId(jwtResponse.getAccessToken()));
+    }
+
+    @Test
+    void getUserAfterLogin() throws Exception {
+        Map<String,String> body = new HashMap<>();
+        body.put("email","dmitryemail@gmail.com");
+        body.put("password","dmitry123");
+
+        String response = mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body))
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        JwtResponse jwtResponse = new ObjectMapper().readValue(response, JwtResponse.class);
+        assertNotNull("token should return owner's id", jwtUtil.extractId(jwtResponse.getAccessToken()));
 
         String userJson = mockMvc.perform(get("/user/dmitry")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization","Bearer "+token)
+                        .header("Authorization","Bearer "+jwtResponse.getAccessToken())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()

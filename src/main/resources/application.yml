@@ -22,5 +22,6 @@ spring:
 
 
 jwt:
-  secret: KrcPHZWVqWGWtDVyT8Ky5CZmDJnpBJkan1hQkMCI
+  access-secret: KrcPHZWVqWGWtDVyT8Ky5CZmDJnpBJkan1hQkMCI
+  refresh-secret: Zmsoal13nvWD8VWhpS3J4mbClOzR5vTxdk17xXbt
   expiration-time: 86400

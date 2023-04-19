@@ -1,4 +1,4 @@
-package com.example.eventsplatformbackend.service;
+package com.example.eventsplatformbackend.service.security;
 
 import com.example.eventsplatformbackend.domain.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
