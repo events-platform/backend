@@ -1,25 +1,21 @@
 package com.example.eventsplatformbackend.mapper;
 
 import com.example.eventsplatformbackend.domain.dto.request.RegistrationDto;
+import com.example.eventsplatformbackend.domain.dto.request.UserEditDto;
 import com.example.eventsplatformbackend.domain.entity.User;
-import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-@Component
-@NoArgsConstructor
-@Slf4j
-public class UserMapper {
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+public abstract class UserMapper {
     @Value("${server.default-avatar-dir}")
-    private String defaultAvatarsDirectory;
-    public User registrationDtoToUser(RegistrationDto registrationDto){
-        log.info(defaultAvatarsDirectory);
-        return User.builder()
-                .username(registrationDto.getUsername())
-                .email(registrationDto.getEmail())
-                .password(registrationDto.getPassword())
-                .avatar(defaultAvatarsDirectory)
-                .build();
+    private String defaultAvatarDir;
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    public abstract void updateUserFromUserEditDto(UserEditDto dto, @MappingTarget User entity);
+    @Mapping(target = "avatar", expression = "java(this.getDefaultAvatarDir())")
+    public abstract User registrationDtoToUser(RegistrationDto registrationDto);
+
+    public String getDefaultAvatarDir() {
+        return defaultAvatarDir;
     }
 }

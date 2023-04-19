@@ -1,10 +1,7 @@
 package com.example.eventsplatformbackend.domain.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
@@ -25,18 +22,19 @@ public class User {
     @Column(name = "user_id")
     Long id;
     @NotBlank(message = "username is mandatory")
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     String username;
     @Column(name = "about")
     String about;
-    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}", message = "email does not match regex")
-    @Column(name = "email")
+    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}", message = "Email does not match regex")
+    @NotBlank
+    @Column(name = "email", unique = true)
     String email;
-    @Column(name = "phone")
-    @Pattern(regexp="^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$")
+    @Column(name = "phone", unique = true)
+    @Pattern(regexp="^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$", message = "Phone does not match regex")
     String phone;
-    @NotBlank(message = "password is mandatory")
-    @Size(min = 8, message = "password cannot be shorter, than 8 characters")
+    @NotBlank(message = "Password is mandatory")
+    @Size(min = 8, message = "Password cannot be shorter of 8 characters")
     @Column(name = "password")
     String password;
     @Column(name = "avatar")

@@ -22,7 +22,7 @@ public class FileService {
     private String filesDirectory;
     public String saveUserAvatar(MultipartFile uploadedFile, String username) throws FileUploadException, UnsupportedExtensionException {
         if(!checkExtension(uploadedFile, Arrays.asList("jpg", "png", "jpeg"))){
-            throw new UnsupportedExtensionException(String.format("wrong extension of %s", uploadedFile.getOriginalFilename()));
+            throw new UnsupportedExtensionException(String.format("Wrong extension of %s", uploadedFile.getOriginalFilename()));
         }
 
         File userDir = new File(filesDirectory + File.separator + username);
@@ -41,22 +41,17 @@ public class FileService {
             return fileToSave.getPath();
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new FileUploadException(String.format("cannot save file %s to %s", fileToSave.getName(), fileToSave.getPath()));
+            throw new FileUploadException(String.format("Cannot save file %s to %s", fileToSave.getName(), fileToSave.getPath()));
         }
     }
 
     public InputStream getFile(String path) throws FileNotFoundException {
         try{
             File file = ResourceUtils.getFile(path);
-            InputStream fileInputStream = new FileInputStream(file);
-            if(fileInputStream != null){
-                return fileInputStream;
-            } else {
-                throw new FileNotFoundException();
-            }
+            return new FileInputStream(file);
         } catch (Exception e){
             log.error("cannot read {}\n{}", path, e.getMessage());
-            throw new FileNotFoundException(String.format("cannot read file %s", path));
+            throw new FileNotFoundException(String.format("Cannot read file %s", path));
         }
     }
 

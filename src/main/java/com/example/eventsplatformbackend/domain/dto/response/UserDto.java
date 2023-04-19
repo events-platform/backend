@@ -11,12 +11,14 @@ public class UserDto {
     final String username;
     final String about;
     final String email;
+    final String phone;
     final String avatar;
 
     public UserDto(User user){
         this.username = user.getUsername();
         this.about = user.getAbout();
         this.email = user.getEmail();
+        this.phone = user.getPhone();
         this.avatar = user.getAvatar();
     }
 }
