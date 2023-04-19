@@ -2,6 +2,7 @@ package com.example.eventsplatformbackend.adapter.web.controller;
 
 import com.example.eventsplatformbackend.domain.dto.request.*;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
+import com.example.eventsplatformbackend.exception.UserAlreadyExistsException;
 import com.example.eventsplatformbackend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.SneakyThrows;
@@ -40,7 +41,7 @@ public class UserController {
     }
     @PostMapping("/edit")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<UserDto> editUser(@Valid @RequestBody UserEditDto userDto, Principal principal){
+    public ResponseEntity<UserDto> editUser(@Valid @RequestBody UserEditDto userDto, Principal principal) throws UserAlreadyExistsException {
         return userService.editUserInfo(principal, userDto);
     }
     @PostMapping("/role")

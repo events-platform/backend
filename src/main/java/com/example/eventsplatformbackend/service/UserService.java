@@ -125,10 +125,26 @@ public class UserService{
         return ResponseEntity.ok().body(String.format("%s id %s now", user.getUsername(), user.getRole()));
     }
 
-    public ResponseEntity<UserDto> editUserInfo(Principal principal, UserEditDto userEditDto){
+    public ResponseEntity<UserDto> editUserInfo(Principal principal, UserEditDto dto) throws UserAlreadyExistsException {
         User user = userRepository.getUserByUsername(principal.getName());
 
-        userMapper.updateUserFromUserEditDto(userEditDto, user);
+        if(dto.getUsername() != null
+                && !dto.getUsername().equals(user.getUsername())
+                && userRepository.existsUserByUsername(dto.getUsername())){
+            throw new UserAlreadyExistsException(String.format("User with username %s already exists", dto.getUsername()));
+        }
+        if(dto.getEmail() != null
+                && !dto.getEmail().equals(user.getEmail())
+                && userRepository.existsUserByEmail(dto.getEmail())){
+            throw new UserAlreadyExistsException(String.format("User with email %s already exists", dto.getEmail()));
+        }
+        if(dto.getPhone() != null
+                && !dto.getPhone().equals(user.getPhone())
+                && userRepository.existsUserByPhone(dto.getPhone())){
+            throw new UserAlreadyExistsException(String.format("User with phone %s already exists", dto.getPhone()));
+        }
+
+        userMapper.updateUserFromUserEditDto(dto, user);
         userRepository.save(user);
 
         log.info("updated user {}", user.getUsername());
