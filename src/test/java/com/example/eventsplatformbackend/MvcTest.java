@@ -83,7 +83,7 @@ class MvcTest {
                 .getResponse()
                 .getContentAsString();
         JwtResponse jwtResponse = new ObjectMapper().readValue(response, JwtResponse.class);
-        assertNotNull("token should return owner's id!", jwtUtil.extractId(jwtResponse.getAccessToken()));
+        assertNotNull("token should return owner's id!", jwtUtil.extractUserId(jwtResponse.getAccessToken()));
     }
 
     @Test
@@ -101,7 +101,7 @@ class MvcTest {
                 .getResponse()
                 .getContentAsString();
         JwtResponse jwtResponse = new ObjectMapper().readValue(response, JwtResponse.class);
-        assertNotNull("token should return owner's id", jwtUtil.extractId(jwtResponse.getAccessToken()));
+        assertNotNull("token should return owner's id", jwtUtil.extractUserId(jwtResponse.getAccessToken()));
 
         String userJson = mockMvc.perform(get("/user/dmitry")
                         .contentType(MediaType.APPLICATION_JSON)

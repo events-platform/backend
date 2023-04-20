@@ -21,7 +21,7 @@ public class User {
     @GeneratedValue
     @Column(name = "user_id")
     Long id;
-    @NotBlank(message = "username is mandatory")
+    @NotBlank(message = "Username is mandatory")
     @Column(name = "username", unique = true)
     String username;
     @Column(name = "about")
