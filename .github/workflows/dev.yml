@@ -20,6 +20,10 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: gradle
+   
+    - name: Install Redis
+      run: |
+          docker run -d --name redis-stack-server -p 6379:6379 redis/redis-stack-server:latest
         
     - name: Build with Gradle
       run: |
