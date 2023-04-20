@@ -3,6 +3,7 @@ package com.example.eventsplatformbackend.adapter.web.controller;
 import com.example.eventsplatformbackend.domain.dto.request.*;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.exception.UserAlreadyExistsException;
+import com.example.eventsplatformbackend.exception.UserNotFoundException;
 import com.example.eventsplatformbackend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.SneakyThrows;
@@ -32,21 +33,23 @@ public class UserController {
     @SneakyThrows
     @GetMapping(value = "/{username}/avatar")
     public ResponseEntity<InputStreamResource> getAvatar(@PathVariable String username){
-        return userService.getUserAvatarByUsername(username);
+        return userService.getUserAvatarById(username);
     }
     @PutMapping("/change-password")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> changePassword(@Valid @RequestBody PasswordChangeDto passwordChangeDto, Principal principal){
         return userService.changePassword(principal, passwordChangeDto);
     }
+    @SneakyThrows
     @PostMapping("/edit")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<UserDto> editUser(@Valid @RequestBody UserEditDto userDto, Principal principal) throws UserAlreadyExistsException {
+    public ResponseEntity<UserDto> editUser(@Valid @RequestBody UserEditDto userDto, Principal principal) {
         return userService.editUserInfo(principal, userDto);
     }
+    @SneakyThrows
     @PostMapping("/role")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> setRole(@Valid @RequestBody ChangeRoleDto changeRoleDto){
+    public ResponseEntity<String> setRole(@Valid @RequestBody ChangeRoleDto changeRoleDto) {
         return userService.setUserRole(changeRoleDto);
     }
     @DeleteMapping("/{username}")

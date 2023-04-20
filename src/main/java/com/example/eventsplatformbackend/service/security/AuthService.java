@@ -1,30 +1,41 @@
 package com.example.eventsplatformbackend.service.security;
 
+import com.example.eventsplatformbackend.adapter.repository.TokenRepository;
 import com.example.eventsplatformbackend.domain.dto.request.JwtRequest;
 import com.example.eventsplatformbackend.domain.dto.request.RegistrationDto;
-import com.example.eventsplatformbackend.domain.dto.request.TokenRefreshRequest;
+import com.example.eventsplatformbackend.domain.dto.request.JwtTokenPair;
 import com.example.eventsplatformbackend.domain.dto.response.JwtResponse;
+import com.example.eventsplatformbackend.domain.entity.JwtToken;
 import com.example.eventsplatformbackend.domain.entity.User;
 import com.example.eventsplatformbackend.exception.MalformedTokenException;
 import com.example.eventsplatformbackend.exception.UserAlreadyExistsException;
+import com.example.eventsplatformbackend.exception.UserNotFoundException;
 import com.example.eventsplatformbackend.exception.WrongPasswordException;
 import com.example.eventsplatformbackend.security.JwtUtil;
 import com.example.eventsplatformbackend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @Service
 public class AuthService {
+    @Value("${jwt.access-token-expiration-time}")
+    private Long accessTokenExpirationTime;
+    @Value("${jwt.refresh-token-expiration-time}")
+    private Long refreshTokenExpirationTime;
     private final JwtUtil jwtUtil;
     private final UserService userService;
+    private final TokenRepository tokenRepository;
 
-    public AuthService(JwtUtil jwtUtil, UserService userService) {
+    public AuthService(JwtUtil jwtUtil, UserService userService, TokenRepository tokenRepository) {
         this.jwtUtil = jwtUtil;
         this.userService = userService;
+        this.tokenRepository = tokenRepository;
     }
 
     public ResponseEntity<JwtResponse> signUp(RegistrationDto registrationDto) throws UserAlreadyExistsException {
@@ -34,17 +45,34 @@ public class AuthService {
         return ResponseEntity.status(201).body(new JwtResponse(accessToken, refreshToken));
     }
 
-    public ResponseEntity<JwtResponse> login(JwtRequest jwtRequest) throws WrongPasswordException {
+    public ResponseEntity<JwtResponse> login(JwtRequest jwtRequest) throws WrongPasswordException, UserNotFoundException {
         User user = userService.login(jwtRequest);
         String accessToken = jwtUtil.generateAccessToken(user);
         String refreshToken = jwtUtil.generateRefreshToken(user);
         return ResponseEntity.ok(new JwtResponse(accessToken, refreshToken));
     }
 
-    public ResponseEntity<JwtResponse> refreshToken(TokenRefreshRequest tokenRefreshRequest) throws MalformedTokenException {
-        Optional<User> user = userService.findById(jwtUtil.extractId(tokenRefreshRequest.getAccessToken()));
+    public ResponseEntity<String> logout(JwtTokenPair jwtTokenPair){
+        // save used tokens to blacklist
+        tokenRepository.saveAll(List.of(
+                new JwtToken(jwtTokenPair.getAccessToken(), accessTokenExpirationTime),
+                new JwtToken(jwtTokenPair.getRefreshToken(), refreshTokenExpirationTime))
+        );
+        return ResponseEntity.ok().body("You logged out!");
+    }
 
-        if (user.isPresent() && jwtUtil.validateToken(tokenRefreshRequest.getRefreshToken())){
+    public ResponseEntity<JwtResponse> refreshToken(JwtTokenPair jwtTokenPair) throws MalformedTokenException {
+        Optional<User> user = userService.findById(jwtUtil.extractUserId(jwtTokenPair.getAccessToken()));
+
+        // check if refresh token is valid and not blacklisted
+        if (user.isPresent()
+                && jwtUtil.validateRefreshToken(jwtTokenPair.getRefreshToken())
+                && !tokenRepository.existsJwtTokenByBody(jwtTokenPair.getRefreshToken())){
+            // save used tokens to blacklist
+            tokenRepository.saveAll(List.of(
+                    new JwtToken(jwtTokenPair.getAccessToken(), accessTokenExpirationTime),
+                    new JwtToken(jwtTokenPair.getRefreshToken(), refreshTokenExpirationTime)));
+            // generate new tokens
             String accessToken = jwtUtil.generateAccessToken(user.get());
             String refreshToken = jwtUtil.generateRefreshToken(user.get());
             return ResponseEntity.ok(new JwtResponse(accessToken, refreshToken));

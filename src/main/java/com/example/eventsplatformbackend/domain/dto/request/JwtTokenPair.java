@@ -1,9 +1,12 @@
 package com.example.eventsplatformbackend.domain.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class TokenRefreshRequest {
+public class JwtTokenPair {
+    @NotBlank
     private String accessToken;
+    @NotBlank
     private String refreshToken;
 }

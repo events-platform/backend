@@ -2,7 +2,7 @@ package com.example.eventsplatformbackend.adapter.web.controller;
 
 import com.example.eventsplatformbackend.domain.dto.request.JwtRequest;
 import com.example.eventsplatformbackend.domain.dto.request.RegistrationDto;
-import com.example.eventsplatformbackend.domain.dto.request.TokenRefreshRequest;
+import com.example.eventsplatformbackend.domain.dto.request.JwtTokenPair;
 import com.example.eventsplatformbackend.domain.dto.response.JwtResponse;
 import com.example.eventsplatformbackend.service.security.AuthService;
 import jakarta.validation.Valid;
@@ -35,8 +35,13 @@ public class AuthController {
         return authService.login(jwtRequest);
     }
     @SneakyThrows
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@Valid @RequestBody JwtTokenPair jwtTokenPair){
+        return authService.logout(jwtTokenPair);
+    }
+    @SneakyThrows
     @PostMapping("/refresh")
-    public ResponseEntity<JwtResponse> refreshToken(@RequestBody TokenRefreshRequest tokenRefreshRequest){
-        return authService.refreshToken(tokenRefreshRequest);
+    public ResponseEntity<JwtResponse> refreshToken(@RequestBody JwtTokenPair jwtTokenPair){
+        return authService.refreshToken(jwtTokenPair);
     }
 }

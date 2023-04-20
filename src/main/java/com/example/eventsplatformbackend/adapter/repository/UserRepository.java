@@ -13,6 +13,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsUserByPhone(String phone);
     void deleteUserByUsername(String username);
     Optional<User> findUserByUsername(String username);
+    Optional<User> findUserByEmail(String email);
     User getUserByUsername(String username);
-    User getUserByEmail(String email);
 }

@@ -1,6 +1,7 @@
 package com.example.eventsplatformbackend.service;
 
 import com.example.eventsplatformbackend.exception.UnsupportedExtensionException;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,9 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class FileService {
+    @Getter
+    @Value("${server.default-avatar-dir}")
+    private String defaultAvatarDirectory;
     @Value("${server.files-destination-dir}")
     private String filesDirectory;
     public String saveUserAvatar(MultipartFile uploadedFile, String username) throws FileUploadException, UnsupportedExtensionException {

@@ -59,10 +59,10 @@ public class UserService{
         }
     }
 
-    public User login(JwtRequest jwtRequest) throws WrongPasswordException {
-        log.info("user {} logging in", jwtRequest.getEmail());
+    public User login(JwtRequest jwtRequest) throws WrongPasswordException, UserNotFoundException {
+        User user = userRepository.findUserByEmail(jwtRequest.getEmail()).orElseThrow(() ->
+                new UserNotFoundException(String.format("User with email %s not found", jwtRequest.getEmail())));
 
-        User user = userRepository.getUserByEmail(jwtRequest.getEmail());
         if(bCryptPasswordEncoder.matches(jwtRequest.getPassword(), user.getPassword())){
             return user;
         } else {
@@ -99,27 +99,21 @@ public class UserService{
     public UserDto getByUsername(String username) throws InvalidParameterException, UserNotFoundException {
         log.info("getting user {}", username);
 
-        Optional<User> optionalUser = userRepository.findUserByUsername(username);
-        if (optionalUser.isPresent()) {
-            return new UserDto(optionalUser.get());
-        }
-        throw new UserNotFoundException(String.format("Cannot find user with username %s", username));
+        User user = userRepository.findUserByUsername(username).orElseThrow(() ->
+                new UserNotFoundException(String.format("Cannot find user with username %s", username)));
+        return new UserDto(user);
     }
 
     public Optional<User> findById(Long id){
         return userRepository.findById(id);
     }
 
-    public ResponseEntity<String> setUserRole(ChangeRoleDto changeRoleDto){
+    public ResponseEntity<String> setUserRole(ChangeRoleDto changeRoleDto) throws UserNotFoundException {
         log.info("changing role of {} to {}", changeRoleDto.getUsername(), changeRoleDto.getRole());
 
-        Optional<User> optionalUser = userRepository.findUserByUsername(changeRoleDto.getUsername());
-        if (optionalUser.isEmpty()){
-            return ResponseEntity.status(404).body(
-                    String.format("User with username %s not found", changeRoleDto.getUsername()));
-        }
+        User user = userRepository.findUserByUsername(changeRoleDto.getUsername()).orElseThrow(() ->
+                new UserNotFoundException(String.format("User %s not found", changeRoleDto.getUsername())));
 
-        User user = optionalUser.get();
         user.setRole(changeRoleDto.getRole());
         userRepository.save(user);
         return ResponseEntity.ok().body(String.format("%s id %s now", user.getUsername(), user.getRole()));
@@ -157,7 +151,7 @@ public class UserService{
 
         User user = userRepository.getUserByUsername(principal.getName());
         String oldAvatar = user.getAvatar();
-        if(oldAvatar != null && !oldAvatar.equals(pathToAvatar)) {
+        if(oldAvatar != null && !oldAvatar.equals(pathToAvatar) && !oldAvatar.equals(fileService.getDefaultAvatarDirectory())) {
             fileService.deleteFile(oldAvatar);
         }
         user.setAvatar(pathToAvatar);
@@ -168,16 +162,13 @@ public class UserService{
     }
 
     public ResponseEntity<InputStreamResource> getUserAvatar(Principal principal) throws FileNotFoundException, UnsupportedExtensionException, UserNotFoundException {
-        String username = principal.getName();
-        return getUserAvatarByUsername(username);
+        String id = principal.getName();
+        return getUserAvatarById(id);
     }
 
-    public ResponseEntity<InputStreamResource> getUserAvatarByUsername(String username) throws FileNotFoundException, UnsupportedExtensionException, UserNotFoundException {
-        Optional<User> optionalUser = userRepository.findUserByUsername(username);
-        if(optionalUser.isEmpty()){
-            throw new UserNotFoundException(String.format("User %s not found", username));
-        }
-        User user = optionalUser.get();
+    public ResponseEntity<InputStreamResource> getUserAvatarById(String username) throws FileNotFoundException, UnsupportedExtensionException, UserNotFoundException {
+        User user = userRepository.findUserByUsername(username).orElseThrow(() ->
+                new UserNotFoundException(String.format("User %s not found", username)));
         String avatarPath = user.getAvatar();
 
         if (avatarPath == null){
