@@ -13,13 +13,13 @@ import com.example.eventsplatformbackend.exception.UserNotFoundException;
 import com.example.eventsplatformbackend.exception.WrongPasswordException;
 import com.example.eventsplatformbackend.security.JwtUtil;
 import com.example.eventsplatformbackend.service.UserService;
+import com.example.eventsplatformbackend.service.factory.JwtFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -29,27 +29,27 @@ public class AuthService {
     @Value("${jwt.refresh-token-expiration-time}")
     private Long refreshTokenExpirationTime;
     private final JwtUtil jwtUtil;
+    private final JwtFactory jwtFactory;
     private final UserService userService;
     private final TokenRepository tokenRepository;
 
-    public AuthService(JwtUtil jwtUtil, UserService userService, TokenRepository tokenRepository) {
+    public AuthService(JwtUtil jwtUtil, JwtFactory jwtFactory, UserService userService, TokenRepository tokenRepository) {
         this.jwtUtil = jwtUtil;
+        this.jwtFactory = jwtFactory;
         this.userService = userService;
         this.tokenRepository = tokenRepository;
     }
 
     public ResponseEntity<JwtResponse> signUp(RegistrationDto registrationDto) throws UserAlreadyExistsException {
         User user = userService.createUser(registrationDto);
-        String accessToken = jwtUtil.generateAccessToken(user);
-        String refreshToken = jwtUtil.generateRefreshToken(user);
-        return ResponseEntity.status(201).body(new JwtResponse(accessToken, refreshToken));
+        JwtResponse jwtResponse = jwtFactory.getJwtResponse(user);
+        return ResponseEntity.status(201).body(jwtResponse);
     }
 
     public ResponseEntity<JwtResponse> login(JwtRequest jwtRequest) throws WrongPasswordException, UserNotFoundException {
         User user = userService.login(jwtRequest);
-        String accessToken = jwtUtil.generateAccessToken(user);
-        String refreshToken = jwtUtil.generateRefreshToken(user);
-        return ResponseEntity.ok(new JwtResponse(accessToken, refreshToken));
+        JwtResponse jwtResponse = jwtFactory.getJwtResponse(user);
+        return ResponseEntity.ok(jwtResponse);
     }
 
     public ResponseEntity<String> logout(JwtTokenPair jwtTokenPair){
@@ -62,20 +62,19 @@ public class AuthService {
     }
 
     public ResponseEntity<JwtResponse> refreshToken(JwtTokenPair jwtTokenPair) throws MalformedTokenException {
-        Optional<User> user = userService.findById(jwtUtil.extractUserId(jwtTokenPair.getAccessToken()));
+        User user = userService.findById(jwtUtil.extractUserId(jwtTokenPair.getAccessToken())).orElseThrow(() ->
+            new MalformedTokenException("Malformed jwt, cannot extract user data"));
 
         // check if refresh token is valid and not blacklisted
-        if (user.isPresent()
-                && jwtUtil.validateRefreshToken(jwtTokenPair.getRefreshToken())
+        if (jwtUtil.validateRefreshToken(jwtTokenPair.getRefreshToken())
                 && !tokenRepository.existsJwtTokenByBody(jwtTokenPair.getRefreshToken())){
             // save used tokens to blacklist
             tokenRepository.saveAll(List.of(
                     new JwtToken(jwtTokenPair.getAccessToken(), accessTokenExpirationTime),
                     new JwtToken(jwtTokenPair.getRefreshToken(), refreshTokenExpirationTime)));
             // generate new tokens
-            String accessToken = jwtUtil.generateAccessToken(user.get());
-            String refreshToken = jwtUtil.generateRefreshToken(user.get());
-            return ResponseEntity.ok(new JwtResponse(accessToken, refreshToken));
+            JwtResponse jwtResponse = jwtFactory.getJwtResponse(user);
+            return ResponseEntity.ok(jwtResponse);
         }
         throw new MalformedTokenException("Malformed jwt, cannot extract user data");
     }
