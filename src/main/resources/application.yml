@@ -5,11 +5,13 @@ spring:
   servlet:
     multipart:
       max-file-size: 2000KB
+
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB_NAME:postgres}
+    username: ${POSTGRES_USERNAME:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+
   jpa:
     hibernate:
       ddl-auto: update # When you launch the application for the first time - switch "none" at "create"
@@ -20,5 +22,7 @@ spring:
 
 
 jwt:
-  secret: KrcPHZWVqWGWtDVyT8Ky5CZmDJnpBJkan1hQkMCI
-  expiration-time: 86400
+  access-secret: KrcPHZWVqWGWtDVyT8Ky5CZmDJnpBJkan1hQkMCI
+  refresh-secret: Zmsoal13nvWD8VWhpS3J4mbClOzR5vTxdk17xXbt
+  access-token-expiration-time: 86400 # In seconds
+  refresh-token-expiration-time: 2629800000 # In seconds

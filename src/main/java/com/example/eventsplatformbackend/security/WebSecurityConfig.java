@@ -29,7 +29,6 @@ public class WebSecurityConfig {
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
-
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
@@ -41,28 +40,24 @@ public class WebSecurityConfig {
             }
         };
     }
-
     @Bean
     public SecurityFilterChain securityWebFilterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(req -> {
+        http.authorizeHttpRequests(req -> {
                     req.requestMatchers("/user/*")
+                            .permitAll();
+                    req.requestMatchers("/auth/*")
                             .permitAll();
                     req.requestMatchers("/post/*")
                             .permitAll();
                     req.requestMatchers("/swagger-ui/*")
                             .permitAll();
-                    });
-
-        http.addFilterBefore(authJwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-        http
+                    })
+                .addFilterBefore(authJwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors().and().csrf()
                 .disable()
                 .formLogin().disable()
                 .authorizeHttpRequests().anyRequest().permitAll().and()
                 .httpBasic();
-
         return http.build();
     }
 }

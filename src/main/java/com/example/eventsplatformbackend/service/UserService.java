@@ -1,15 +1,14 @@
 package com.example.eventsplatformbackend.service;
 
-import com.example.eventsplatformbackend.dto.PasswordChangeDto;
-import com.example.eventsplatformbackend.dto.ChangeRoleDto;
-import com.example.eventsplatformbackend.dto.RegistrationDto;
+import com.example.eventsplatformbackend.domain.dto.request.*;
+import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.exception.UnsupportedExtensionException;
-import com.example.eventsplatformbackend.repository.UserRepository;
+import com.example.eventsplatformbackend.adapter.repository.UserRepository;
+import com.example.eventsplatformbackend.exception.UserAlreadyExistsException;
 import com.example.eventsplatformbackend.exception.UserNotFoundException;
+import com.example.eventsplatformbackend.exception.WrongPasswordException;
 import com.example.eventsplatformbackend.mapper.UserMapper;
-import com.example.eventsplatformbackend.model.User;
-import com.example.eventsplatformbackend.dto.LoginDto;
-import com.example.eventsplatformbackend.security.JwtUtil;
+import com.example.eventsplatformbackend.domain.entity.User;
 import com.google.common.io.Files;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
@@ -34,54 +33,40 @@ public class UserService{
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final JwtUtil jwtUtil;
     private final FileService fileService;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper, BCryptPasswordEncoder bCryptPasswordEncoder, JwtUtil jwtUtil, FileService fileService) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, BCryptPasswordEncoder bCryptPasswordEncoder, FileService fileService) {
         this.userRepository = userRepository;
-        this.userMapper = userMapper;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.jwtUtil = jwtUtil;
         this.fileService = fileService;
+        this.userMapper = userMapper;
     }
 
-    public ResponseEntity<String> createUser(RegistrationDto registrationDto){
+    public User createUser(RegistrationDto registrationDto) throws UserAlreadyExistsException {
         log.info("creating user {}", registrationDto.getUsername());
-        User userToSave = userMapper.registrationDtoToUser(registrationDto);
+        User user = userMapper.registrationDtoToUser(registrationDto);
 
-        if (userRepository.existsUserByUsername(userToSave.getUsername())){
-
-            log.info("user with username {} already exists", userToSave.getUsername());
-            return ResponseEntity
-                    .status(409)
-                    .body(String.format("user with username %s already exists", userToSave.getUsername()));
-        } else if (userRepository.existsUserByEmail(userToSave.getEmail())){
-
-            log.info("user with email {} already exists", userToSave.getEmail());
-            return ResponseEntity
-                    .status(409)
-                    .body(String.format("user with email %s already exists", userToSave.getEmail()));
+        if (userRepository.existsUserByUsername(user.getUsername())){
+            throw new UserAlreadyExistsException(String.format("User with username %s already exists", user.getUsername()));
+        } else if (userRepository.existsUserByEmail(user.getEmail())){
+            throw new UserAlreadyExistsException(String.format("User with email %s already exists", user.getEmail()));
         } else {
-            userToSave.setPassword(bCryptPasswordEncoder.encode(userToSave.getPassword()));
-            userRepository.save(userToSave);
-            log.info("user {} saved", userToSave.getUsername());
-            return ResponseEntity
-                    .status(201).body(jwtUtil.generateToken(userToSave));
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+            userRepository.save(user);
+            log.info("user {} saved", user.getUsername());
+
+            return userRepository.getUserByUsername(user.getUsername());
         }
     }
 
-    public ResponseEntity<String> login(LoginDto loginDto) throws UserNotFoundException {
-        log.info("user {} logging in", loginDto.getUsername());
+    public User login(JwtRequest jwtRequest) throws WrongPasswordException, UserNotFoundException {
+        User user = userRepository.findUserByEmail(jwtRequest.getEmail()).orElseThrow(() ->
+                new UserNotFoundException(String.format("User with email %s not found", jwtRequest.getEmail())));
 
-        Optional<User> user = userRepository.findUserByUsername(loginDto.getUsername());
-        if(user.isEmpty()){
-            throw new UserNotFoundException(String.format("user %s not found", loginDto.getUsername()));
-        }
-
-        if(bCryptPasswordEncoder.matches(loginDto.getPassword(), user.get().getPassword())){
-            return ResponseEntity.ok().body(jwtUtil.generateToken(user.get()));
+        if(bCryptPasswordEncoder.matches(jwtRequest.getPassword(), user.getPassword())){
+            return user;
         } else {
-            return ResponseEntity.badRequest().body("wrong password");
+            throw new WrongPasswordException("Wrong password");
         }
     }
 
@@ -93,9 +78,9 @@ public class UserService{
             user.setPassword(bCryptPasswordEncoder.encode(passwordChangeDto.getNewPassword()));
             userRepository.save(user);
 
-            return ResponseEntity.ok().body("password changed successfully");
+            return ResponseEntity.ok().body("Password changed successfully");
         } else {
-            return ResponseEntity.badRequest().body("wrong old password");
+            return ResponseEntity.badRequest().body("Wrong old password");
         }
     }
 
@@ -111,31 +96,53 @@ public class UserService{
         }
     }
 
-    public User getByUsername(String username) throws InvalidParameterException, UserNotFoundException {
+    public UserDto getByUsername(String username) throws InvalidParameterException, UserNotFoundException {
         log.info("getting user {}", username);
 
-        Optional<User> optionalUser = userRepository.findUserByUsername(username);
-        if (optionalUser.isPresent()) {
-            return optionalUser.get();
-        }
-
-        throw new UserNotFoundException(String.format("Cannot find user with username %s", username));
+        User user = userRepository.findUserByUsername(username).orElseThrow(() ->
+                new UserNotFoundException(String.format("Cannot find user with username %s", username)));
+        return new UserDto(user);
     }
 
-    public ResponseEntity<String> setUserRole(ChangeRoleDto changeRoleDto){
+    public Optional<User> findById(Long id){
+        return userRepository.findById(id);
+    }
+
+    public ResponseEntity<String> setUserRole(ChangeRoleDto changeRoleDto) throws UserNotFoundException {
         log.info("changing role of {} to {}", changeRoleDto.getUsername(), changeRoleDto.getRole());
 
-        Optional<User> optionalUser = userRepository.findUserByUsername(changeRoleDto.getUsername());
-        if (optionalUser.isEmpty()){
-            return ResponseEntity.status(404).body(
-                    String.format("User with username %s not found", changeRoleDto.getUsername()));
-        }
+        User user = userRepository.findUserByUsername(changeRoleDto.getUsername()).orElseThrow(() ->
+                new UserNotFoundException(String.format("User %s not found", changeRoleDto.getUsername())));
 
-        User user = optionalUser.get();
         user.setRole(changeRoleDto.getRole());
         userRepository.save(user);
-
         return ResponseEntity.ok().body(String.format("%s id %s now", user.getUsername(), user.getRole()));
+    }
+
+    public ResponseEntity<UserDto> editUserInfo(Principal principal, UserEditDto dto) throws UserAlreadyExistsException {
+        User user = userRepository.getUserByUsername(principal.getName());
+
+        if(dto.getUsername() != null
+                && !dto.getUsername().equals(user.getUsername())
+                && userRepository.existsUserByUsername(dto.getUsername())){
+            throw new UserAlreadyExistsException(String.format("User with username %s already exists", dto.getUsername()));
+        }
+        if(dto.getEmail() != null
+                && !dto.getEmail().equals(user.getEmail())
+                && userRepository.existsUserByEmail(dto.getEmail())){
+            throw new UserAlreadyExistsException(String.format("User with email %s already exists", dto.getEmail()));
+        }
+        if(dto.getPhone() != null
+                && !dto.getPhone().equals(user.getPhone())
+                && userRepository.existsUserByPhone(dto.getPhone())){
+            throw new UserAlreadyExistsException(String.format("User with phone %s already exists", dto.getPhone()));
+        }
+
+        userMapper.updateUserFromUserEditDto(dto, user);
+        userRepository.save(user);
+
+        log.info("updated user {}", user.getUsername());
+        return ResponseEntity.ok(new UserDto(user));
     }
 
     @SneakyThrows
@@ -144,7 +151,7 @@ public class UserService{
 
         User user = userRepository.getUserByUsername(principal.getName());
         String oldAvatar = user.getAvatar();
-        if(oldAvatar != null && !oldAvatar.equals(pathToAvatar)) {
+        if(oldAvatar != null && !oldAvatar.equals(pathToAvatar) && !oldAvatar.equals(fileService.getDefaultAvatarDirectory())) {
             fileService.deleteFile(oldAvatar);
         }
         user.setAvatar(pathToAvatar);
@@ -155,27 +162,25 @@ public class UserService{
     }
 
     public ResponseEntity<InputStreamResource> getUserAvatar(Principal principal) throws FileNotFoundException, UnsupportedExtensionException, UserNotFoundException {
-        String username = principal.getName();
-        return getUserAvatarByUsername(username);
+        String id = principal.getName();
+        return getUserAvatarById(id);
     }
 
-    public ResponseEntity<InputStreamResource> getUserAvatarByUsername(String username) throws FileNotFoundException, UnsupportedExtensionException, UserNotFoundException {
-        Optional<User> optionalUser = userRepository.findUserByUsername(username);
-        if(optionalUser.isEmpty()){
-            throw new UserNotFoundException(String.format("user %s not found", username));
-        }
-        User user = optionalUser.get();
+    public ResponseEntity<InputStreamResource> getUserAvatarById(String username) throws FileNotFoundException, UnsupportedExtensionException, UserNotFoundException {
+        User user = userRepository.findUserByUsername(username).orElseThrow(() ->
+                new UserNotFoundException(String.format("User %s not found", username)));
         String avatarPath = user.getAvatar();
 
         if (avatarPath == null){
-            throw new FileNotFoundException(String.format("user %s does not have avatar", username));
+            throw new FileNotFoundException(String.format("User %s does not have avatar", username));
         }
+
         InputStream avatar = fileService.getFile(user.getAvatar());
         MediaType mediaType;
         switch (Files.getFileExtension(avatarPath)){
             case "png" -> mediaType = MediaType.IMAGE_PNG;
             case "jpeg", "jpg" -> mediaType = MediaType.IMAGE_JPEG;
-            default -> throw new UnsupportedExtensionException(String.format("unsupported content type for %s", avatarPath));
+            default -> throw new UnsupportedExtensionException(String.format("Unsupported content type for %s", avatarPath));
         }
         return ResponseEntity.ok().contentType(mediaType).body(new InputStreamResource(avatar));
     }

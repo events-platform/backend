@@ -1,6 +1,7 @@
 package com.example.eventsplatformbackend.security;
 
-import com.example.eventsplatformbackend.service.UserDetailsServiceImpl;
+import com.example.eventsplatformbackend.adapter.repository.TokenRepository;
+import com.example.eventsplatformbackend.service.security.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,10 +22,12 @@ import java.io.IOException;
 public class AuthJwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
+    private final TokenRepository tokenRepository;
 
-    public AuthJwtFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService) {
+    public AuthJwtFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, TokenRepository tokenRepository) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.tokenRepository = tokenRepository;
     }
 
     @Override
@@ -32,10 +35,10 @@ public class AuthJwtFilter extends OncePerRequestFilter {
         try {
             String jwt = getJwtFromHeader(request);
 
-            if (jwt != null && jwtUtil.validateToken(jwt)) {
-                String username = jwtUtil.extractUsername(jwt);
+            if (jwt != null && jwtUtil.validateAccessToken(jwt) && !tokenRepository.existsJwtTokenByBody(jwt)) {
+                Long id = jwtUtil.extractUserId(jwt);
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(String.valueOf(id));
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
