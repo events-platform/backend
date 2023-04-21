@@ -2,7 +2,7 @@ version: "3.3"
 
 services:
   app:
-    image: 'nobodyknowsdotcom/events-platform-backend:latest'
+    image: 'nobodyknowsdotcom/events-platform-backend:0.0.82'
     container_name: backend
     ports:
       - 8000:8000
