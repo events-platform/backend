@@ -1,16 +1,19 @@
 server:
+  port: 8000
   files-destination-dir: src/main/resources/files/
-  default-avatar-dir: templates/avatar.jpg
+  default-avatar-dir: src/main/resources/templates/avatar.jpg
 
 spring:
   servlet:
     multipart:
-      max-file-size: 2000KB
+      max-file-size: 1000KB
+
   datasource:
     url: jdbc:h2:mem:default
     username: sa
     password: sa
     driver-class-name: org.h2.Driver
+
   jpa:
     database: h2
     show-sql: true
@@ -20,3 +23,9 @@ spring:
 redis:
   hostname: localhost
   port: 6379
+
+jwt:
+  access-secret: KrcPHZWVqWGWtDVyT8Ky5CZmDJnpBJkan1hQkMCI
+  refresh-secret: Zmsoal13nvWD8VWhpS3J4mbClOzR5vTxdk17xXbt
+  access-token-expiration-time: 86400 # In seconds
+  refresh-token-expiration-time: 2629800000 # In seconds

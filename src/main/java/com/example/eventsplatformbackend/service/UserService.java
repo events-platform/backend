@@ -13,6 +13,7 @@ import com.google.common.io.Files;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,6 +31,8 @@ import java.util.Optional;
 @Service
 @Slf4j
 public class UserService{
+    @Value("${server.default-avatar-dir}")
+    private String defaultAvatarDir;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -172,7 +175,9 @@ public class UserService{
         String avatarPath = user.getAvatar();
 
         if (avatarPath == null){
-            throw new FileNotFoundException(String.format("User %s does not have avatar", username));
+            // if cannot found user image locally, use default image
+            // for fix we need to use object storage
+            avatarPath = defaultAvatarDir;
         }
 
         InputStream avatar = fileService.getFile(user.getAvatar());
