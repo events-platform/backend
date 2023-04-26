@@ -1,16 +1,28 @@
 FROM bellsoft/liberica-openjre-alpine:17 as jre-build
 
 ARG DB_USERNAME
-ENV DB_USERNAME=$DB_USERNAME
+ENV DB_USERNAME $DB_USERNAME
 
 ARG DB_PASSWORD
-ENV DB_PASSWORD=$DB_PASSWORD
+ENV DB_PASSWORD $DB_PASSWORD
+
+ARG DB_HOST
+ENV DB_HOST $DB_HOST
+
+ARG DB_PORT
+ENV DB_PORT $DB_PORT
+
+ARG DB_NAME
+ENV DB_NAME $DB_NAME
+
+ENV S3_ACCESS_KEY=$S3_ACCESS_KEY
+ENV S3_SECRET_KEY=$S3_SECRET_KEY
+ENV S3_REGION=$S3_REGION
+ENV S3_URL=$S3_URL
+ENV S3_BUCKET_NAME=$S3_BUCKET_NAME
 
 COPY build/libs/*.jar /app/app.jar
 WORKDIR /app
 
-COPY src/main/resources/templates /app/templates
-
 EXPOSE 8000
-ENTRYPOINT exec java -jar -Dspring.profiles.active=prod /app/app.jar \
---sprind.datasource.username=$DB_USERNAME --spring.datasource.password=$DB_PASSWORD
+ENTRYPOINT exec java -jar -Dspring.profiles.active=prod /app/app.jar

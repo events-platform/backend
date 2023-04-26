@@ -9,9 +9,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableAsync
 public class EventsPlatformBackendApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(EventsPlatformBackendApplication.class, args);
     }
-
 }

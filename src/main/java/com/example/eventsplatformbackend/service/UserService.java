@@ -2,46 +2,36 @@ package com.example.eventsplatformbackend.service;
 
 import com.example.eventsplatformbackend.domain.dto.request.*;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
-import com.example.eventsplatformbackend.exception.UnsupportedExtensionException;
 import com.example.eventsplatformbackend.adapter.repository.UserRepository;
 import com.example.eventsplatformbackend.exception.UserAlreadyExistsException;
 import com.example.eventsplatformbackend.exception.UserNotFoundException;
 import com.example.eventsplatformbackend.exception.WrongPasswordException;
 import com.example.eventsplatformbackend.mapper.UserMapper;
 import com.example.eventsplatformbackend.domain.entity.User;
-import com.google.common.io.Files;
 import jakarta.transaction.Transactional;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.security.InvalidParameterException;
 import java.security.Principal;
 import java.util.Optional;
 
+/**
+ * Является посредником между базой данных и контроллером. Выполняет CRUD операции над сущностью User.
+ */
 @Service
 @Slf4j
 public class UserService{
-    @Value("${server.default-avatar-dir}")
-    private String defaultAvatarDir;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final FileService fileService;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper, BCryptPasswordEncoder bCryptPasswordEncoder, FileService fileService) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.fileService = fileService;
         this.userMapper = userMapper;
     }
 
@@ -100,7 +90,7 @@ public class UserService{
     }
 
     public UserDto getByUsername(String username) throws InvalidParameterException, UserNotFoundException {
-        log.info("getting user {}", username);
+        log.debug("getting user {}", username);
 
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
                 new UserNotFoundException(String.format("Cannot find user with username %s", username)));
@@ -148,45 +138,7 @@ public class UserService{
         return ResponseEntity.ok(new UserDto(user));
     }
 
-    @SneakyThrows
-    public ResponseEntity<String> setUserAvatar(MultipartFile uploadedFile, Principal principal){
-        String pathToAvatar = fileService.saveUserAvatar(uploadedFile, principal.getName());
-
-        User user = userRepository.getUserByUsername(principal.getName());
-        String oldAvatar = user.getAvatar();
-        if(oldAvatar != null && !oldAvatar.equals(pathToAvatar) && !oldAvatar.equals(fileService.getDefaultAvatarDirectory())) {
-            fileService.deleteFile(oldAvatar);
-        }
-        user.setAvatar(pathToAvatar);
-        userRepository.save(user);
-
-        log.info("updated user {} avatar to {}", user.getUsername(), pathToAvatar);
-        return ResponseEntity.status(201).build();
-    }
-
-    public ResponseEntity<InputStreamResource> getUserAvatar(Principal principal) throws FileNotFoundException, UnsupportedExtensionException, UserNotFoundException {
-        String id = principal.getName();
-        return getUserAvatarById(id);
-    }
-
-    public ResponseEntity<InputStreamResource> getUserAvatarById(String username) throws FileNotFoundException, UnsupportedExtensionException, UserNotFoundException {
-        User user = userRepository.findUserByUsername(username).orElseThrow(() ->
-                new UserNotFoundException(String.format("User %s not found", username)));
-        String avatarPath = user.getAvatar();
-
-        if (avatarPath == null){
-            // if cannot found user image locally, use default image
-            // for fix we need to use object storage
-            avatarPath = defaultAvatarDir;
-        }
-
-        InputStream avatar = fileService.getFile(user.getAvatar());
-        MediaType mediaType;
-        switch (Files.getFileExtension(avatarPath)){
-            case "png" -> mediaType = MediaType.IMAGE_PNG;
-            case "jpeg", "jpg" -> mediaType = MediaType.IMAGE_JPEG;
-            default -> throw new UnsupportedExtensionException(String.format("Unsupported content type for %s", avatarPath));
-        }
-        return ResponseEntity.ok().contentType(mediaType).body(new InputStreamResource(avatar));
+    public UserDto getSelf(Principal principal) {
+        return new UserDto(userRepository.getUserByUsername(principal.getName()));
     }
 }
