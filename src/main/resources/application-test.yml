@@ -1,12 +1,19 @@
 server:
   port: 8000
-  files-destination-dir: src/main/resources/files/
-  default-avatar-dir: src/main/resources/templates/avatar.jpg
+
+aws:
+  access-key: ${S3_ACCESS_KEY}
+  secret-key: ${S3_SECRET_KEY}
+  region: ${S3_REGION}
+  url: ${S3_URL}
+  bucket-name: ${S3_BUCKET_NAME}
+  root-directory: events-platform-files/test
+  default-avatar-dir: events-platform-files/default/default-avatar.jpg
 
 spring:
   servlet:
     multipart:
-      max-file-size: 1000KB
+      max-file-size: 500KB
 
   datasource:
     url: jdbc:h2:mem:default

@@ -1,5 +1,6 @@
 package com.example.eventsplatformbackend.adapter.web.advice;
 
+import com.example.eventsplatformbackend.exception.EmptyFileException;
 import com.example.eventsplatformbackend.exception.UnsupportedExtensionException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -27,5 +28,9 @@ public class FileExceptionHandler {
     @ExceptionHandler(FileNotFoundException.class)
     public ResponseEntity<String> handleFileNotFoundException(FileNotFoundException e){
         return ResponseEntity.status(404).body(e.getMessage());
+    }
+    @ExceptionHandler(EmptyFileException.class)
+    public ResponseEntity<String> handleEmptyFileException(EmptyFileException e){
+        return ResponseEntity.status(422).body(e.getMessage());
     }
 }
