@@ -1,13 +1,17 @@
 package com.example.eventsplatformbackend;
 
+import com.example.eventsplatformbackend.config.AwsConfig;
+import com.example.eventsplatformbackend.config.AwsCredentials;
 import com.example.eventsplatformbackend.domain.dto.response.JwtResponse;
 import com.example.eventsplatformbackend.domain.entity.User;
 import com.example.eventsplatformbackend.security.JwtUtil;
+import com.example.eventsplatformbackend.service.objectstorage.S3FileService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -15,6 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 import static org.springframework.test.util.AssertionErrors.assertNotNull;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -25,6 +31,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 class MvcTest {
+    @MockBean
+    private AwsConfig awsConfig;
+    @MockBean
+    private AwsCredentials awsCredentials;
+    @MockBean
+    private S3FileService s3FileService;
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -34,10 +46,10 @@ class MvcTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void shouldGetBadRequest_notAuthorized() throws Exception {
+    void shouldGetNotFound() throws Exception {
         mockMvc.perform(get("/user/username123"))
                 .andDo(print())
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -52,6 +64,8 @@ class MvcTest {
                 .content(objectMapper.writeValueAsString(body))
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
+
+        verify(s3FileService).getLink(anyString());
     }
 
     @Test
