@@ -1,4 +1,4 @@
-package com.example.eventsplatformbackend.service;
+package com.example.eventsplatformbackend.service.user;
 
 import com.example.eventsplatformbackend.domain.dto.request.*;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
@@ -89,7 +89,7 @@ public class UserService{
         }
     }
 
-    public UserDto getByUsername(String username) throws InvalidParameterException, UserNotFoundException {
+    public UserDto getDtoByUsername(String username) throws InvalidParameterException, UserNotFoundException {
         log.debug("getting user {}", username);
 
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
@@ -138,7 +138,7 @@ public class UserService{
         return ResponseEntity.ok(new UserDto(user));
     }
 
-    public UserDto getSelf(Principal principal) {
+    public UserDto getFromPrincipal(Principal principal) {
         return new UserDto(userRepository.getUserByUsername(principal.getName()));
     }
 }

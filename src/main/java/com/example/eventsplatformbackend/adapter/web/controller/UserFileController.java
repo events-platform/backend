@@ -1,6 +1,6 @@
 package com.example.eventsplatformbackend.adapter.web.controller;
 
-import com.example.eventsplatformbackend.service.UserFileService;
+import com.example.eventsplatformbackend.service.user.UserFileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

@@ -12,7 +12,7 @@ import com.example.eventsplatformbackend.exception.UserAlreadyExistsException;
 import com.example.eventsplatformbackend.exception.UserNotFoundException;
 import com.example.eventsplatformbackend.exception.WrongPasswordException;
 import com.example.eventsplatformbackend.security.JwtUtil;
-import com.example.eventsplatformbackend.service.UserService;
+import com.example.eventsplatformbackend.service.user.UserService;
 import com.example.eventsplatformbackend.service.factory.JwtFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

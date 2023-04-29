@@ -1,4 +1,4 @@
-package com.example.eventsplatformbackend.service.objectstorage;
+package com.example.eventsplatformbackend.adapter.objectstorage;
 
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
@@ -23,14 +23,14 @@ import java.util.Optional;
  */
 @Component
 @Slf4j
-public class S3FileService {
+public class S3Adapter {
     @Getter
     @Value("${aws.default-avatar-dir}")
     private String defaultAvatarDirectory;
     private final AmazonS3 amazonS3;
     private final AwsCredentials awsCredentials;
 
-    public S3FileService(AmazonS3 amazonS3, AwsCredentials awsCredentials) {
+    public S3Adapter(AmazonS3 amazonS3, AwsCredentials awsCredentials) {
         this.amazonS3 = amazonS3;
         this.awsCredentials = awsCredentials;
     }

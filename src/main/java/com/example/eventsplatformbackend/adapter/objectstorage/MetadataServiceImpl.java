@@ -1,4 +1,4 @@
-package com.example.eventsplatformbackend.service.objectstorage;
+package com.example.eventsplatformbackend.adapter.objectstorage;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
@@ -12,15 +12,15 @@ import java.io.IOException;
 
 /**
  * Выполняет CRUD операции с S3 хранилищем.
- * Обертка для S3FileService
+ * Обертка для S3Adapter
  */
 @Component
 @Slf4j
 public class MetadataServiceImpl implements MetadataService{
-    private final S3FileService s3FileService;
+    private final S3Adapter s3Adapter;
 
-    public MetadataServiceImpl(S3FileService s3FileService) {
-        this.s3FileService = s3FileService;
+    public MetadataServiceImpl(S3Adapter s3Adapter) {
+        this.s3Adapter = s3Adapter;
     }
 
     /**
@@ -35,19 +35,19 @@ public class MetadataServiceImpl implements MetadataService{
         objectMetadata.setContentLength(file.getSize());
         objectMetadata.setContentType(file.getContentType());
 
-        s3FileService.uploadFile(
+        s3Adapter.uploadFile(
                 path, objectMetadata, file.getInputStream());
         log.info("Uploaded file {}", path);
-        return s3FileService.getLink(path);
+        return s3Adapter.getLink(path);
     }
 
     @Override
     public S3Object download(String path) {
-        return s3FileService.getFile(path);
+        return s3Adapter.getFile(path);
     }
 
     @Override
     public void delete(String path) {
-        s3FileService.deleteFile(path);
+        s3Adapter.deleteFile(path);
     }
 }

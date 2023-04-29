@@ -7,7 +7,8 @@ aws:
   region: ${S3_REGION}
   url: ${S3_URL}
   bucket-name: ${S3_BUCKET_NAME}
-  root-directory: events-platform-files/prod
+  users-root-directory: events-platform-files/prod/users
+  posts-root-directory: events-platform-files/prod/users
   default-avatar-dir: events-platform-files/default/default-avatar.jpg
 
 spring:
@@ -17,7 +18,7 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_USERNAME}
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
 
