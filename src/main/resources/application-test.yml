@@ -7,7 +7,10 @@ aws:
   region: ${S3_REGION}
   url: ${S3_URL}
   bucket-name: ${S3_BUCKET_NAME}
-  root-directory: events-platform-files/test
+
+  users-root-directory: events-platform-files/test/users
+  posts-root-directory: events-platform-files/test/posts
+  default-post-avatar-dir: events-platform-files/default/default-post-avatar.jpg
   default-avatar-dir: events-platform-files/default/default-avatar.jpg
 
 spring:

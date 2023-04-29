@@ -1,9 +1,13 @@
 package com.example.eventsplatformbackend.domain.dto.request;
 
+import com.example.eventsplatformbackend.domain.entity.EFormat;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
@@ -11,11 +15,18 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PostCreationDto {
     @NotBlank
-    String token;
-    @NotBlank
     String name;
-    String description;
+    @NotNull
+    EFormat format;
     @NotBlank
-    Date date;
-    String imageSource;
+    String city;
+    Integer registrationLimit;
+    @NotNull
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    Date beginDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    Date endDate;
+    String location;
+    String description;
+    MultipartFile file;
 }

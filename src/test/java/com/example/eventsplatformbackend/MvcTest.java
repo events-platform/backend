@@ -1,11 +1,11 @@
 package com.example.eventsplatformbackend;
 
+import com.example.eventsplatformbackend.adapter.objectstorage.S3Adapter;
 import com.example.eventsplatformbackend.config.AwsConfig;
 import com.example.eventsplatformbackend.config.AwsCredentials;
 import com.example.eventsplatformbackend.domain.dto.response.JwtResponse;
 import com.example.eventsplatformbackend.domain.entity.User;
 import com.example.eventsplatformbackend.security.JwtUtil;
-import com.example.eventsplatformbackend.service.objectstorage.S3FileService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ class MvcTest {
     @MockBean
     private AwsCredentials awsCredentials;
     @MockBean
-    private S3FileService s3FileService;
+    private S3Adapter s3Adapter;
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -65,7 +65,7 @@ class MvcTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
 
-        verify(s3FileService).getLink(anyString());
+        verify(s3Adapter).getLink(anyString());
     }
 
     @Test
