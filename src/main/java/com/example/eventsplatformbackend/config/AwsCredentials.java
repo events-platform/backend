@@ -22,6 +22,8 @@ public class AwsCredentials {
     String url;
     @Value("${aws.bucket-name}")
     String bucketName;
-    @Value("${aws.root-directory}")
-    String rootDirectory;
+    @Value("${aws.users-root-directory}")
+    String usersDirectory;
+    @Value("${aws.posts-root-directory}")
+    String postsDirectory;
 }

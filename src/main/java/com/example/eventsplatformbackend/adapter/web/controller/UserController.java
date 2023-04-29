@@ -2,7 +2,7 @@ package com.example.eventsplatformbackend.adapter.web.controller;
 
 import com.example.eventsplatformbackend.domain.dto.request.*;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
-import com.example.eventsplatformbackend.service.UserService;
+import com.example.eventsplatformbackend.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -24,13 +24,13 @@ public class UserController {
     @SneakyThrows
     @GetMapping(value = "/{username}")
     public UserDto getUser(@PathVariable String username){
-        return userService.getByUsername(username);
+        return userService.getDtoByUsername(username);
     }
     @SneakyThrows
     @GetMapping(value = "/self")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public UserDto getSelf(Principal principal){
-        return userService.getSelf(principal);
+        return userService.getFromPrincipal(principal);
     }
     @PutMapping("/change-password")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
