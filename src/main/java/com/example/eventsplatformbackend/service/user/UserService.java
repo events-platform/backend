@@ -1,11 +1,13 @@
 package com.example.eventsplatformbackend.service.user;
 
 import com.example.eventsplatformbackend.domain.dto.request.*;
+import com.example.eventsplatformbackend.domain.dto.response.PostDto;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.adapter.repository.UserRepository;
 import com.example.eventsplatformbackend.exception.UserAlreadyExistsException;
 import com.example.eventsplatformbackend.exception.UserNotFoundException;
 import com.example.eventsplatformbackend.exception.WrongPasswordException;
+import com.example.eventsplatformbackend.mapper.PostMapper;
 import com.example.eventsplatformbackend.mapper.UserMapper;
 import com.example.eventsplatformbackend.domain.entity.User;
 import jakarta.transaction.Transactional;
@@ -17,7 +19,9 @@ import org.springframework.stereotype.Service;
 
 import java.security.InvalidParameterException;
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Является посредником между базой данных и контроллером. Выполняет CRUD операции над сущностью User.
@@ -27,10 +31,12 @@ import java.util.Optional;
 public class UserService{
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PostMapper postMapper;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, PostMapper postMapper, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
+        this.postMapper = postMapper;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userMapper = userMapper;
     }
@@ -140,5 +146,14 @@ public class UserService{
 
     public UserDto getFromPrincipal(Principal principal) {
         return new UserDto(userRepository.getUserByUsername(principal.getName()));
+    }
+
+    @Transactional
+    public ResponseEntity<List<PostDto>> getUserCreatedPosts(Principal principal) {
+        User user = userRepository.getUserByUsername(principal.getName());
+        List<PostDto> posts = user.getCreatedPosts().stream()
+                .map(postMapper::postDtoFromPost)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(posts);
     }
 }
