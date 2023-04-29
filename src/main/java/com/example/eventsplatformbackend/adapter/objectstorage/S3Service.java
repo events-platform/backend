@@ -7,8 +7,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-public interface MetadataService {
-    String uploadAndGetUrl(String path, MultipartFile file) throws IOException, EmptyFileException, UnsupportedExtensionException;
+public interface S3Service {
+    String uploadImageAndGetUrl(String path, MultipartFile file) throws IOException, EmptyFileException, UnsupportedExtensionException;
     S3Object download(String path);
     void delete(String path);
 }

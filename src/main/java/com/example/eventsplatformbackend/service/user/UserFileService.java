@@ -3,10 +3,9 @@ package com.example.eventsplatformbackend.service.user;
 import com.example.eventsplatformbackend.adapter.repository.UserRepository;
 import com.example.eventsplatformbackend.config.AwsCredentials;
 import com.example.eventsplatformbackend.domain.entity.User;
-import com.example.eventsplatformbackend.adapter.objectstorage.MetadataServiceImpl;
+import com.example.eventsplatformbackend.adapter.objectstorage.S3ServiceImpl;
 import com.example.eventsplatformbackend.adapter.objectstorage.S3Adapter;
 import com.google.common.io.Files;
-import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +24,10 @@ import java.util.UUID;
 public class UserFileService {
     private final UserRepository userRepository;
     private final S3Adapter fileService;
-    private final MetadataServiceImpl metadataService;
+    private final S3ServiceImpl metadataService;
     private final AwsCredentials awsCredentials;
 
-    public UserFileService(UserRepository userRepository, S3Adapter fileService, MetadataServiceImpl metadataService, AwsCredentials awsCredentials) {
+    public UserFileService(UserRepository userRepository, S3Adapter fileService, S3ServiceImpl metadataService, AwsCredentials awsCredentials) {
         this.userRepository = userRepository;
         this.fileService = fileService;
         this.metadataService = metadataService;
@@ -41,7 +40,6 @@ public class UserFileService {
      * @param uploadedFile Загруженныый файл
      * @param principal Пользователь, загрузивший файл
      */
-    @Transactional
     @SneakyThrows
     public ResponseEntity<String> setUserAvatar(MultipartFile uploadedFile, Principal principal) {
         String filename = String.format("%s.%s",
@@ -53,7 +51,7 @@ public class UserFileService {
         String oldAvatar = user.getAvatar();
         String url;
         if(oldAvatar != null && !oldAvatar.equals(path) && !oldAvatar.equals(fileService.getDefaultAvatarDirectory())) {
-            url = metadataService.uploadAndGetUrl(path, uploadedFile);
+            url = metadataService.uploadImageAndGetUrl(path, uploadedFile);
             user.setAvatar(url);
             userRepository.save(user);
         }
