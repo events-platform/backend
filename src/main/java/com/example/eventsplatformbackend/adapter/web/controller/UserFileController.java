@@ -19,9 +19,15 @@ public class UserFileController {
         this.userFileService = userFileService;
     }
 
+    /**
+     * Загружает файл и устанавливает его аватаркой пользователя, возвращает ссылку на загруженны файл.
+     * @param uploadedFile Файл, который должен быть загружен
+     * @param principal Авторизовавшийся пользователь
+     * @return Ссылка на файл
+     */
     @PostMapping("/avatar")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile uploadedFile, Principal principal){
-        return userFileService.setUserAvatar(uploadedFile, principal);
+        return userFileService.setUserAvatarAndGetLink(uploadedFile, principal);
     }
 }

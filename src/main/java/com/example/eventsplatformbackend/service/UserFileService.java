@@ -37,7 +37,7 @@ public class UserFileService {
 
     @SneakyThrows
     @Transactional
-    public ResponseEntity<String> setUserAvatar(MultipartFile uploadedFile, Principal principal){
+    public ResponseEntity<String> setUserAvatarAndGetLink(MultipartFile uploadedFile, Principal principal){
         String filename = String.format("%s.%s",
                 UUID.randomUUID(),
                 Files.getFileExtension(uploadedFile.getOriginalFilename()));
@@ -52,6 +52,6 @@ public class UserFileService {
         }
         userRepository.save(user);
 
-        return ResponseEntity.status(201).build();
+        return ResponseEntity.status(201).body(user.getAvatar());
     }
 }
