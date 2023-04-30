@@ -1,11 +1,12 @@
-package com.example.eventsplatformbackend.service.user;
+package com.example.eventsplatformbackend.service;
 
 import com.example.eventsplatformbackend.adapter.repository.UserRepository;
 import com.example.eventsplatformbackend.config.AwsCredentials;
 import com.example.eventsplatformbackend.domain.entity.User;
-import com.example.eventsplatformbackend.adapter.objectstorage.S3ServiceImpl;
-import com.example.eventsplatformbackend.adapter.objectstorage.S3Adapter;
+import com.example.eventsplatformbackend.service.objectstorage.MetadataServiceImpl;
+import com.example.eventsplatformbackend.service.objectstorage.S3FileService;
 import com.google.common.io.Files;
+import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,39 +24,34 @@ import java.util.UUID;
 @Slf4j
 public class UserFileService {
     private final UserRepository userRepository;
-    private final S3Adapter fileService;
-    private final S3ServiceImpl metadataService;
+    private final S3FileService fileService;
+    private final MetadataServiceImpl metadataService;
     private final AwsCredentials awsCredentials;
 
-    public UserFileService(UserRepository userRepository, S3Adapter fileService, S3ServiceImpl metadataService, AwsCredentials awsCredentials) {
+    public UserFileService(UserRepository userRepository, S3FileService fileService, MetadataServiceImpl metadataService, AwsCredentials awsCredentials) {
         this.userRepository = userRepository;
         this.fileService = fileService;
         this.metadataService = metadataService;
         this.awsCredentials = awsCredentials;
     }
 
-    /**
-     * Загружает файл в объектное хранилище.
-     * Обновляет аватарку пользователя, который загрузил файл на ссылку на загруженный файл.
-     * @param uploadedFile Загруженныый файл
-     * @param principal Пользователь, загрузивший файл
-     */
     @SneakyThrows
-    public ResponseEntity<String> setUserAvatar(MultipartFile uploadedFile, Principal principal) {
+    @Transactional
+    public ResponseEntity<String> setUserAvatarAndGetLink(MultipartFile uploadedFile, Principal principal){
         String filename = String.format("%s.%s",
                 UUID.randomUUID(),
                 Files.getFileExtension(uploadedFile.getOriginalFilename()));
-        String path = String.format("%s/%s/%s", awsCredentials.getUsersDirectory(), principal.getName(), filename);
+        String path = String.format("%s/%s/%s", awsCredentials.getRootDirectory(), principal.getName(), filename);
 
         User user = userRepository.getUserByUsername(principal.getName());
         String oldAvatar = user.getAvatar();
         String url;
         if(oldAvatar != null && !oldAvatar.equals(path) && !oldAvatar.equals(fileService.getDefaultAvatarDirectory())) {
-            url = metadataService.uploadImageAndGetUrl(path, uploadedFile);
+            url = metadataService.uploadAndGetUrl(path, uploadedFile);
             user.setAvatar(url);
-            userRepository.save(user);
         }
+        userRepository.save(user);
 
-        return ResponseEntity.status(201).build();
+        return ResponseEntity.status(201).body(user.getAvatar());
     }
 }
