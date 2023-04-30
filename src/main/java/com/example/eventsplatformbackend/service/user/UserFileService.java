@@ -1,10 +1,10 @@
-package com.example.eventsplatformbackend.service;
+package com.example.eventsplatformbackend.service.user;
 
+import com.example.eventsplatformbackend.adapter.objectstorage.S3Adapter;
+import com.example.eventsplatformbackend.adapter.objectstorage.S3ServiceImpl;
 import com.example.eventsplatformbackend.adapter.repository.UserRepository;
 import com.example.eventsplatformbackend.config.AwsCredentials;
 import com.example.eventsplatformbackend.domain.entity.User;
-import com.example.eventsplatformbackend.service.objectstorage.MetadataServiceImpl;
-import com.example.eventsplatformbackend.service.objectstorage.S3FileService;
 import com.google.common.io.Files;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
@@ -24,14 +24,14 @@ import java.util.UUID;
 @Slf4j
 public class UserFileService {
     private final UserRepository userRepository;
-    private final S3FileService fileService;
-    private final MetadataServiceImpl metadataService;
+    private final S3Adapter s3Adapter;
+    private final S3ServiceImpl s3Service;
     private final AwsCredentials awsCredentials;
 
-    public UserFileService(UserRepository userRepository, S3FileService fileService, MetadataServiceImpl metadataService, AwsCredentials awsCredentials) {
+    public UserFileService(UserRepository userRepository, S3Adapter s3Adapter, S3ServiceImpl s3Service, AwsCredentials awsCredentials) {
         this.userRepository = userRepository;
-        this.fileService = fileService;
-        this.metadataService = metadataService;
+        this.s3Adapter = s3Adapter;
+        this.s3Service = s3Service;
         this.awsCredentials = awsCredentials;
     }
 
@@ -41,13 +41,13 @@ public class UserFileService {
         String filename = String.format("%s.%s",
                 UUID.randomUUID(),
                 Files.getFileExtension(uploadedFile.getOriginalFilename()));
-        String path = String.format("%s/%s/%s", awsCredentials.getRootDirectory(), principal.getName(), filename);
+        String path = String.format("%s/%s/%s", awsCredentials.getUsersDirectory(), principal.getName(), filename);
 
         User user = userRepository.getUserByUsername(principal.getName());
         String oldAvatar = user.getAvatar();
         String url;
-        if(oldAvatar != null && !oldAvatar.equals(path) && !oldAvatar.equals(fileService.getDefaultAvatarDirectory())) {
-            url = metadataService.uploadAndGetUrl(path, uploadedFile);
+        if(oldAvatar != null && !oldAvatar.equals(path) && !oldAvatar.equals(s3Adapter.getDefaultAvatarDirectory())) {
+            url = s3Service.uploadImageAndGetUrl(path, uploadedFile);
             user.setAvatar(url);
         }
         userRepository.save(user);
