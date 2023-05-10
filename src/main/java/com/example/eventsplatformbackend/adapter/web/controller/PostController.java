@@ -29,7 +29,9 @@ public class PostController {
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @SneakyThrows
-    public ResponseEntity<String> createPost(@Valid @ModelAttribute PostCreationDto postCreationDto, Principal principal){
+    public ResponseEntity<String> createPost(
+            @Valid @ModelAttribute PostCreationDto postCreationDto,
+            Principal principal){
         return postService.savePost(postCreationDto, principal);
     }
     @GetMapping("/created")

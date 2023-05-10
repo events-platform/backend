@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
+import java.util.Date;
 
 @Service
 public class PostService {
@@ -36,8 +37,12 @@ public class PostService {
         if (postRepository.existsPostByBeginDateAndName(post.getBeginDate(), post.getName())){
             throw new PostAlreadyExistsException("Post with same date and begin date already exists");
         }
-        if (post.getEndDate() != null && (post.getBeginDate().after(post.getEndDate()))){
+        if (post.getEndDate() != null
+                && (post.getBeginDate().after(post.getEndDate()))){
             throw new InvalidDateException("End date cannot be before begin date");
+        }
+        if(post.getBeginDate().before(new Date())){
+            throw new InvalidDateException("End date cannot be before today");
         }
         if(postCreationDto.getFile() != null){
             String link = postFileService.saveAndGetLink(postCreationDto.getFile());

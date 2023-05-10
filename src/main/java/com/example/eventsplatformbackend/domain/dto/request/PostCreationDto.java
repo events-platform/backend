@@ -2,7 +2,6 @@ package com.example.eventsplatformbackend.domain.dto.request;
 
 import com.example.eventsplatformbackend.domain.enumeration.EFormat;
 import com.example.eventsplatformbackend.domain.enumeration.EType;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -29,7 +28,6 @@ public class PostCreationDto {
     @NotNull
     EType type;
     Integer registrationLimit;
-    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}", message = "email does not match regex")
     String email;
     String externalLink;
     String description;
