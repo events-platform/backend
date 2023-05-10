@@ -58,6 +58,6 @@ public class PostService {
         return ResponseEntity
                 .ok()
                 .header("Content-Type", "text/html; charset=utf-8")
-                .body(String.format("Post %s saved", postCreationDto.getName()));
+                .body(String.format("Пост %s успешно сохранен", postCreationDto.getName()));
     }
 }

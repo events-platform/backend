@@ -17,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.InvalidParameterException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
@@ -46,9 +45,9 @@ public class UserService{
         User user = userMapper.registrationDtoToUser(registrationDto);
 
         if (userRepository.existsUserByUsername(user.getUsername())){
-            throw new UserAlreadyExistsException(String.format("User with username %s already exists", user.getUsername()));
+            throw new UserAlreadyExistsException("Пользователь с таким именем уже существует");
         } else if (userRepository.existsUserByEmail(user.getEmail())){
-            throw new UserAlreadyExistsException(String.format("User with email %s already exists", user.getEmail()));
+            throw new UserAlreadyExistsException("Пользователь с такой почтой уже существует");
         } else {
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
             userRepository.save(user);
@@ -60,12 +59,12 @@ public class UserService{
 
     public User login(JwtRequest jwtRequest) throws WrongPasswordException, UserNotFoundException {
         User user = userRepository.findUserByEmail(jwtRequest.getEmail()).orElseThrow(() ->
-                new UserNotFoundException(String.format("User with email %s not found", jwtRequest.getEmail())));
+                new UserNotFoundException("Пользователя с такой почтой не существует"));
 
         if(bCryptPasswordEncoder.matches(jwtRequest.getPassword(), user.getPassword())){
             return user;
         } else {
-            throw new WrongPasswordException("Wrong password");
+            throw new WrongPasswordException("Неверно введен пароль");
         }
     }
 
@@ -77,9 +76,9 @@ public class UserService{
             user.setPassword(bCryptPasswordEncoder.encode(passwordChangeDto.getNewPassword()));
             userRepository.save(user);
 
-            return ResponseEntity.ok().body("Password changed successfully");
+            return ResponseEntity.ok().body("Вы успешно сменили пароль");
         } else {
-            return ResponseEntity.badRequest().body("Wrong old password");
+            return ResponseEntity.badRequest().body("Неправильно введен старый пароль");
         }
     }
 
@@ -89,17 +88,17 @@ public class UserService{
 
         if (userRepository.existsUserByUsername(username)) {
             userRepository.deleteUserByUsername(username);
-            return ResponseEntity.ok("User deleted");
+            return ResponseEntity.ok("Пользователь удален");
         } else {
-            return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND);
         }
     }
 
-    public UserDto getDtoByUsername(String username) throws InvalidParameterException, UserNotFoundException {
+    public UserDto getDtoByUsername(String username) throws UserNotFoundException {
         log.debug("getting user {}", username);
 
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
-                new UserNotFoundException(String.format("Cannot find user with username %s", username)));
+                new UserNotFoundException(String.format("Пользователя с именем %s не существует", username)));
         return new UserDto(user);
     }
 
@@ -111,30 +110,32 @@ public class UserService{
         log.info("changing role of {} to {}", changeRoleDto.getUsername(), changeRoleDto.getRole());
 
         User user = userRepository.findUserByUsername(changeRoleDto.getUsername()).orElseThrow(() ->
-                new UserNotFoundException(String.format("User %s not found", changeRoleDto.getUsername())));
+                new UserNotFoundException(String.format("Пользователь %s не найден", changeRoleDto.getUsername())));
 
         user.setRole(changeRoleDto.getRole());
         userRepository.save(user);
-        return ResponseEntity.ok().body(String.format("%s id %s now", user.getUsername(), user.getRole()));
+        return ResponseEntity
+                .ok()
+                .header("Content-Type", "text/html; charset=utf-8")
+                .body(String.format("%s теперь %s ", user.getUsername(), user.getRole()));
     }
-
     public ResponseEntity<UserDto> editUserInfo(Principal principal, UserEditDto dto) throws UserAlreadyExistsException {
         User user = userRepository.getUserByUsername(principal.getName());
 
         if(dto.getUsername() != null
                 && !dto.getUsername().equals(user.getUsername())
                 && userRepository.existsUserByUsername(dto.getUsername())){
-            throw new UserAlreadyExistsException(String.format("User with username %s already exists", dto.getUsername()));
+            throw new UserAlreadyExistsException("Пользователь с таким именем уже существует");
         }
         if(dto.getEmail() != null
                 && !dto.getEmail().equals(user.getEmail())
                 && userRepository.existsUserByEmail(dto.getEmail())){
-            throw new UserAlreadyExistsException(String.format("User with email %s already exists", dto.getEmail()));
+            throw new UserAlreadyExistsException("Пользователь с такой почтой уже существует");
         }
         if(dto.getPhone() != null
                 && !dto.getPhone().equals(user.getPhone())
                 && userRepository.existsUserByPhone(dto.getPhone())){
-            throw new UserAlreadyExistsException(String.format("User with phone %s already exists", dto.getPhone()));
+            throw new UserAlreadyExistsException("Пользователь с таким номером телефона уже существует");
         }
 
         userMapper.updateUserFromUserEditDto(dto, user);

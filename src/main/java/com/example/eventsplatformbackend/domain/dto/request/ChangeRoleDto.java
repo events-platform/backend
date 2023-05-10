@@ -7,8 +7,8 @@ import lombok.Data;
 
 @Data
 public class ChangeRoleDto {
-    @NotBlank
+    @NotBlank(message = "Имя пользователя не может быть пустым")
     String username;
-    @NotNull
+    @NotNull(message = "Роль не может быть пустой")
     ERole role;
 }
