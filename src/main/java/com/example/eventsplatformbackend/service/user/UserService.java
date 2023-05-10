@@ -1,7 +1,7 @@
 package com.example.eventsplatformbackend.service.user;
 
 import com.example.eventsplatformbackend.domain.dto.request.*;
-import com.example.eventsplatformbackend.domain.dto.response.PostDto;
+import com.example.eventsplatformbackend.domain.dto.response.PostResponseDto;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.adapter.repository.UserRepository;
 import com.example.eventsplatformbackend.exception.UserAlreadyExistsException;
@@ -149,9 +149,9 @@ public class UserService{
     }
 
     @Transactional
-    public ResponseEntity<List<PostDto>> getUserCreatedPosts(Principal principal) {
+    public ResponseEntity<List<PostResponseDto>> getUserCreatedPosts(Principal principal) {
         User user = userRepository.getUserByUsername(principal.getName());
-        List<PostDto> posts = user.getCreatedPosts().stream()
+        List<PostResponseDto> posts = user.getCreatedPosts().stream()
                 .map(postMapper::postDtoFromPost)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(posts);

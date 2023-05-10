@@ -1,8 +1,5 @@
 server:
   port: 8000
-  servlet:
-    encoding:
-      charset: UTF-8
 
 aws:
   access-key: ${S3_ACCESS_KEY}
@@ -30,7 +27,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop # When you launch the application for the first time - switch "none" at "create"
+      ddl-auto: update # When you launch the application for the first time - switch "none" at "create"
     show-sql: true
     database: postgresql
     open-in-view: false
@@ -41,7 +38,7 @@ redis:
   port: 6379
 
 jwt:
-  access-secret: KrcPHZWVqWGWtDVyT8Ky5CZmDJnpBJkan1hQkMCI
-  refresh-secret: Zmsoal13nvWD8VWhpS3J4mbClOzR5vTxdk17xXbt
+  access-secret: ${random.uuid}
+  refresh-secret: ${random.uuid}
   access-token-expiration-time: 86400 # In seconds
   refresh-token-expiration-time: 2629800000 # In seconds

@@ -1,7 +1,7 @@
 package com.example.eventsplatformbackend.adapter.web.controller;
 
 import com.example.eventsplatformbackend.domain.dto.request.PostCreationDto;
-import com.example.eventsplatformbackend.domain.dto.response.PostDto;
+import com.example.eventsplatformbackend.domain.dto.response.PostResponseDto;
 import com.example.eventsplatformbackend.service.post.PostService;
 import com.example.eventsplatformbackend.service.user.UserService;
 import jakarta.validation.Valid;
@@ -34,7 +34,7 @@ public class PostController {
     }
     @GetMapping("/created")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<List<PostDto>> getUserCreatedPosts(Principal principal){
+    public ResponseEntity<List<PostResponseDto>> getUserCreatedPosts(Principal principal){
         return userService.getUserCreatedPosts(principal);
     }
 }

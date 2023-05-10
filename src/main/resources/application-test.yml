@@ -35,7 +35,7 @@ redis:
   port: 6379
 
 jwt:
-  access-secret: KrcPHZWVqWGWtDVyT8Ky5CZmDJnpBJkan1hQkMCI
-  refresh-secret: Zmsoal13nvWD8VWhpS3J4mbClOzR5vTxdk17xXbt
+  access-secret: ${random.uuid}
+  refresh-secret: ${random.uuid}
   access-token-expiration-time: 86400 # In seconds
   refresh-token-expiration-time: 2629800000 # In seconds

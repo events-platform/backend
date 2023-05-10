@@ -1,6 +1,8 @@
 package com.example.eventsplatformbackend.domain.dto.request;
 
-import com.example.eventsplatformbackend.domain.entity.EFormat;
+import com.example.eventsplatformbackend.domain.enumeration.EFormat;
+import com.example.eventsplatformbackend.domain.enumeration.EType;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -16,17 +18,20 @@ import java.util.Date;
 public class PostCreationDto {
     @NotBlank
     String name;
+    String location;
+    @NotNull
+    @DateTimeFormat(pattern = "yyyy-mm-dd")
+    Date beginDate;
+    @DateTimeFormat(pattern = "yyyy-mm-dd")
+    Date endDate;
     @NotNull
     EFormat format;
-    @NotBlank
-    String city;
-    Integer registrationLimit;
     @NotNull
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    Date beginDate;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    Date endDate;
-    String location;
+    EType type;
+    Integer registrationLimit;
+    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}", message = "email does not match regex")
+    String email;
+    String externalLink;
     String description;
     MultipartFile file;
 }

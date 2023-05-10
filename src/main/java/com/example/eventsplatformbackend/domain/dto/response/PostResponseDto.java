@@ -1,26 +1,21 @@
-package com.example.eventsplatformbackend.domain.entity;
+package com.example.eventsplatformbackend.domain.dto.response;
 
 import com.example.eventsplatformbackend.domain.enumeration.EFormat;
 import com.example.eventsplatformbackend.domain.enumeration.EType;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
-@Entity
-@Table(name = "posts")
+@Data
 @NoArgsConstructor
-@Getter
-@Setter
-@FieldDefaults(level = AccessLevel.PRIVATE)
-public class Post {
-    @Id
-    @GeneratedValue
-    @Column(name = "post_id")
+public class PostResponseDto {
     Long id;
     @NotBlank
     @Column(name = "name")
@@ -51,8 +46,4 @@ public class Post {
     String externalLink;
     @Column(name = "image")
     String image;
-    @ManyToOne
-    @NotNull
-    @JoinColumn(name = "user_id")
-    User owner;
 }
