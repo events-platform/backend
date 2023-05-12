@@ -1,7 +1,7 @@
 package com.example.eventsplatformbackend.service.user;
 
 import com.example.eventsplatformbackend.adapter.objectstorage.S3Adapter;
-import com.example.eventsplatformbackend.adapter.objectstorage.S3ServiceImpl;
+import com.example.eventsplatformbackend.service.s3.S3ServiceImpl;
 import com.example.eventsplatformbackend.adapter.repository.UserRepository;
 import com.example.eventsplatformbackend.config.AwsCredentials;
 import com.example.eventsplatformbackend.domain.entity.User;

@@ -1,4 +1,4 @@
-package com.example.eventsplatformbackend.adapter.objectstorage;
+package com.example.eventsplatformbackend.service.s3;
 
 import com.amazonaws.services.s3.model.S3Object;
 import com.example.eventsplatformbackend.exception.EmptyFileException;
