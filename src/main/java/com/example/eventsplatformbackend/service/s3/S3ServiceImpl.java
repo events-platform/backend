@@ -1,7 +1,8 @@
-package com.example.eventsplatformbackend.adapter.objectstorage;
+package com.example.eventsplatformbackend.service.s3;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
+import com.example.eventsplatformbackend.adapter.objectstorage.S3Adapter;
 import com.example.eventsplatformbackend.exception.EmptyFileException;
 import com.example.eventsplatformbackend.exception.UnsupportedExtensionException;
 import lombok.extern.slf4j.Slf4j;
@@ -33,10 +34,10 @@ public class S3ServiceImpl implements S3Service {
     @Override
     public String uploadImageAndGetUrl(String path, MultipartFile file) throws IOException, EmptyFileException, UnsupportedExtensionException {
         if (file.isEmpty())
-            throw new EmptyFileException("Cannot upload empty file");
+            throw new EmptyFileException("Невозможно загрузить пустой файл");
 
         if(!checkFileExtension(path, Arrays.asList("jpg", "png", "jpeg"))){
-            throw new UnsupportedExtensionException(String.format("Wrong extension of %s", path));
+            throw new UnsupportedExtensionException("Невозможно загрузить файл с таким расширением");
         }
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -62,7 +63,7 @@ public class S3ServiceImpl implements S3Service {
     private boolean checkFileExtension(String filename, List<String> acceptedExtensions){
         Optional<String> fileExtension = Optional.ofNullable(filename)
                 .filter(f -> f.contains("."))
-                .map(f -> f.substring(filename.lastIndexOf(".") + 1));
+                .map(f -> f.substring(filename.lastIndexOf(".") + 1).toLowerCase());
 
         return fileExtension.isPresent() && acceptedExtensions.contains(fileExtension.get());
     }
