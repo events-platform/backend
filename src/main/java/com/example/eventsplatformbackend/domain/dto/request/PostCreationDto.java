@@ -15,17 +15,17 @@ import java.util.Date;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PostCreationDto {
-    @NotBlank(message = "Мероприятие должно иметь название")
+    @NotBlank(message = "Введите название мероприятия")
     String name;
     String location;
-    @NotNull(message = "Дата начала не может быть пустой")
+    @NotNull(message = "Введите дату начала мероприятия")
     @DateTimeFormat(pattern = "yyyy-mm-dd")
     Date beginDate;
     @DateTimeFormat(pattern = "yyyy-mm-dd")
     Date endDate;
-    @NotNull
+    @NotNull(message = "Выберите формат мероприятия")
     EFormat format;
-    @NotNull(message = "Тип мероприятия не может быть пустым")
+    @NotNull(message = "Выберите тип мероприятия")
     EType type;
     Integer registrationLimit;
     String email;
