@@ -5,8 +5,8 @@ import lombok.Data;
 
 @Data
 public class JwtTokenPair {
-    @NotBlank
+    @NotBlank(message = "Access Token is required")
     private String accessToken;
-    @NotBlank
+    @NotBlank(message = "Refresh Token is required")
     private String refreshToken;
 }

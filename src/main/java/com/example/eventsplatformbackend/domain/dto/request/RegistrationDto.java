@@ -9,12 +9,11 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 public class RegistrationDto {
-    @NotBlank
+    @NotBlank(message = "Введите имя пользователя")
     String username;
-    @NotBlank
-    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}", message = "email does not match regex")
+    @NotBlank(message = "Введите адрес электронной почты")
+    @Email(regexp = "[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,3}", message = "Неправильный формат почты")
     String email;
-    @NotBlank
-    @Size(min = 8)
+    @Size(min = 8, message = "Пароль не может быть короче 8 символов")
     String password;
 }
