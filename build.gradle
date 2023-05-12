@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.example'
-version = '0.0.85'
+version = '0.0.87'
 sourceCompatibility = '17'
 
 configurations {
@@ -57,18 +57,18 @@ tasks.named('test') {
     useJUnitPlatform()
 }
 
-task printVersionName {
-    println project.version
-}
-
 task buildDocker(type: Exec) {
     dependsOn build
     workingDir "$projectDir"
-    commandLine 'docker', 'build', '--rm', '.', '-t', "nobodyknowsdotcom/events-platform-backend:${project.version}", "-f", "$projectDir/src/main/docker/Dockerfile"
+    commandLine 'docker', 'build', '--rm', '.',
+            '-t', "nobodyknowsdotcom/events-platform-backend:${project.version}",
+            '-t', 'nobodyknowsdotcom/events-platform-backend:latest',
+            '-f', "$projectDir/src/main/docker/Dockerfile"
 }
 
 task pushDocker(type: Exec) {
     workingDir "$projectDir"
     commandLine 'docker', 'push', "nobodyknowsdotcom/events-platform-backend:${project.version}"
+    commandLine 'docker', 'push', 'nobodyknowsdotcom/events-platform-backend', '-a'
 }
 

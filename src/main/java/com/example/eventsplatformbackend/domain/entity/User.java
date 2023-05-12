@@ -1,5 +1,6 @@
 package com.example.eventsplatformbackend.domain.entity;
 
+import com.example.eventsplatformbackend.domain.enumeration.ERole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;

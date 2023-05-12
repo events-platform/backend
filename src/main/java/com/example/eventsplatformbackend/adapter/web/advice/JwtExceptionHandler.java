@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class JwtExceptionHandler {
     @ExceptionHandler(MalformedTokenException.class)
     public ResponseEntity<String> handleMalformedTokenException(MalformedTokenException e){
-        return ResponseEntity.status(498).body(e.getMessage());
+        return ResponseEntity.status(401).body(e.getMessage());
     }
 
     @ExceptionHandler(ExpiredJwtException.class)

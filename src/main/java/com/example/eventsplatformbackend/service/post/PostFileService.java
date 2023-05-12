@@ -1,6 +1,6 @@
 package com.example.eventsplatformbackend.service.post;
 
-import com.example.eventsplatformbackend.adapter.objectstorage.S3ServiceImpl;
+import com.example.eventsplatformbackend.service.s3.S3ServiceImpl;
 import com.example.eventsplatformbackend.config.AwsCredentials;
 import com.google.common.io.Files;
 import lombok.SneakyThrows;

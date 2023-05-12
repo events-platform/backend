@@ -1,18 +1,3 @@
-server:
-  port: 8000
-
-aws:
-  access-key: ${S3_ACCESS_KEY}
-  secret-key: ${S3_SECRET_KEY}
-  region: ${S3_REGION}
-  url: ${S3_URL}
-  bucket-name: ${S3_BUCKET_NAME}
-
-  users-root-directory: events-platform-files/test/users
-  posts-root-directory: events-platform-files/test/posts
-  default-post-avatar-dir: events-platform-files/default/default-post-avatar.jpg
-  default-avatar-dir: events-platform-files/default/default-avatar.jpg
-
 spring:
   servlet:
     multipart:
@@ -33,9 +18,3 @@ spring:
 redis:
   hostname: localhost
   port: 6379
-
-jwt:
-  access-secret: KrcPHZWVqWGWtDVyT8Ky5CZmDJnpBJkan1hQkMCI
-  refresh-secret: Zmsoal13nvWD8VWhpS3J4mbClOzR5vTxdk17xXbt
-  access-token-expiration-time: 86400 # In seconds
-  refresh-token-expiration-time: 2629800000 # In seconds

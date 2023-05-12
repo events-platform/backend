@@ -58,12 +58,15 @@ public class AuthService {
                 new JwtToken(jwtTokenPair.getAccessToken(), accessTokenExpirationTime),
                 new JwtToken(jwtTokenPair.getRefreshToken(), refreshTokenExpirationTime))
         );
-        return ResponseEntity.ok().body("You logged out!");
+        return ResponseEntity
+                .ok()
+                .header("Content-Type", "text/html; charset=utf-8")
+                .body("Вы вышли из системы");
     }
 
     public ResponseEntity<JwtResponse> refreshToken(JwtTokenPair jwtTokenPair) throws MalformedTokenException {
         User user = userService.findById(jwtUtil.extractUserId(jwtTokenPair.getAccessToken())).orElseThrow(() ->
-            new MalformedTokenException("Malformed jwt, cannot extract user data"));
+            new MalformedTokenException("Malformed JWT, cannot extract user data"));
 
         // check if refresh token is valid and not blacklisted
         if (jwtUtil.validateRefreshToken(jwtTokenPair.getRefreshToken())
@@ -76,6 +79,6 @@ public class AuthService {
             JwtResponse jwtResponse = jwtFactory.getJwtResponse(user);
             return ResponseEntity.ok(jwtResponse);
         }
-        throw new MalformedTokenException("Malformed jwt, cannot extract user data");
+        throw new MalformedTokenException("Malformed JWT, cannot extract user data");
     }
 }
