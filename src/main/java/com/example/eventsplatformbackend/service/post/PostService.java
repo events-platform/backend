@@ -19,6 +19,7 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
 
+
 @Service
 @Slf4j
 public class PostService {
@@ -47,6 +48,9 @@ public class PostService {
         }
         if(post.getBeginDate().isBefore(LocalDate.now())){
             throw new InvalidDateException("Мероприятие не может начинаться раньше сегодняшнего дня");
+        }
+        if(post.getBeginDate().before(new Date())){
+            throw new InvalidDateException("End date cannot be before today");
         }
         if(postCreationDto.getFile() != null){
             String link = postFileService.saveAndGetLink(postCreationDto.getFile());
