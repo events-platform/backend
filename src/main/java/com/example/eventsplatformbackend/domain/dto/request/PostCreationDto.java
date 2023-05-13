@@ -10,7 +10,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -19,10 +19,10 @@ public class PostCreationDto {
     String name;
     String location;
     @NotNull(message = "Введите дату начала мероприятия")
-    @DateTimeFormat(pattern = "yyyy-mm-dd")
-    Date beginDate;
-    @DateTimeFormat(pattern = "yyyy-mm-dd")
-    Date endDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    LocalDate beginDate;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    LocalDate endDate;
     @NotNull(message = "Выберите формат мероприятия")
     EFormat format;
     @NotNull(message = "Выберите тип мероприятия")
