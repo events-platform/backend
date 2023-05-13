@@ -13,17 +13,20 @@ import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class DtoValidationExceptionHandler {
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String CONTENT_TYPE_VALUE =  "text/html; charset=utf-8";
+  
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleInvalidArgumentException(MethodArgumentNotValidException e){
         BindingResult result = e.getBindingResult();
         List<FieldError> fieldErrors = result.getFieldErrors();
         List<String> messages = fieldErrors.stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .collect(Collectors.toList());
+                .toList();
         String message = String.join("\n", messages);
         return ResponseEntity
                 .status(422)
-                .header("Content-Type", "text/html; charset=utf-8")
+                .header(CONTENT_TYPE, CONTENT_TYPE_VALUE)
                 .body(message);
     }
 }

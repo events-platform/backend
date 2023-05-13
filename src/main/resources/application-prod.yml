@@ -16,3 +16,9 @@ spring:
 redis:
   hostname: redis
   port: 6379
+
+jwt:
+  access-secret: ${random.uuid}
+  refresh-secret: ${random.uuid}
+  access-token-expiration-time: 86400 # In seconds
+  refresh-token-expiration-time: 2629800000 # In seconds

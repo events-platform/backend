@@ -7,9 +7,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
+import java.time.LocalDate;
+
+import static jakarta.persistence.TemporalType.DATE;
 
 @Entity
 @Table(name = "posts")
@@ -36,11 +37,11 @@ public class Post {
     @Column(name = "registration_limit")
     Integer registrationLimit;
     @Column(name = "begin_date")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    Date beginDate;
+    @Temporal(DATE)
+    LocalDate beginDate;
     @Column(name = "end_date")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    Date endDate;
+    @Temporal(DATE)
+    LocalDate endDate;
     @Column(name = "location")
     String location;
     @Column(name = "description")

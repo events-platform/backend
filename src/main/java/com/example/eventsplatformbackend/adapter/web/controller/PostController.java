@@ -34,6 +34,11 @@ public class PostController {
             Principal principal){
         return postService.savePost(postCreationDto, principal);
     }
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<List<PostResponseDto>> getAllPosts(){
+        return postService.getAllPosts();
+    }
     @GetMapping("/created")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<PostResponseDto>> getUserCreatedPosts(Principal principal){

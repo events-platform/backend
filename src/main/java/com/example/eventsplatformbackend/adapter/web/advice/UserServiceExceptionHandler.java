@@ -11,11 +11,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 public class UserServiceExceptionHandler {
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String CONTENT_TYPE_VALUE =  "text/html; charset=utf-8";
+
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException e){
         return ResponseEntity
                 .status(404)
-                .header("Content-Type", "text/html; charset=utf-8")
+                .header(CONTENT_TYPE, CONTENT_TYPE_VALUE)
                 .body(e.getMessage());
     }
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -26,14 +29,14 @@ public class UserServiceExceptionHandler {
     public ResponseEntity<String> handleUserAlreadyExistsException(UserAlreadyExistsException e){
         return ResponseEntity
                 .status(409)
-                .header("Content-Type", "text/html; charset=utf-8")
+                .header(CONTENT_TYPE, CONTENT_TYPE_VALUE)
                 .body(e.getMessage());
     }
     @ExceptionHandler(WrongPasswordException.class)
     public ResponseEntity<String> handleWrongPasswordException(WrongPasswordException e){
         return ResponseEntity
                 .status(400)
-                .header("Content-Type", "text/html; charset=utf-8")
+                .header(CONTENT_TYPE, CONTENT_TYPE_VALUE)
                 .body(e.getMessage());
     }
 }
