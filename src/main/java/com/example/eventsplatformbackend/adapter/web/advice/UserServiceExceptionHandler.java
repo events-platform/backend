@@ -1,5 +1,6 @@
 package com.example.eventsplatformbackend.adapter.web.advice;
 
+import com.example.eventsplatformbackend.exception.PostNotFoundException;
 import com.example.eventsplatformbackend.exception.UserAlreadyExistsException;
 import com.example.eventsplatformbackend.exception.UserNotFoundException;
 import com.example.eventsplatformbackend.exception.WrongPasswordException;
@@ -35,6 +36,13 @@ public class UserServiceExceptionHandler {
     public ResponseEntity<String> handleWrongPasswordException(WrongPasswordException e){
         return ResponseEntity
                 .status(400)
+                .header(CONTENT_TYPE, CONTENT_TYPE_VALUE)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity<String> handlePostNotFoundException(PostNotFoundException e){
+        return ResponseEntity
+                .status(404)
                 .header(CONTENT_TYPE, CONTENT_TYPE_VALUE)
                 .body(e.getMessage());
     }
