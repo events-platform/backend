@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 public class DtoValidationExceptionHandler {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String CONTENT_TYPE_VALUE =  "text/html; charset=utf-8";
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<String> handleInvalidArgumentException(MethodArgumentNotValidException e){
         BindingResult result = e.getBindingResult();

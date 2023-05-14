@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class UserServiceExceptionHandler {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String CONTENT_TYPE_VALUE =  "text/html; charset=utf-8";
+
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException e){
         return ResponseEntity
