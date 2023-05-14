@@ -14,7 +14,7 @@ import java.io.FileNotFoundException;
 public class FileExceptionHandler {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String CONTENT_TYPE_VALUE =  "text/html; charset=utf-8";
-  
+
     @ExceptionHandler(UnsupportedExtensionException.class)
     public ResponseEntity<String> handleInvalidArgumentException(UnsupportedExtensionException e){
         return ResponseEntity
