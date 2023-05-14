@@ -2,6 +2,7 @@ package com.example.eventsplatformbackend.adapter.web.controller;
 
 import com.example.eventsplatformbackend.service.user.UserFileService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,8 @@ public class UserFileController {
      * @param principal Авторизовавшийся пользователь
      * @return Ссылка на файл
      */
-    @PostMapping("/avatar")
+    @PostMapping(path = "/avatar",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile uploadedFile, Principal principal){
         return userFileService.setUserAvatarAndGetLink(uploadedFile, principal);

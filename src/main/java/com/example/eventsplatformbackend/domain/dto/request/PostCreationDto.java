@@ -19,9 +19,9 @@ public class PostCreationDto {
     String name;
     String location;
     @NotNull(message = "Введите дату начала мероприятия")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     LocalDate beginDate;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     LocalDate endDate;
     @NotNull(message = "Выберите формат мероприятия")
     EFormat format;

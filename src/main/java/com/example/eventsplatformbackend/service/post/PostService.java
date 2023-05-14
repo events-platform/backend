@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -70,5 +71,9 @@ public class PostService {
                 .map(postMapper::postDtoFromPost)
                 .toList();
         return ResponseEntity.ok(postResponseDtos);
+    }
+
+    public Optional<Post> findById(Long postId) {
+        return postRepository.findById(postId);
     }
 }

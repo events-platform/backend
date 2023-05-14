@@ -30,7 +30,7 @@ public class UserController {
     @GetMapping(value = "/self")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public UserDto getSelf(Principal principal){
-        return userService.getFromPrincipal(principal);
+        return userService.getDtoFromPrincipal(principal);
     }
     @PutMapping("/change-password")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
