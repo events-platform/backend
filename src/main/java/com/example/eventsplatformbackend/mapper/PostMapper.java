@@ -17,5 +17,6 @@ public abstract class PostMapper {
     public String defaultImageDir;
     @Mapping(target = "image", expression = "java(s3Adapter.getLink(defaultImageDir))")
     public abstract Post postCreationDtoToPost(PostCreationDto postCreationDto);
+    @Mapping(target = "ownerName", expression = "java(post.getOwner().getUsername())")
     public abstract PostResponseDto postDtoFromPost(Post post);
 }

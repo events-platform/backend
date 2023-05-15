@@ -65,7 +65,7 @@ public class PostService {
                 .header("Content-Type", "text/html; charset=utf-8")
                 .body("Мероприятие успешно сохранено");
     }
-
+    @Transactional
     public ResponseEntity<List<PostResponseDto>> getAllPosts() {
         List<PostResponseDto> postResponseDtos = postRepository.findAll().stream()
                 .map(postMapper::postDtoFromPost)
