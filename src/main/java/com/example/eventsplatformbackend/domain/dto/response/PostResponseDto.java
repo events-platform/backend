@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -16,10 +16,10 @@ public class PostResponseDto {
     EFormat format;
     EType type;
     Integer registrationLimit;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    LocalDate beginDate;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    LocalDate endDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    LocalDateTime beginDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    LocalDateTime endDate;
     String location;
     String description;
     String email;
