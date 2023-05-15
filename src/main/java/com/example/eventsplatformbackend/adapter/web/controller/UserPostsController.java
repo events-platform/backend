@@ -33,7 +33,7 @@ public class UserPostsController {
         return userPostService.addPostToFavorites(postId, principal.getName());
     }
     @GetMapping(value = "/favorite")
-    public Set<PostResponseDto> getFavoritePosts(@PathVariable String username){
+    public Set<PostResponseDto> getFavoritePosts(@RequestParam String username){
         return userPostService.getFavoritePosts(username);
     }
     @DeleteMapping(value = "/favorite")
