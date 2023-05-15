@@ -25,4 +25,5 @@ public class PostResponseDto {
     String email;
     String externalLink;
     String image;
+    String ownerName;
 }
