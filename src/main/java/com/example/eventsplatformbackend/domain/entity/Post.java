@@ -8,9 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
-
-import static jakarta.persistence.TemporalType.DATE;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "posts")
@@ -37,11 +35,11 @@ public class Post {
     @Column(name = "registration_limit")
     Integer registrationLimit;
     @Column(name = "begin_date")
-    @Temporal(DATE)
-    LocalDate beginDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    LocalDateTime beginDate;
     @Column(name = "end_date")
-    @Temporal(DATE)
-    LocalDate endDate;
+    @Temporal(TemporalType.TIMESTAMP)
+    LocalDateTime endDate;
     @Column(name = "location")
     String location;
     @Column(name = "description")

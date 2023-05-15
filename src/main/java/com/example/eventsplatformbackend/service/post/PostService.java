@@ -43,11 +43,11 @@ public class PostService {
         if (postRepository.existsPostByBeginDateAndName(post.getBeginDate(), post.getName())){
             throw new PostAlreadyExistsException("Мероприятие с таким названием и датой начала уже существует");
         }
-        if (post.getEndDate() != null
-                && (post.getBeginDate().isAfter(post.getEndDate()))){
+        if (post.getBeginDate().isAfter(post.getEndDate())
+                || post.getBeginDate().isEqual(post.getEndDate())){
             throw new InvalidDateException("Мероприятие не может кончаться раньше, чем начнется");
         }
-        if(post.getBeginDate().isBefore(LocalDate.now())){
+        if(post.getBeginDate().isBefore(LocalDate.now().atStartOfDay())){
             throw new InvalidDateException("Мероприятие не может начинаться раньше сегодняшнего дня");
         }
         if(postCreationDto.getFile() != null){
