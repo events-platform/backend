@@ -32,8 +32,12 @@ public class PostController {
             Principal principal){
         return postService.savePost(postCreationDto, principal);
     }
+    @GetMapping("/{postId}")
+    @SneakyThrows
+    public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long postId){
+        return postService.getPostById(postId);
+    }
     @GetMapping("/all")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<PostResponseDto>> getAllPosts(){
         return postService.getAllPosts();
     }
