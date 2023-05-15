@@ -10,9 +10,9 @@ import com.example.eventsplatformbackend.service.post.PostService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,19 +34,22 @@ public class UserPostService {
     }
 
     @Transactional
-    public ResponseEntity<List<PostResponseDto>> getUserCreatedPosts(Principal principal) {
-        User user = userRepository.getUserByUsername(principal.getName());
+    public ResponseEntity<List<PostResponseDto>> getUserCreatedPosts(String username) {
+        User user = userRepository.findUserByUsername(username).orElseThrow(() ->
+                new UsernameNotFoundException("Пользователя с таким именем не существует"));
+
         List<PostResponseDto> posts = user.getCreatedPosts().stream()
                 .map(postMapper::postDtoFromPost)
                 .toList();
         return ResponseEntity.ok(posts);
     }
     @Transactional
-    public ResponseEntity<String> addPostToFavorites(Long postId, Principal principal) throws PostNotFoundException {
+    public ResponseEntity<String> addPostToFavorites(Long postId, String username) throws PostNotFoundException {
         Post post = postService.findById(postId).orElseThrow(() ->
                 new PostNotFoundException("Мероприятие с таким id не найдено"));
+        User user = userRepository.findUserByUsername(username).orElseThrow(() ->
+                new UsernameNotFoundException("Пользователя с таким именем не существует"));
 
-        User user = userRepository.getUserByUsername(principal.getName());
         user.getFavoritePosts().add(post);
         userRepository.save(user);
         return ResponseEntity
@@ -55,11 +58,12 @@ public class UserPostService {
                 .body("Мероприятие добавлено в избранное");
     }
     @Transactional
-    public ResponseEntity<String> removePostFromFavorites(Long postId, Principal principal) throws PostNotFoundException {
+    public ResponseEntity<String> removePostFromFavorites(Long postId, String username) throws PostNotFoundException {
         Post post = postService.findById(postId).orElseThrow(() ->
                 new PostNotFoundException("Мероприятие с таким id не найдено"));
+        User user = userRepository.findUserByUsername(username).orElseThrow(() ->
+                new UsernameNotFoundException("Пользователя с таким именем не существует"));
 
-        User user = userRepository.getUserByUsername(principal.getName());
         user.getFavoritePosts().remove(post);
         userRepository.save(user);
         return ResponseEntity
@@ -68,8 +72,10 @@ public class UserPostService {
                 .body("Мероприятие удалено из избранного");
     }
     @Transactional
-    public Set<PostResponseDto> getFavoritePosts(Principal principal) {
-        User user = userRepository.getUserByUsername(principal.getName());
+    public Set<PostResponseDto> getFavoritePosts(String username) {
+        User user = userRepository.findUserByUsername(username).orElseThrow(() ->
+                new UsernameNotFoundException("Пользователя с таким именем не существует"));
+
         return user.getFavoritePosts().stream()
                 .map(postMapper::postDtoFromPost)
                 .collect(Collectors.toSet());

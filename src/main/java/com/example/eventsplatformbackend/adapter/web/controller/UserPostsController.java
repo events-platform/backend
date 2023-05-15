@@ -23,25 +23,23 @@ public class UserPostsController {
     }
 
     @GetMapping("/created")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<List<PostResponseDto>> getUserCreatedPosts(Principal principal){
-        return userPostService.getUserCreatedPosts(principal);
+    public ResponseEntity<List<PostResponseDto>> getUserCreatedPosts(@RequestParam String username){
+        return userPostService.getUserCreatedPosts(username);
     }
     @PostMapping("/favorite")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @SneakyThrows
     public ResponseEntity<String> likePost(@RequestParam Long postId, Principal principal){
-        return userPostService.addPostToFavorites(postId, principal);
+        return userPostService.addPostToFavorites(postId, principal.getName());
     }
     @GetMapping(value = "/favorite")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public Set<PostResponseDto> getFavoritePosts(Principal principal){
-        return userPostService.getFavoritePosts(principal);
+    public Set<PostResponseDto> getFavoritePosts(@PathVariable String username){
+        return userPostService.getFavoritePosts(username);
     }
     @DeleteMapping(value = "/favorite")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @SneakyThrows
     public ResponseEntity<String> deleteFromFavoritePosts(Long postId, Principal principal){
-        return userPostService.removePostFromFavorites(postId, principal);
+        return userPostService.removePostFromFavorites(postId, principal.getName());
     }
 }

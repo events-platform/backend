@@ -8,6 +8,7 @@ import com.example.eventsplatformbackend.domain.entity.Post;
 import com.example.eventsplatformbackend.domain.entity.User;
 import com.example.eventsplatformbackend.exception.InvalidDateException;
 import com.example.eventsplatformbackend.exception.PostAlreadyExistsException;
+import com.example.eventsplatformbackend.exception.PostNotFoundException;
 import com.example.eventsplatformbackend.mapper.PostMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -75,5 +76,11 @@ public class PostService {
 
     public Optional<Post> findById(Long postId) {
         return postRepository.findById(postId);
+    }
+
+    public ResponseEntity<PostResponseDto> getPostById(Long postId) throws PostNotFoundException {
+        Post post = postRepository.findById(postId).orElseThrow(() ->
+                new PostNotFoundException("Мероприятия с таким id не существует"));
+        return ResponseEntity.ok(postMapper.postDtoFromPost(post));
     }
 }
