@@ -2,6 +2,7 @@ package com.example.eventsplatformbackend.adapter.web.controller;
 
 import com.example.eventsplatformbackend.domain.dto.request.PostCreationDto;
 import com.example.eventsplatformbackend.domain.dto.response.PostResponseDto;
+import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.service.post.PostService;
 import jakarta.validation.Valid;
 import lombok.SneakyThrows;
@@ -36,6 +37,11 @@ public class PostController {
     @SneakyThrows
     public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long postId){
         return postService.getPostById(postId);
+    }
+    @GetMapping("/subscribers/{postId}")
+    @SneakyThrows
+    public ResponseEntity<List<UserDto>> getPostSubscribers(@PathVariable Long postId){
+        return postService.getPostSubscribers(postId);
     }
     @GetMapping("/all")
     public ResponseEntity<List<PostResponseDto>> getAllPosts(){

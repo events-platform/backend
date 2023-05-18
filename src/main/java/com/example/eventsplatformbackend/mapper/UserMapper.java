@@ -2,6 +2,7 @@ package com.example.eventsplatformbackend.mapper;
 
 import com.example.eventsplatformbackend.domain.dto.request.RegistrationDto;
 import com.example.eventsplatformbackend.domain.dto.request.UserEditDto;
+import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.domain.entity.User;
 import com.example.eventsplatformbackend.adapter.objectstorage.S3Adapter;
 import org.mapstruct.*;
@@ -20,4 +21,5 @@ public abstract class UserMapper {
     public abstract void updateUserFromUserEditDto(UserEditDto dto, @MappingTarget User entity);
     @Mapping(target = "avatar", expression = "java(s3Adapter.getLink(defaultAvatarDir))")
     public abstract User registrationDtoToUser(RegistrationDto registrationDto);
+    public abstract UserDto userToUserDto(User user);
 }
