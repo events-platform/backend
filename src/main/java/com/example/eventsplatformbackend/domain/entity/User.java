@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.ColumnDefault;
 
 import java.util.Set;
 
@@ -39,8 +38,8 @@ public class User {
     @Column(name = "password")
     String password;
     @Column(name = "avatar")
-    @ColumnDefault("'src/main/resources/templates/avatar.jpg'")
     String avatar;
+    @NotNull
     @Builder.Default
     @Enumerated(EnumType.STRING)
     ERole role = ERole.ROLE_USER;

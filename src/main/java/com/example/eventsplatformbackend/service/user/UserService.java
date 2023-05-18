@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,9 +52,9 @@ public class UserService{
         }
     }
 
-    public User login(JwtRequest jwtRequest) throws WrongPasswordException, UserNotFoundException {
+    public User login(JwtRequest jwtRequest) throws WrongPasswordException {
         User user = userRepository.findUserByEmail(jwtRequest.getEmail()).orElseThrow(() ->
-                new UserNotFoundException("Пользователя с такой почтой не существует"));
+                new UsernameNotFoundException("Пользователя с такой почтой не существует"));
 
         if(bCryptPasswordEncoder.matches(jwtRequest.getPassword(), user.getPassword())){
             return user;
