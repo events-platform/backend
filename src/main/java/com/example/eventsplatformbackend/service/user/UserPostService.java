@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ public class UserPostService {
     @Transactional
     public ResponseEntity<List<PostResponseDto>> getUserCreatedPosts(String username) {
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
-                new UsernameNotFoundException("Пользователя с таким именем не существует"));
+                new UsernameNotFoundException("Пользователь не найден"));
 
         List<PostResponseDto> posts = user.getCreatedPosts().stream()
                 .map(postMapper::postDtoFromPost)
@@ -62,7 +63,7 @@ public class UserPostService {
         Post post = postService.findById(postId).orElseThrow(() ->
                 new PostNotFoundException("Мероприятие с таким id не найдено"));
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
-                new UsernameNotFoundException("Пользователя с таким именем не существует"));
+                new UsernameNotFoundException("Пользователь не найден"));
 
         user.getFavoritePosts().remove(post);
         userRepository.save(user);
@@ -72,12 +73,64 @@ public class UserPostService {
                 .body("Мероприятие удалено из избранного");
     }
     @Transactional
-    public Set<PostResponseDto> getFavoritePosts(String username) {
+    public List<PostResponseDto> getFavoritePosts(String username) {
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
                 new UsernameNotFoundException("Пользователя с таким именем не существует"));
 
         return user.getFavoritePosts().stream()
                 .map(postMapper::postDtoFromPost)
-                .collect(Collectors.toSet());
+                .toList();
+    }
+    @Transactional
+    public ResponseEntity<String> subscribeToPost(Long postId, String username) throws PostNotFoundException {
+        User user = userRepository.findUserByUsername(username).orElseThrow(() ->
+                new UsernameNotFoundException("Пользователь не найден"));
+        Post post = postService.findById(postId).orElseThrow(() ->
+                new PostNotFoundException("Мероприятие с таким id не найдено"));
+
+        if (user.getSubscribedPosts().contains(post)){
+            return ResponseEntity
+                    .ok()
+                    .header("Content-Type", "text/html; charset=utf-8")
+                    .body("Вы уже подписаны на это мероприятие");
+        }
+
+        if (userRepository.countUsersBySubscribedPosts(post) < post.getRegistrationLimit()){
+            user.getSubscribedPosts().add(post);
+            userRepository.save(user);
+
+            return ResponseEntity
+                    .ok()
+                    .header("Content-Type", "text/html; charset=utf-8")
+                    .body("Вы успешно подписались на мероприятие");
+        } else {
+            return ResponseEntity
+                    .badRequest()
+                    .header("Content-Type", "text/html; charset=utf-8")
+                    .body("Невозможно записаться, на это мероприятие больше нет свободных мест");
+        }
+    }
+    @Transactional
+    public List<PostResponseDto> getUserSubscriptions(String username) {
+        User user = userRepository.findUserByUsername(username).orElseThrow(() ->
+                new UsernameNotFoundException("Пользователя с таким именем не существует"));
+
+        return user.getSubscribedPosts().stream()
+                .map(postMapper::postDtoFromPost)
+                .toList();
+    }
+    @Transactional
+    public ResponseEntity<String> unsubscribeFromPost(Long postId, String username) throws PostNotFoundException {
+        User user = userRepository.findUserByUsername(username).orElseThrow(() ->
+                new UsernameNotFoundException("Пользователь не найден"));
+        Post toUnsubscribe = postService.findById(postId).orElseThrow(() ->
+                new PostNotFoundException("Мероприятие с таким id не найдено"));
+
+        user.getSubscribedPosts().remove(toUnsubscribe);
+        userRepository.save(user);
+        return ResponseEntity
+                .ok()
+                .header("Content-Type", "text/html; charset=utf-8")
+                .body("Вы больше не подписаны на это мероприятие");
     }
 }

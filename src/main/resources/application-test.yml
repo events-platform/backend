@@ -1,7 +1,7 @@
 spring:
   servlet:
     multipart:
-      max-file-size: 500KB
+      max-file-size: 2500KB
 
   datasource:
     url: jdbc:h2:mem:default
@@ -18,3 +18,8 @@ spring:
 redis:
   hostname: localhost
   port: 6379
+
+test:
+  username: testuser42
+  email: testuser42@bar.baz
+  password: pleasedonthackme123

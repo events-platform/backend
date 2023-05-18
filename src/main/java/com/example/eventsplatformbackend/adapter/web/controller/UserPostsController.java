@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping(path = "user/post")
@@ -33,7 +32,7 @@ public class UserPostsController {
         return userPostService.addPostToFavorites(postId, principal.getName());
     }
     @GetMapping(value = "/favorite")
-    public Set<PostResponseDto> getFavoritePosts(@RequestParam String username){
+    public List<PostResponseDto> getFavoritePosts(@RequestParam String username){
         return userPostService.getFavoritePosts(username);
     }
     @DeleteMapping(value = "/favorite")
@@ -41,5 +40,21 @@ public class UserPostsController {
     @SneakyThrows
     public ResponseEntity<String> deleteFromFavoritePosts(Long postId, Principal principal){
         return userPostService.removePostFromFavorites(postId, principal.getName());
+    }
+    @PostMapping("/subscriptions")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @SneakyThrows
+    public ResponseEntity<String> subscribeToPost(@RequestParam Long postId, Principal principal){
+        return userPostService.subscribeToPost(postId, principal.getName());
+    }
+    @GetMapping("/subscriptions")
+    public List<PostResponseDto> getUserSubscriptions(@RequestParam String username){
+        return userPostService.getUserSubscriptions(username);
+    }
+    @DeleteMapping("/subscriptions")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @SneakyThrows
+    public ResponseEntity<String> unsubscribeFromPost(@RequestParam Long postId, Principal principal){
+        return userPostService.unsubscribeFromPost(postId, principal.getName());
     }
 }
