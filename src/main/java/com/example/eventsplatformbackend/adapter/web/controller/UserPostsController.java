@@ -59,20 +59,4 @@ public class UserPostsController {
     public ResponseEntity<String> unsubscribeFromPost(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
         return userPostService.unsubscribeFromPost(postIdDto, principal.getName());
     }
-    @PostMapping("/subscriptions")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @SneakyThrows
-    public ResponseEntity<String> subscribeToPost(@RequestParam Long postId, Principal principal){
-        return userPostService.subscribeToPost(postId, principal.getName());
-    }
-    @GetMapping("/subscriptions")
-    public List<PostResponseDto> getUserSubscriptions(@RequestParam String username){
-        return userPostService.getUserSubscriptions(username);
-    }
-    @DeleteMapping("/subscriptions")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @SneakyThrows
-    public ResponseEntity<String> unsubscribeFromPost(@RequestParam Long postId, Principal principal){
-        return userPostService.unsubscribeFromPost(postId, principal.getName());
-    }
 }
