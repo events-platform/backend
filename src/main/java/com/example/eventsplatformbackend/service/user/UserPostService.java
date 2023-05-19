@@ -1,6 +1,7 @@
 package com.example.eventsplatformbackend.service.user;
 
 import com.example.eventsplatformbackend.adapter.repository.UserRepository;
+import com.example.eventsplatformbackend.domain.dto.request.PostIdDto;
 import com.example.eventsplatformbackend.domain.dto.response.PostResponseDto;
 import com.example.eventsplatformbackend.domain.entity.Post;
 import com.example.eventsplatformbackend.domain.entity.User;
@@ -13,10 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Работает с мероприятиями пользователей
@@ -45,28 +43,30 @@ public class UserPostService {
         return ResponseEntity.ok(posts);
     }
     @Transactional
-    public ResponseEntity<String> addPostToFavorites(Long postId, String username) throws PostNotFoundException {
-        Post post = postService.findById(postId).orElseThrow(() ->
+    public ResponseEntity<String> addPostToFavorites(PostIdDto postIdDto, String username) throws PostNotFoundException {
+        Post post = postService.findById(postIdDto.getPostId()).orElseThrow(() ->
                 new PostNotFoundException("Мероприятие с таким id не найдено"));
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
                 new UsernameNotFoundException("Пользователя с таким именем не существует"));
 
         user.getFavoritePosts().add(post);
         userRepository.save(user);
+        log.info("{} added {} to favorites", username, postIdDto.getPostId());
         return ResponseEntity
                 .ok()
                 .header("Content-Type", "text/html; charset=utf-8")
                 .body("Мероприятие добавлено в избранное");
     }
     @Transactional
-    public ResponseEntity<String> removePostFromFavorites(Long postId, String username) throws PostNotFoundException {
-        Post post = postService.findById(postId).orElseThrow(() ->
+    public ResponseEntity<String> removePostFromFavorites(PostIdDto postIdDto, String username) throws PostNotFoundException {
+        Post post = postService.findById(postIdDto.getPostId()).orElseThrow(() ->
                 new PostNotFoundException("Мероприятие с таким id не найдено"));
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
                 new UsernameNotFoundException("Пользователь не найден"));
 
         user.getFavoritePosts().remove(post);
         userRepository.save(user);
+        log.info("{} removed {} from favorites", username, postIdDto.getPostId());
         return ResponseEntity
                 .ok()
                 .header("Content-Type", "text/html; charset=utf-8")
@@ -82,10 +82,10 @@ public class UserPostService {
                 .toList();
     }
     @Transactional
-    public ResponseEntity<String> subscribeToPost(Long postId, String username) throws PostNotFoundException {
+    public ResponseEntity<String> subscribeToPost(PostIdDto postIdDto, String username) throws PostNotFoundException {
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
                 new UsernameNotFoundException("Пользователь не найден"));
-        Post post = postService.findById(postId).orElseThrow(() ->
+        Post post = postService.findById(postIdDto.getPostId()).orElseThrow(() ->
                 new PostNotFoundException("Мероприятие с таким id не найдено"));
 
         if (user.getSubscribedPosts().contains(post)){
@@ -98,6 +98,7 @@ public class UserPostService {
         if (userRepository.countUsersBySubscribedPosts(post) < post.getRegistrationLimit()){
             user.getSubscribedPosts().add(post);
             userRepository.save(user);
+            log.info("{} subscribed to {}", username, postIdDto.getPostId());
 
             return ResponseEntity
                     .ok()
@@ -120,14 +121,15 @@ public class UserPostService {
                 .toList();
     }
     @Transactional
-    public ResponseEntity<String> unsubscribeFromPost(Long postId, String username) throws PostNotFoundException {
+    public ResponseEntity<String> unsubscribeFromPost(PostIdDto postIdDto, String username) throws PostNotFoundException {
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
                 new UsernameNotFoundException("Пользователь не найден"));
-        Post toUnsubscribe = postService.findById(postId).orElseThrow(() ->
+        Post toUnsubscribe = postService.findById(postIdDto.getPostId()).orElseThrow(() ->
                 new PostNotFoundException("Мероприятие с таким id не найдено"));
 
         user.getSubscribedPosts().remove(toUnsubscribe);
         userRepository.save(user);
+        log.info("{} unsubscribed from {}", username, postIdDto.getPostId());
         return ResponseEntity
                 .ok()
                 .header("Content-Type", "text/html; charset=utf-8")
