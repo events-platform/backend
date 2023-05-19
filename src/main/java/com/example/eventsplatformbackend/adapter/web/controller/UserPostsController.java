@@ -1,7 +1,9 @@
 package com.example.eventsplatformbackend.adapter.web.controller;
 
+import com.example.eventsplatformbackend.domain.dto.request.PostIdDto;
 import com.example.eventsplatformbackend.domain.dto.response.PostResponseDto;
 import com.example.eventsplatformbackend.service.user.UserPostService;
+import jakarta.validation.Valid;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +30,8 @@ public class UserPostsController {
     @PostMapping("/favorite")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @SneakyThrows
-    public ResponseEntity<String> likePost(@RequestParam Long postId, Principal principal){
-        return userPostService.addPostToFavorites(postId, principal.getName());
+    public ResponseEntity<String> likePost(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
+        return userPostService.addPostToFavorites(postIdDto, principal.getName());
     }
     @GetMapping(value = "/favorite")
     public List<PostResponseDto> getFavoritePosts(@RequestParam String username){
@@ -38,14 +40,14 @@ public class UserPostsController {
     @DeleteMapping(value = "/favorite")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @SneakyThrows
-    public ResponseEntity<String> deleteFromFavoritePosts(Long postId, Principal principal){
-        return userPostService.removePostFromFavorites(postId, principal.getName());
+    public ResponseEntity<String> deleteFromFavoritePosts(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
+        return userPostService.removePostFromFavorites(postIdDto, principal.getName());
     }
     @PostMapping("/subscriptions")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @SneakyThrows
-    public ResponseEntity<String> subscribeToPost(@RequestParam Long postId, Principal principal){
-        return userPostService.subscribeToPost(postId, principal.getName());
+    public ResponseEntity<String> subscribeToPost(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
+        return userPostService.subscribeToPost(postIdDto, principal.getName());
     }
     @GetMapping("/subscriptions")
     public List<PostResponseDto> getUserSubscriptions(@RequestParam String username){
@@ -54,7 +56,7 @@ public class UserPostsController {
     @DeleteMapping("/subscriptions")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @SneakyThrows
-    public ResponseEntity<String> unsubscribeFromPost(@RequestParam Long postId, Principal principal){
-        return userPostService.unsubscribeFromPost(postId, principal.getName());
+    public ResponseEntity<String> unsubscribeFromPost(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
+        return userPostService.unsubscribeFromPost(postIdDto, principal.getName());
     }
 }
