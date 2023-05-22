@@ -16,7 +16,7 @@ import java.util.Optional;
 
 /**
  * Выполняет CRUD операции с S3 хранилищем.
- * Обертка для S3Adapter
+ * Обертка над S3Adapter
  */
 @Component
 @Slf4j
@@ -28,7 +28,6 @@ public class S3ServiceImpl implements S3Service {
     }
 
     /**
-     * Провверяет
      * Загружает файл в объектное хранилище и возвращает ссылку на его скачивание.
      */
     @Override

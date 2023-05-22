@@ -20,7 +20,7 @@ import java.security.Principal;
 import java.util.Optional;
 
 /**
- * Работает с личной информацией пользователя
+ * Работает с личной информацией пользователей
  */
 @Service
 @Slf4j

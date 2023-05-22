@@ -11,6 +11,9 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 
+/**
+ * Генерирует и валидирует JWT
+ */
 @Component
 public class JwtUtil {
     @Value("${jwt.access-secret}")

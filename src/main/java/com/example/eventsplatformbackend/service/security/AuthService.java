@@ -21,6 +21,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Занимается регистрацией, логином и jwt токенами пользователей
+ */
 @Slf4j
 @Service
 public class AuthService {

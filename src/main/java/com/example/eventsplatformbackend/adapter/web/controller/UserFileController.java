@@ -10,6 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 
+/**
+ * Работает с файлами пользователей
+ */
 @RestController
 @RequestMapping(path = "user/files")
 @Slf4j
