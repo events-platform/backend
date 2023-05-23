@@ -14,6 +14,10 @@ aws:
   default-avatar-dir: events-platform-files/default/default-avatar.jpg
 
 spring:
+  data:
+    web:
+      pageable:
+        max-page-size: 30
   servlet:
     multipart:
       max-file-size: 3500KB
