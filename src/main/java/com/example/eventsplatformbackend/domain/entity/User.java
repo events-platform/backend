@@ -47,14 +47,14 @@ public class User {
     @OneToMany
     Set<Post> createdPosts;
     @Column(name = "subscribed_posts")
-    @OneToMany
+    @ManyToMany
     @JoinTable(
             name = "users_subscriptions",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "post_id"))
     Set<Post> subscribedPosts;
     @Column(name = "favorite_posts")
-    @OneToMany
+    @ManyToMany
     @JoinTable(
             name = "users_favorite_posts",
             joinColumns = @JoinColumn(name = "user_id"),

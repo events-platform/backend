@@ -5,8 +5,12 @@ import com.example.eventsplatformbackend.domain.dto.response.PostResponseDto;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.service.post.PostService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.converters.models.PageableAsQueryParam;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,12 +21,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("post")
+@RequiredArgsConstructor
 @Slf4j
 public class PostController {
     private final PostService postService;
-
-    public PostController(PostService postService) {
-        this.postService = postService;
+    @PageableAsQueryParam
+    @GetMapping("/search")
+    @SneakyThrows()
+    public ResponseEntity<PageImpl<PostResponseDto>> getPostsPagination(Pageable pageable){
+        return postService.getPostsPagination(pageable);
     }
 
     @PostMapping(consumes =  MediaType.MULTIPART_FORM_DATA_VALUE)

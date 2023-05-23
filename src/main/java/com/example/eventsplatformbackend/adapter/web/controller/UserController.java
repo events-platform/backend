@@ -4,6 +4,7 @@ import com.example.eventsplatformbackend.domain.dto.request.*;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.service.user.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +15,10 @@ import java.security.Principal;
 
 @RestController
 @RequestMapping(path = "user")
+@RequiredArgsConstructor
 @Slf4j
 public class UserController {
     private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
     @SneakyThrows
     @GetMapping(value = "/{username}")
     public UserDto getUser(@PathVariable String username){

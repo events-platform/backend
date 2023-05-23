@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.UUID;
 
 /**
- * Посредник между S3Service и PostService
+ * Работает с файлами мероприятий
  */
 @Service
 public class PostFileService {
