@@ -4,6 +4,7 @@ import com.example.eventsplatformbackend.domain.dto.request.PostIdDto;
 import com.example.eventsplatformbackend.domain.dto.response.PostResponseDto;
 import com.example.eventsplatformbackend.service.user.UserPostService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -15,15 +16,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "user/post")
+@RequiredArgsConstructor
 @Slf4j
 public class UserPostsController {
     private final UserPostService userPostService;
 
-    public UserPostsController(UserPostService userPostService) {
-        this.userPostService = userPostService;
-    }
-
     @GetMapping("/created")
+    @SneakyThrows
     public ResponseEntity<List<PostResponseDto>> getUserCreatedPosts(@RequestParam String username){
         return userPostService.getUserCreatedPosts(username);
     }
@@ -34,6 +33,7 @@ public class UserPostsController {
         return userPostService.addPostToFavorites(postIdDto, principal.getName());
     }
     @GetMapping(value = "/favorite")
+    @SneakyThrows
     public List<PostResponseDto> getFavoritePosts(@RequestParam String username){
         return userPostService.getFavoritePosts(username);
     }
@@ -50,6 +50,7 @@ public class UserPostsController {
         return userPostService.subscribeToPost(postIdDto, principal.getName());
     }
     @GetMapping("/subscriptions")
+    @SneakyThrows
     public List<PostResponseDto> getUserSubscriptions(@RequestParam String username){
         return userPostService.getUserSubscriptions(username);
     }

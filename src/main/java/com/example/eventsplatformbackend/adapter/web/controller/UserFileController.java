@@ -1,6 +1,7 @@
 package com.example.eventsplatformbackend.adapter.web.controller;
 
 import com.example.eventsplatformbackend.service.user.UserFileService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,13 +16,10 @@ import java.security.Principal;
  */
 @RestController
 @RequestMapping(path = "user/files")
+@RequiredArgsConstructor
 @Slf4j
 public class UserFileController {
     private final UserFileService userFileService;
-
-    public UserFileController(UserFileService userFileService) {
-        this.userFileService = userFileService;
-    }
 
     /**
      * Загружает файл и устанавливает его аватаркой пользователя, возвращает ссылку на загруженны файл.

@@ -13,6 +13,9 @@ import com.example.eventsplatformbackend.exception.PostNotFoundException;
 import com.example.eventsplatformbackend.mapper.PostMapper;
 import com.example.eventsplatformbackend.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -99,5 +102,16 @@ public class PostService {
                 .toList();
 
         return ResponseEntity.ok(users);
+    }
+
+    public ResponseEntity<PageImpl<PostResponseDto>> getPostsPagination(Pageable pageable) {
+        Page<Post> postsPage = postRepository.findAll(pageable);
+        PageImpl<PostResponseDto> postsPageDto = new PageImpl<>(
+                postsPage.stream()
+                    .map(postMapper::postDtoFromPost)
+                    .toList(),
+                pageable,
+                postsPage.getTotalElements());
+        return ResponseEntity.ok(postsPageDto);
     }
 }
