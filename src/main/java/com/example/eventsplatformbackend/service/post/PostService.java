@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.time.LocalDate;
@@ -47,7 +48,7 @@ public class PostService {
     }
 
     @Transactional(propagation= Propagation.REQUIRED)
-    public ResponseEntity<String> savePost(PostCreationDto postCreationDto, Principal principal) throws PostAlreadyExistsException, InvalidDateException {
+    public ResponseEntity<String> savePost(PostCreationDto postCreationDto, MultipartFile file, Principal principal) throws PostAlreadyExistsException, InvalidDateException {
         Post post = postMapper.postCreationDtoToPost(postCreationDto);
 
         if (postRepository.existsPostByBeginDateAndName(post.getBeginDate(), post.getName())){
@@ -60,8 +61,8 @@ public class PostService {
         if(post.getBeginDate().isBefore(LocalDate.now().atStartOfDay())){
             throw new InvalidDateException("Мероприятие не может начинаться раньше сегодняшнего дня");
         }
-        if(postCreationDto.getFile() != null){
-            String link = postFileService.saveAndGetLink(postCreationDto.getFile());
+        if(file != null){
+            String link = postFileService.saveAndGetLink(file);
             post.setImage(link);
         }
 
