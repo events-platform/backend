@@ -7,11 +7,11 @@ import com.example.eventsplatformbackend.domain.dto.response.PostResponseDto;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.domain.entity.Post;
 import com.example.eventsplatformbackend.domain.entity.User;
-import com.example.eventsplatformbackend.exception.InvalidDateException;
-import com.example.eventsplatformbackend.exception.PostAlreadyExistsException;
-import com.example.eventsplatformbackend.exception.PostNotFoundException;
-import com.example.eventsplatformbackend.mapper.PostMapper;
-import com.example.eventsplatformbackend.mapper.UserMapper;
+import com.example.eventsplatformbackend.common.exception.InvalidDateException;
+import com.example.eventsplatformbackend.common.exception.PostAlreadyExistsException;
+import com.example.eventsplatformbackend.common.exception.PostNotFoundException;
+import com.example.eventsplatformbackend.common.mapper.PostMapper;
+import com.example.eventsplatformbackend.common.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.time.LocalDate;
@@ -47,7 +48,7 @@ public class PostService {
     }
 
     @Transactional(propagation= Propagation.REQUIRED)
-    public ResponseEntity<String> savePost(PostCreationDto postCreationDto, Principal principal) throws PostAlreadyExistsException, InvalidDateException {
+    public ResponseEntity<String> savePost(PostCreationDto postCreationDto, MultipartFile file, Principal principal) throws PostAlreadyExistsException, InvalidDateException {
         Post post = postMapper.postCreationDtoToPost(postCreationDto);
 
         if (postRepository.existsPostByBeginDateAndName(post.getBeginDate(), post.getName())){
@@ -60,8 +61,8 @@ public class PostService {
         if(post.getBeginDate().isBefore(LocalDate.now().atStartOfDay())){
             throw new InvalidDateException("Мероприятие не может начинаться раньше сегодняшнего дня");
         }
-        if(postCreationDto.getFile() != null){
-            String link = postFileService.saveAndGetLink(postCreationDto.getFile());
+        if(file != null){
+            String link = postFileService.saveAndGetLink(file);
             post.setImage(link);
         }
 

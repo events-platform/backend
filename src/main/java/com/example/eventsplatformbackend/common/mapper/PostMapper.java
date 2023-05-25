@@ -1,4 +1,4 @@
-package com.example.eventsplatformbackend.mapper;
+package com.example.eventsplatformbackend.common.mapper;
 
 import com.example.eventsplatformbackend.adapter.objectstorage.S3Adapter;
 import com.example.eventsplatformbackend.domain.dto.request.PostCreationDto;

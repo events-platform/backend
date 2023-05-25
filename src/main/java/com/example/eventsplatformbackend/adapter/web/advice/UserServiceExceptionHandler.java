@@ -1,9 +1,9 @@
 package com.example.eventsplatformbackend.adapter.web.advice;
 
-import com.example.eventsplatformbackend.exception.PostNotFoundException;
-import com.example.eventsplatformbackend.exception.UserAlreadyExistsException;
-import com.example.eventsplatformbackend.exception.UserNotFoundException;
-import com.example.eventsplatformbackend.exception.WrongPasswordException;
+import com.example.eventsplatformbackend.common.exception.PostNotFoundException;
+import com.example.eventsplatformbackend.common.exception.UserAlreadyExistsException;
+import com.example.eventsplatformbackend.common.exception.UserNotFoundException;
+import com.example.eventsplatformbackend.common.exception.WrongPasswordException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
