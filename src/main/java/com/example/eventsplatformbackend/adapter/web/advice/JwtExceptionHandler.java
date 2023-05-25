@@ -1,6 +1,6 @@
 package com.example.eventsplatformbackend.adapter.web.advice;
 
-import com.example.eventsplatformbackend.exception.MalformedTokenException;
+import com.example.eventsplatformbackend.common.exception.MalformedTokenException;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

@@ -1,7 +1,7 @@
 package com.example.eventsplatformbackend.adapter.web.advice;
 
-import com.example.eventsplatformbackend.exception.EmptyFileException;
-import com.example.eventsplatformbackend.exception.UnsupportedExtensionException;
+import com.example.eventsplatformbackend.common.exception.EmptyFileException;
+import com.example.eventsplatformbackend.common.exception.UnsupportedExtensionException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

@@ -1,8 +1,8 @@
 package com.example.eventsplatformbackend.service.s3;
 
 import com.amazonaws.services.s3.model.S3Object;
-import com.example.eventsplatformbackend.exception.EmptyFileException;
-import com.example.eventsplatformbackend.exception.UnsupportedExtensionException;
+import com.example.eventsplatformbackend.common.exception.EmptyFileException;
+import com.example.eventsplatformbackend.common.exception.UnsupportedExtensionException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

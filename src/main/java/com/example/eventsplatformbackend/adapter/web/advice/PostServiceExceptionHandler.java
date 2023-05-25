@@ -1,7 +1,7 @@
 package com.example.eventsplatformbackend.adapter.web.advice;
 
-import com.example.eventsplatformbackend.exception.InvalidDateException;
-import com.example.eventsplatformbackend.exception.PostAlreadyExistsException;
+import com.example.eventsplatformbackend.common.exception.InvalidDateException;
+import com.example.eventsplatformbackend.common.exception.PostAlreadyExistsException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
