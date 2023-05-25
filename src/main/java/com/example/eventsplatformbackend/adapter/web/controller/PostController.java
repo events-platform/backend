@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.util.List;
@@ -27,18 +28,19 @@ public class PostController {
     private final PostService postService;
     @PageableAsQueryParam
     @GetMapping("/search")
-    @SneakyThrows()
+    @SneakyThrows
     public ResponseEntity<PageImpl<PostResponseDto>> getPostsPagination(Pageable pageable){
         return postService.getPostsPagination(pageable);
     }
 
-    @PostMapping(consumes =  MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @SneakyThrows
     public ResponseEntity<String> createPost(
-            @Valid @ModelAttribute PostCreationDto postCreationDto,
+            @RequestPart(value = "data") @Valid PostCreationDto postCreationDto,
+            @RequestPart(value = "file", required = false) MultipartFile file,
             Principal principal){
-        return postService.savePost(postCreationDto, principal);
+        return postService.savePost(postCreationDto, file, principal);
     }
     @GetMapping("/{postId}")
     @SneakyThrows

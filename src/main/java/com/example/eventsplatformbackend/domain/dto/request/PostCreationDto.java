@@ -2,13 +2,13 @@ package com.example.eventsplatformbackend.domain.dto.request;
 
 import com.example.eventsplatformbackend.domain.enumeration.EFormat;
 import com.example.eventsplatformbackend.domain.enumeration.EType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
@@ -25,12 +25,13 @@ public class PostCreationDto {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     LocalDateTime endDate;
     @NotNull(message = "Выберите формат мероприятия")
+    @Schema(description = "Case sensitive", example = "ОНЛАЙН")
     EFormat format;
     @NotNull(message = "Выберите тип мероприятия")
+    @Schema(description = "Case sensitive", example = "МИТАП")
     EType type;
     Integer registrationLimit;
     String email;
     String externalLink;
     String description;
-    MultipartFile file;
 }
