@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -105,8 +106,11 @@ public class PostService {
         return ResponseEntity.ok(users);
     }
 
-    public ResponseEntity<PageImpl<PostResponseDto>> getPostsPagination(Pageable pageable) {
-        Page<Post> postsPage = postRepository.findAll(pageable);
+    public ResponseEntity<PageImpl<PostResponseDto>> getPostsPaginationWithFilters(
+            LocalDateTime beginDateFilter,
+            LocalDateTime endDateFilter,
+            Pageable pageable) {
+        Page<Post> postsPage = postRepository.findPostsByFiltersWithPagination(beginDateFilter, endDateFilter, pageable);
         PageImpl<PostResponseDto> postsPageDto = new PageImpl<>(
                 postsPage.stream()
                     .map(postMapper::postDtoFromPost)

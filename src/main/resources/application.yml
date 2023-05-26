@@ -13,7 +13,12 @@ aws:
   default-post-avatar-dir: events-platform-files/default/default-post-avatar.jpg
   default-avatar-dir: events-platform-files/default/default-avatar.jpg
 
+
 spring:
+  jpa:
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
   data:
     web:
       pageable:
