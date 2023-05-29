@@ -14,7 +14,6 @@ import com.example.eventsplatformbackend.common.mapper.PostMapper;
 import com.example.eventsplatformbackend.common.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -106,17 +105,14 @@ public class PostService {
         return ResponseEntity.ok(users);
     }
 
-    public ResponseEntity<PageImpl<PostResponseDto>> getPostsPaginationWithFilters(
+    public ResponseEntity<Page<PostResponseDto>> getPostsPaginationWithFilters(
             LocalDateTime beginDateFilter,
             LocalDateTime endDateFilter,
+            List<String> organizers,
             Pageable pageable) {
-        Page<Post> postsPage = postRepository.findPostsByFiltersWithPagination(beginDateFilter, endDateFilter, pageable);
-        PageImpl<PostResponseDto> postsPageDto = new PageImpl<>(
-                postsPage.stream()
-                    .map(postMapper::postDtoFromPost)
-                    .toList(),
-                pageable,
-                postsPage.getTotalElements());
-        return ResponseEntity.ok(postsPageDto);
+        Page<Post> postsPage = postRepository.findPostsByFiltersWithPagination(
+                beginDateFilter, endDateFilter, organizers, pageable);
+        Page<PostResponseDto> postsDtoPage = postsPage.map(postMapper::postDtoFromPost);
+        return ResponseEntity.ok(postsDtoPage);
     }
 }

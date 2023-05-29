@@ -15,6 +15,9 @@ aws:
 
 
 spring:
+  jackson:
+    deserialization:
+      accept-single-value-as-array: true
   jpa:
     properties:
       hibernate:
