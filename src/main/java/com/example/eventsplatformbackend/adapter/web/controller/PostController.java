@@ -1,6 +1,7 @@
 package com.example.eventsplatformbackend.adapter.web.controller;
 
 import com.example.eventsplatformbackend.domain.dto.request.PostCreationDto;
+import com.example.eventsplatformbackend.domain.dto.request.PostIdDto;
 import com.example.eventsplatformbackend.domain.dto.response.PostResponseDto;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.service.post.PostService;
@@ -13,7 +14,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -37,16 +37,19 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved"),
             @ApiResponse(responseCode = "404", description = "Not found - issue with filtering or pagination parameters")
     })
+    // TODO
+    // Чекбокс для мероприятий, которые уже кончились и тех, что еще не кончились
     @PageableAsQueryParam
     @GetMapping("/search")
     @SneakyThrows
     public ResponseEntity<Page<PostResponseDto>> getPostsPagination(
             @RequestParam(required = false) LocalDateTime beginDate,
             @RequestParam(required = false) LocalDateTime endDate,
-            @RequestParam(required = false) List<String> organizers,
+            @RequestParam(required = false) List<String> organizer,
+            @RequestParam(required = false) List<String> type,
             @Parameter(hidden = true)
             @PageableDefault(sort = {"begin_date", "end_date", "name"}, direction = Sort.Direction.ASC) Pageable pageable){
-        return postService.getPostsPaginationWithFilters(beginDate, endDate, organizers, pageable);
+        return postService.getPostsPaginationWithFilters(beginDate, endDate, organizer, type, pageable);
     }
 
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
@@ -57,6 +60,17 @@ public class PostController {
             @RequestPart(value = "file", required = false) MultipartFile file,
             Principal principal){
         return postService.savePost(postCreationDto, file, principal);
+    }
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully deleted"),
+            @ApiResponse(responseCode = "404", description = "Not found - post with this id not exists"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - access denied")
+    })
+    @DeleteMapping(produces = "application/json; charset=utf-8")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @ResponseBody
+    public String deletePost(@RequestBody PostIdDto postIdDto, Principal principal){
+        return postService.deletePost(postIdDto.getPostId(), principal.getName());
     }
     @GetMapping("/{postId}")
     @SneakyThrows

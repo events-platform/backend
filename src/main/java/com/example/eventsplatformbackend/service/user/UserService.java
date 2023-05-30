@@ -7,6 +7,7 @@ import com.example.eventsplatformbackend.common.exception.UserAlreadyExistsExcep
 import com.example.eventsplatformbackend.common.exception.UserNotFoundException;
 import com.example.eventsplatformbackend.common.exception.WrongPasswordException;
 import com.example.eventsplatformbackend.common.mapper.UserMapper;
+import com.example.eventsplatformbackend.domain.entity.Post;
 import com.example.eventsplatformbackend.domain.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -142,5 +144,20 @@ public class UserService{
 
     public UserDto getDtoFromPrincipal(Principal principal) {
         return new UserDto(userRepository.getUserByUsername(principal.getName()));
+    }
+    public void saveUser(User user){
+        userRepository.save(user);
+    }
+    public Optional<User> getUserById(Long id){
+        return userRepository.findById(id);
+    }
+    public Optional<User> findUserByUsername(String username){
+        return userRepository.findUserByUsername(username);
+    }
+    public User getUserByUsername(String username){
+        return userRepository.getUserByUsername(username);
+    }
+    public List<User> getPostSubscribers(Post post){
+        return userRepository.getUsersBySubscribedPosts(post);
     }
 }
