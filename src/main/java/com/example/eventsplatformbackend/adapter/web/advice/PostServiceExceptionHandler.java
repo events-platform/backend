@@ -1,6 +1,7 @@
 package com.example.eventsplatformbackend.adapter.web.advice;
 
 import com.example.eventsplatformbackend.common.exception.InvalidDateException;
+import com.example.eventsplatformbackend.common.exception.PostAccessDeniedException;
 import com.example.eventsplatformbackend.common.exception.PostAlreadyExistsException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +41,13 @@ public class PostServiceExceptionHandler {
     public ResponseEntity<String> handleInvalidDateException (InvalidDateException e){
         return ResponseEntity
                 .status(400)
+                .header(CONTENT_TYPE, CONTENT_TYPE_VALUE)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(PostAccessDeniedException.class)
+    public ResponseEntity<String> handleInvalidDateException (PostAccessDeniedException e){
+        return ResponseEntity
+                .status(403)
                 .header(CONTENT_TYPE, CONTENT_TYPE_VALUE)
                 .body(e.getMessage());
     }

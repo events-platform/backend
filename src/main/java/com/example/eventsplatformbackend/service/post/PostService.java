@@ -1,19 +1,17 @@
 package com.example.eventsplatformbackend.service.post;
 
-import com.example.eventsplatformbackend.adapter.repository.UserRepository;
-import com.example.eventsplatformbackend.common.exception.EventTypeNotExistsException;
+import com.example.eventsplatformbackend.common.exception.*;
 import com.example.eventsplatformbackend.domain.dto.request.PostCreationDto;
 import com.example.eventsplatformbackend.adapter.repository.PostRepository;
 import com.example.eventsplatformbackend.domain.dto.response.PostResponseDto;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.domain.entity.Post;
 import com.example.eventsplatformbackend.domain.entity.User;
-import com.example.eventsplatformbackend.common.exception.InvalidDateException;
-import com.example.eventsplatformbackend.common.exception.PostAlreadyExistsException;
-import com.example.eventsplatformbackend.common.exception.PostNotFoundException;
 import com.example.eventsplatformbackend.common.mapper.PostMapper;
 import com.example.eventsplatformbackend.common.mapper.UserMapper;
+import com.example.eventsplatformbackend.domain.enumeration.ERole;
 import com.example.eventsplatformbackend.domain.enumeration.EType;
+import com.example.eventsplatformbackend.service.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,21 +33,23 @@ import java.util.*;
 @Slf4j
 public class PostService {
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final PostMapper postMapper;
     private final UserMapper userMapper;
     private final PostFileService postFileService;
 
-    public PostService(PostRepository postRepository, UserRepository userRepository, PostMapper postMapper, UserMapper userMapper, PostFileService postFileService) {
+    public PostService(PostRepository postRepository, UserService userService,
+                       PostMapper postMapper, UserMapper userMapper, PostFileService postFileService) {
         this.postRepository = postRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
         this.postMapper = postMapper;
         this.userMapper = userMapper;
         this.postFileService = postFileService;
     }
 
     @Transactional(propagation= Propagation.REQUIRED)
-    public ResponseEntity<String> savePost(PostCreationDto postCreationDto, MultipartFile file, Principal principal) throws PostAlreadyExistsException, InvalidDateException {
+    public ResponseEntity<String> savePost(PostCreationDto postCreationDto, MultipartFile file, Principal principal)
+            throws PostAlreadyExistsException, InvalidDateException {
         Post post = postMapper.postCreationDtoToPost(postCreationDto);
 
         if (postRepository.existsPostByBeginDateAndName(post.getBeginDate(), post.getName())){
@@ -67,12 +67,12 @@ public class PostService {
             post.setImage(link);
         }
 
-        User user = userRepository.getUserByUsername(principal.getName());
+        User user = userService.getUserByUsername(principal.getName());
         user.getCreatedPosts().add(post);
         post.setOwner(user);
 
         postRepository.save(post);
-        userRepository.save(user);
+        userService.saveUser(user);
         return ResponseEntity
                 .ok()
                 .header("Content-Type", "text/html; charset=utf-8")
@@ -99,8 +99,8 @@ public class PostService {
     public ResponseEntity<List<UserDto>> getPostSubscribers(Long postId) throws PostNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() ->
                 new PostNotFoundException("Мероприятие с таким id не найдено"));
-        List<UserDto> users = userRepository.getUsersBySubscribedPosts(post).stream().
-                map(userMapper::userToUserDto)
+        List<UserDto> users = userService.getPostSubscribers(post).stream()
+                .map(userMapper::userToUserDto)
                 .toList();
 
         return ResponseEntity.ok(users);
@@ -128,5 +128,18 @@ public class PostService {
                 beginDateFilter, endDateFilter, organizers, parsedTypes, pageable)
                 .map(postMapper::postDtoFromPost);
         return ResponseEntity.ok(postsPage);
+    }
+    @Transactional
+    public String deletePost(Long postId, String username) {
+        Post postToDelete = postRepository.findById(postId).orElseThrow(() ->
+                new PostNotFoundException("Мероприятие с таким id не найдено"));
+        User user = userService.findUserByUsername(username).orElseThrow(() ->
+                new UserNotFoundException(String.format("Пользователя с именем %s не существует", username)));
+
+        if (postToDelete.getOwner().getId().equals(user.getId()) || user.getRole().equals(ERole.ROLE_ADMIN)){
+            postRepository.deletePostFromAllTables(postToDelete.getId());
+            return "Мероприятие успешно удалено";
+        }
+        throw new PostAccessDeniedException("Вы не можете удалять чужие мероприятия");
     }
 }

@@ -42,7 +42,7 @@ public class Post {
     LocalDateTime endDate;
     @Column(name = "location")
     String location;
-    @Column(name = "description")
+    @Column(name = "description", length = 4096)
     String description;
     @Column(name = "email")
     String email;

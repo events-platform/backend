@@ -4,6 +4,7 @@ import com.example.eventsplatformbackend.domain.entity.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -38,4 +39,12 @@ public interface PostRepository extends JpaRepository<Post, Long>{
             @Param("organizers") List<String> organizers,
             @Param("types") List<String> types,
             Pageable pageable);
+    // Delete post from join tables and from entity table
+    @Modifying
+    @Query(value =  "DELETE FROM users_created_posts WHERE created_posts_post_id = :postId ;"+
+                    "DELETE FROM users_favorite_posts WHERE post_id = :postId ;"+
+                    "DELETE FROM users_subscriptions WHERE post_id = :postId ;"+
+                    "DELETE FROM posts WHERE posts.post_id = :postId ;",
+                nativeQuery = true)
+    void deletePostFromAllTables(@Param("postId") Long postId);
 }
