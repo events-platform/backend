@@ -13,7 +13,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -43,10 +42,11 @@ public class PostController {
     public ResponseEntity<Page<PostResponseDto>> getPostsPagination(
             @RequestParam(required = false) LocalDateTime beginDate,
             @RequestParam(required = false) LocalDateTime endDate,
-            @RequestParam(required = false) List<String> organizers,
+            @RequestParam(required = false) List<String> organizer,
+            @RequestParam(required = false) List<String> type,
             @Parameter(hidden = true)
             @PageableDefault(sort = {"begin_date", "end_date", "name"}, direction = Sort.Direction.ASC) Pageable pageable){
-        return postService.getPostsPaginationWithFilters(beginDate, endDate, organizers, pageable);
+        return postService.getPostsPaginationWithFilters(beginDate, endDate, organizer, type, pageable);
     }
 
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })

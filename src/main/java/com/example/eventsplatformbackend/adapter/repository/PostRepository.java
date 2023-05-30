@@ -14,24 +14,28 @@ import java.util.List;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long>{
     boolean existsPostByBeginDateAndName(LocalDateTime beginDate, String name);
-    // Wrap main query in select for correct sorting work
+    // Wrap main query as 't' in select for correct sorting work
     @Query(value = "SELECT * "+
             "FROM (SELECT POSTS.* "+
             "   FROM POSTS INNER JOIN USERS ON POSTS.user_id = USERS.user_id "+
             "   WHERE "+
             "       (cast(:fromDate as timestamp) is null or POSTS.begin_date > cast(:fromDate as timestamp)) "+
             "       AND (cast(:toDate as timestamp) is null or POSTS.end_date < cast(:toDate as timestamp)) "+
-            "       AND (COALESCE(:organizers,NULL) IS NULL or USERS.username IN (:organizers))) as t",
-            countQuery = "SELECT COUNT(*) FROM (SELECT POSTS.* "+
-                    "FROM POSTS INNER JOIN USERS ON POSTS.user_id = USERS.user_id "+
+            "       AND (COALESCE(:organizers) IS NULL or USERS.username IN (:organizers)) "+
+            "       AND (COALESCE(:types) IS NULL or POSTS.type IN (:types))) as t",
+            countQuery = "SELECT COUNT(*) "+
+                    "FROM (SELECT POSTS.* "+
+                    "   FROM POSTS INNER JOIN USERS ON POSTS.user_id = USERS.user_id "+
                     "   WHERE "+
                     "       (cast(:fromDate as timestamp) is null or POSTS.begin_date > cast(:fromDate as timestamp)) "+
                     "       AND (cast(:toDate as timestamp) is null or POSTS.end_date < cast(:toDate as timestamp)) "+
-                    "       AND (COALESCE(:organizers,NULL) IS NULL or USERS.username IN (:organizers))) as t",
+                    "       AND (COALESCE(:organizers) IS NULL or USERS.username IN (:organizers)) "+
+                    "       AND (COALESCE(:types) IS NULL or POSTS.type IN (:types))) as t",
             nativeQuery = true)
     Page<Post> findPostsByFiltersWithPagination(
             @Param("fromDate") LocalDateTime fromDate,
             @Param("toDate") LocalDateTime toDate,
             @Param("organizers") List<String> organizers,
+            @Param("types") List<String> types,
             Pageable pageable);
 }

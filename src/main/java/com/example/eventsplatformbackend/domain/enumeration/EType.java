@@ -2,6 +2,8 @@ package com.example.eventsplatformbackend.domain.enumeration;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import java.util.Objects;
+
 public enum EType {
     ACCELERATOR("АКСЕЛЕТАОР"),
     WORKSHOP("ВОРКШОП"),
@@ -29,5 +31,14 @@ public enum EType {
     @JsonValue
     public String getName(){
         return name;
+    }
+    public static EType findByKey(String key){
+        EType[] enums = EType.values();
+        for (EType type : enums){
+            if(Objects.equals(type.name, key.toUpperCase())){
+                return type;
+            }
+        }
+        return null;
     }
 }
