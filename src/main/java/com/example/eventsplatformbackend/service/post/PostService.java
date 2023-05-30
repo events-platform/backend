@@ -1,6 +1,7 @@
 package com.example.eventsplatformbackend.service.post;
 
 import com.example.eventsplatformbackend.adapter.repository.UserRepository;
+import com.example.eventsplatformbackend.common.exception.EventTypeNotExistsException;
 import com.example.eventsplatformbackend.domain.dto.request.PostCreationDto;
 import com.example.eventsplatformbackend.adapter.repository.PostRepository;
 import com.example.eventsplatformbackend.domain.dto.response.PostResponseDto;
@@ -12,6 +13,7 @@ import com.example.eventsplatformbackend.common.exception.PostAlreadyExistsExcep
 import com.example.eventsplatformbackend.common.exception.PostNotFoundException;
 import com.example.eventsplatformbackend.common.mapper.PostMapper;
 import com.example.eventsplatformbackend.common.mapper.UserMapper;
+import com.example.eventsplatformbackend.domain.enumeration.EType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,8 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Работает с мероприятиями
@@ -109,10 +110,23 @@ public class PostService {
             LocalDateTime beginDateFilter,
             LocalDateTime endDateFilter,
             List<String> organizers,
-            Pageable pageable) {
-        Page<Post> postsPage = postRepository.findPostsByFiltersWithPagination(
-                beginDateFilter, endDateFilter, organizers, pageable);
-        Page<PostResponseDto> postsDtoPage = postsPage.map(postMapper::postDtoFromPost);
-        return ResponseEntity.ok(postsDtoPage);
+            List<String> types,
+            Pageable pageable) throws EventTypeNotExistsException{
+
+        List<String> parsedTypes = new ArrayList<>();
+        if (types != null) {
+            types.forEach(predicate -> {
+                EType type = EType.findByKey(predicate.toUpperCase());
+                if (type != null) {
+                    parsedTypes.add(type.toString());
+                } else {
+                    throw new EventTypeNotExistsException(String.format("Event type '%s' is not present", predicate));
+                }
+            });
+        }
+        Page<PostResponseDto> postsPage = postRepository.findPostsByFiltersWithPagination(
+                beginDateFilter, endDateFilter, organizers, parsedTypes, pageable)
+                .map(postMapper::postDtoFromPost);
+        return ResponseEntity.ok(postsPage);
     }
 }
