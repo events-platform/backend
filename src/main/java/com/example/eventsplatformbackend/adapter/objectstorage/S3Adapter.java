@@ -1,6 +1,5 @@
 package com.example.eventsplatformbackend.adapter.objectstorage;
 
-import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
@@ -32,7 +31,7 @@ public class S3Adapter {
     @Async
     public void uploadFile(String path,
             ObjectMetadata objectMetadata,
-            InputStream inputStream) throws SdkClientException{
+            InputStream inputStream) {
         log.info("Saving {} to S3", path);
         amazonS3.putObject(awsCredentials.getBucketName(), path, inputStream, objectMetadata);
     }

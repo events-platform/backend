@@ -7,9 +7,7 @@ import com.example.eventsplatformbackend.config.AwsCredentials;
 import com.example.eventsplatformbackend.domain.entity.User;
 import com.google.common.io.Files;
 import jakarta.transaction.Transactional;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,10 +31,8 @@ public class UserFileService {
         this.s3Service = s3Service;
         this.awsCredentials = awsCredentials;
     }
-
-    @SneakyThrows
     @Transactional
-    public ResponseEntity<String> setUserAvatarAndGetLink(MultipartFile uploadedFile, Principal principal){
+    public String setUserAvatarAndGetLink(MultipartFile uploadedFile, Principal principal){
         String filename = String.format("%s.%s",
                 UUID.randomUUID(),
                 Files.getFileExtension(uploadedFile.getOriginalFilename()));
@@ -51,6 +47,6 @@ public class UserFileService {
         }
         userRepository.save(user);
 
-        return ResponseEntity.status(201).body(user.getAvatar());
+        return user.getAvatar();
     }
 }
