@@ -22,6 +22,8 @@ import java.util.List;
 @Service
 @Slf4j
 public class UserPostService {
+    public static final String USER_NOT_FOUND = "Пользователь не найден";
+    public static final String POST_NOT_FOUND = "Мероприятие не найдено";
     private final UserRepository userRepository;
     private final PostService postService;
     private final PostMapper postMapper;
@@ -33,64 +35,54 @@ public class UserPostService {
     }
 
     @Transactional
-    public ResponseEntity<List<PostResponseDto>> getUserCreatedPosts(String username) throws UserNotFoundException {
+    public List<PostResponseDto> getUserCreatedPosts(String username) {
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
-                new UserNotFoundException("Пользователь не найден"));
+                new UserNotFoundException(USER_NOT_FOUND));
 
-        List<PostResponseDto> posts = user.getCreatedPosts().stream()
+        return user.getCreatedPosts().stream()
                 .map(postMapper::postDtoFromPost)
                 .toList();
-        return ResponseEntity.ok(posts);
     }
     @Transactional
-    public ResponseEntity<String> addPostToFavorites(PostIdDto postIdDto, String username)
-            throws PostNotFoundException, UserNotFoundException {
+    public String addPostToFavorites(PostIdDto postIdDto, String username) {
         Post post = postService.findById(postIdDto.getPostId()).orElseThrow(() ->
-                new PostNotFoundException("Мероприятие с таким id не найдено"));
+                new PostNotFoundException(POST_NOT_FOUND));
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
-                new UserNotFoundException("Пользователя с таким именем не существует"));
+                new UserNotFoundException(USER_NOT_FOUND));
 
         user.getFavoritePosts().add(post);
         userRepository.save(user);
         log.info("{} added {} to favorites", username, postIdDto.getPostId());
-        return ResponseEntity
-                .ok()
-                .header("Content-Type", "text/html; charset=utf-8")
-                .body("Мероприятие добавлено в избранное");
+        return "Мероприятие добавлено в избранное";
     }
     @Transactional
-    public ResponseEntity<String> removePostFromFavorites(PostIdDto postIdDto, String username)
-            throws PostNotFoundException, UserNotFoundException {
+    public String removePostFromFavorites(PostIdDto postIdDto, String username) {
         Post post = postService.findById(postIdDto.getPostId()).orElseThrow(() ->
-                new PostNotFoundException("Мероприятие с таким id не найдено"));
+                new PostNotFoundException(POST_NOT_FOUND));
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
-                new UserNotFoundException("Пользователь не найден"));
+                new UserNotFoundException(USER_NOT_FOUND));
 
         user.getFavoritePosts().remove(post);
         userRepository.save(user);
         log.info("{} removed {} from favorites", username, postIdDto.getPostId());
-        return ResponseEntity
-                .ok()
-                .header("Content-Type", "text/html; charset=utf-8")
-                .body("Мероприятие удалено из избранного");
+        return "Мероприятие удалено из избранного";
     }
     @Transactional
-    public List<PostResponseDto> getFavoritePosts(String username) throws UserNotFoundException {
+    public List<PostResponseDto> getFavoritePosts(String username) {
         log.info(username);
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
-                new UserNotFoundException("Пользователя с таким именем не существует"));
+                new UserNotFoundException(USER_NOT_FOUND));
 
         return user.getFavoritePosts().stream()
                 .map(postMapper::postDtoFromPost)
                 .toList();
     }
     @Transactional
-    public ResponseEntity<String> subscribeToPost(PostIdDto postIdDto, String username)
-            throws PostNotFoundException, UserNotFoundException {
+    public ResponseEntity<String> subscribeToPost(PostIdDto postIdDto, String username) {
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
-                new UserNotFoundException("Пользователь не найден"));
+                new UserNotFoundException(USER_NOT_FOUND));
         Post post = postService.findById(postIdDto.getPostId()).orElseThrow(() ->
-                new PostNotFoundException("Мероприятие с таким id не найдено"));
+                new PostNotFoundException(POST_NOT_FOUND));
 
         if (user.getSubscribedPosts().contains(post)){
             return ResponseEntity
@@ -118,26 +110,23 @@ public class UserPostService {
     @Transactional
     public List<PostResponseDto> getUserSubscriptions(String username) throws UserNotFoundException {
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
-                new UserNotFoundException("Пользователя с таким именем не существует"));
+                new UserNotFoundException(USER_NOT_FOUND));
 
         return user.getSubscribedPosts().stream()
                 .map(postMapper::postDtoFromPost)
                 .toList();
     }
     @Transactional
-    public ResponseEntity<String> unsubscribeFromPost(PostIdDto postIdDto, String username)
+    public String unsubscribeFromPost(PostIdDto postIdDto, String username)
             throws PostNotFoundException, UserNotFoundException {
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
-                new UserNotFoundException("Пользователь не найден"));
+                new UserNotFoundException(USER_NOT_FOUND));
         Post toUnsubscribe = postService.findById(postIdDto.getPostId()).orElseThrow(() ->
-                new PostNotFoundException("Мероприятие с таким id не найдено"));
+                new PostNotFoundException(POST_NOT_FOUND));
 
         user.getSubscribedPosts().remove(toUnsubscribe);
         userRepository.save(user);
         log.info("{} unsubscribed from {}", username, postIdDto.getPostId());
-        return ResponseEntity
-                .ok()
-                .header("Content-Type", "text/html; charset=utf-8")
-                .body("Вы больше не подписаны на это мероприятие");
+        return "Вы больше не подписаны на это мероприятие";
     }
 }
