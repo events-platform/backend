@@ -11,7 +11,6 @@ import com.example.eventsplatformbackend.domain.entity.Post;
 import com.example.eventsplatformbackend.domain.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,7 +21,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Работает с личной информацией пользователей
+ * Выполняет операции над сущностью User
+ * Может создавать, редактировать и доставать из базы пользователей
+ * Также может быть использован другими классами как обертка над UserRepository
  */
 @Service
 @Slf4j
@@ -38,7 +39,7 @@ public class UserService{
     }
 
     public User createUser(RegistrationDto registrationDto) throws UserAlreadyExistsException {
-        log.info("creating user {}", registrationDto.getUsername());
+        log.info("Creating user {}", registrationDto.getUsername());
         User user = userMapper.registrationDtoToUser(registrationDto);
 
         if (userRepository.existsUserByUsername(user.getUsername())){
@@ -48,7 +49,7 @@ public class UserService{
         } else {
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
             userRepository.save(user);
-            log.info("user {} saved", user.getUsername());
+            log.info("User {} saved", user.getUsername());
 
             return userRepository.getUserByUsername(user.getUsername());
         }
@@ -69,7 +70,7 @@ public class UserService{
         User user = userRepository.getUserByUsername(principal.getName());
 
         if(bCryptPasswordEncoder.matches(passwordChangeDto.getOldPassword(), user.getPassword())){
-            log.info("user {} changed password", principal.getName());
+            log.info("User {} changed password", principal.getName());
             user.setPassword(bCryptPasswordEncoder.encode(passwordChangeDto.getNewPassword()));
             userRepository.save(user);
 
@@ -78,45 +79,37 @@ public class UserService{
             return ResponseEntity.badRequest().body("Неправильно введен старый пароль");
         }
     }
-
     @Transactional
-    public ResponseEntity<String> deleteUser(String username){
-        log.info("deleting user {}", username);
-
-        if (userRepository.existsUserByUsername(username)) {
-            userRepository.deleteUserByUsername(username);
-            return ResponseEntity.ok("Пользователь удален");
-        } else {
-            return new ResponseEntity<>("Пользователь не найден", HttpStatus.NOT_FOUND);
-        }
+    public String deleteUser(String username){
+        log.info("Deleting user {}", username);
+        User userToDelete = userRepository.findUserByUsername(username).orElseThrow(() ->
+                new UserNotFoundException(String.format("Пользователя с именем %s не существует", username)));
+        log.info("Deleted user {}", userToDelete.getUsername());
+        userRepository.delete(userToDelete);
+        return "Пользователь удален";
     }
 
-    public UserDto getDtoByUsername(String username) throws UserNotFoundException {
-        log.debug("getting user {}", username);
-
+    public UserDto getDtoByUsername(String username) {
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
                 new UserNotFoundException(String.format("Пользователя с именем %s не существует", username)));
-        return new UserDto(user);
+        return userMapper.userToUserDto(user);
     }
 
     public Optional<User> findById(Long id){
         return userRepository.findById(id);
     }
 
-    public ResponseEntity<String> setUserRole(ChangeRoleDto changeRoleDto) throws UserNotFoundException {
-        log.info("changing role of {} to {}", changeRoleDto.getUsername(), changeRoleDto.getRole());
+    public String setUserRole(ChangeRoleDto changeRoleDto) throws UserNotFoundException {
+        log.info("Changing role of {} to {}", changeRoleDto.getUsername(), changeRoleDto.getRole());
 
         User user = userRepository.findUserByUsername(changeRoleDto.getUsername()).orElseThrow(() ->
                 new UserNotFoundException(String.format("Пользователь %s не найден", changeRoleDto.getUsername())));
 
         user.setRole(changeRoleDto.getRole());
         userRepository.save(user);
-        return ResponseEntity
-                .ok()
-                .header("Content-Type", "text/html; charset=utf-8")
-                .body(String.format("%s теперь %s ", user.getUsername(), user.getRole()));
+        return String.format("%s теперь %s ", user.getUsername(), user.getRole());
     }
-    public ResponseEntity<UserDto> editUserInfo(Principal principal, UserEditDto dto) throws UserAlreadyExistsException {
+    public UserDto editUserInfo(Principal principal, UserEditDto dto) {
         User user = userRepository.getUserByUsername(principal.getName());
 
         if(dto.getUsername() != null
@@ -138,12 +131,13 @@ public class UserService{
         userMapper.updateUserFromUserEditDto(dto, user);
         userRepository.save(user);
 
-        log.info("updated user {}", user.getUsername());
-        return ResponseEntity.ok(new UserDto(user));
+        log.info("Update user {}", user.getUsername());
+        return userMapper.userToUserDto(user);
     }
 
     public UserDto getDtoFromPrincipal(Principal principal) {
-        return new UserDto(userRepository.getUserByUsername(principal.getName()));
+        User user = userRepository.getUserByUsername(principal.getName());
+        return userMapper.userToUserDto(user);
     }
     public void saveUser(User user){
         userRepository.save(user);

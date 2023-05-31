@@ -18,7 +18,6 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping(value = "/signup", produces = "application/json; charset=utf-8")
-    @ResponseBody
     public JwtResponse signUp(@Valid @RequestBody RegistrationDto registrationDto){
         return authService.signUp(registrationDto);
     }
