@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.data.domain.Page;
@@ -18,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,9 +38,8 @@ public class PostController {
     // TODO
     // Чекбокс для мероприятий, которые уже кончились и тех, что еще не кончились
     @PageableAsQueryParam
-    @GetMapping("/search")
-    @SneakyThrows
-    public ResponseEntity<Page<PostResponseDto>> getPostsPagination(
+    @GetMapping(value = "/search", produces = "application/json; charset=utf-8")
+    public Page<PostResponseDto> getPostsPagination(
             @RequestParam(required = false) LocalDateTime beginDate,
             @RequestParam(required = false) LocalDateTime endDate,
             @RequestParam(required = false) List<String> organizer,
@@ -52,10 +49,9 @@ public class PostController {
         return postService.getPostsPaginationWithFilters(beginDate, endDate, organizer, type, pageable);
     }
 
-    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE }, produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @SneakyThrows
-    public ResponseEntity<String> createPost(
+    public String createPost(
             @RequestPart(value = "data") @Valid PostCreationDto postCreationDto,
             @RequestPart(value = "file", required = false) MultipartFile file,
             Principal principal){
@@ -68,22 +64,19 @@ public class PostController {
     })
     @DeleteMapping(produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @ResponseBody
     public String deletePost(@RequestBody PostIdDto postIdDto, Principal principal){
         return postService.deletePost(postIdDto.getPostId(), principal.getName());
     }
-    @GetMapping("/{postId}")
-    @SneakyThrows
-    public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long postId){
+    @GetMapping(value = "/{postId}", produces = "application/json; charset=utf-8")
+    public PostResponseDto getPostById(@PathVariable Long postId){
         return postService.getPostById(postId);
     }
-    @GetMapping("/subscribers/{postId}")
-    @SneakyThrows
-    public ResponseEntity<List<UserDto>> getPostSubscribers(@PathVariable Long postId){
+    @GetMapping(value = "/subscribers/{postId}", produces = "application/json; charset=utf-8")
+    public List<UserDto> getPostSubscribers(@PathVariable Long postId){
         return postService.getPostSubscribers(postId);
     }
-    @GetMapping("/all")
-    public ResponseEntity<List<PostResponseDto>> getAllPosts(){
+    @GetMapping(value = "/all", produces = "application/json; charset=utf-8")
+    public List<PostResponseDto> getAllPosts(){
         return postService.getAllPosts();
     }
 }

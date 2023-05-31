@@ -15,7 +15,6 @@ import com.example.eventsplatformbackend.service.user.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +26,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 /**
- * Работает с мероприятиями
+ * Работает с мероприятиями пользователей
+ * Может добавлять/удалять мероприятие из избранных, регистрировать/удалять пользователя как участника мероприятия
  */
 @Service
 @Slf4j
@@ -48,8 +48,7 @@ public class PostService {
     }
 
     @Transactional(propagation= Propagation.REQUIRED)
-    public ResponseEntity<String> savePost(PostCreationDto postCreationDto, MultipartFile file, Principal principal)
-            throws PostAlreadyExistsException, InvalidDateException {
+    public String savePost(PostCreationDto postCreationDto, MultipartFile file, Principal principal) {
         Post post = postMapper.postCreationDtoToPost(postCreationDto);
 
         if (postRepository.existsPostByBeginDateAndName(post.getBeginDate(), post.getName())){
@@ -73,40 +72,34 @@ public class PostService {
 
         postRepository.save(post);
         userService.saveUser(user);
-        return ResponseEntity
-                .ok()
-                .header("Content-Type", "text/html; charset=utf-8")
-                .body("Мероприятие успешно сохранено");
+        return "Мероприятие успешно сохранено";
     }
     @Transactional
-    public ResponseEntity<List<PostResponseDto>> getAllPosts() {
-        List<PostResponseDto> postResponseDtos = postRepository.findAll().stream()
+    public List<PostResponseDto> getAllPosts() {
+        return postRepository.findAll().stream()
                 .map(postMapper::postDtoFromPost)
                 .toList();
-        return ResponseEntity.ok(postResponseDtos);
     }
 
     public Optional<Post> findById(Long postId) {
         return postRepository.findById(postId);
     }
 
-    public ResponseEntity<PostResponseDto> getPostById(Long postId) throws PostNotFoundException {
+    public PostResponseDto getPostById(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(() ->
                 new PostNotFoundException("Мероприятие с таким id не найдено"));
-        return ResponseEntity.ok(postMapper.postDtoFromPost(post));
+        return postMapper.postDtoFromPost(post);
     }
 
-    public ResponseEntity<List<UserDto>> getPostSubscribers(Long postId) throws PostNotFoundException {
+    public List<UserDto> getPostSubscribers(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(() ->
                 new PostNotFoundException("Мероприятие с таким id не найдено"));
-        List<UserDto> users = userService.getPostSubscribers(post).stream()
+        return userService.getPostSubscribers(post).stream()
                 .map(userMapper::userToUserDto)
                 .toList();
-
-        return ResponseEntity.ok(users);
     }
 
-    public ResponseEntity<Page<PostResponseDto>> getPostsPaginationWithFilters(
+    public Page<PostResponseDto> getPostsPaginationWithFilters(
             LocalDateTime beginDateFilter,
             LocalDateTime endDateFilter,
             List<String> organizers,
@@ -124,10 +117,9 @@ public class PostService {
                 }
             });
         }
-        Page<PostResponseDto> postsPage = postRepository.findPostsByFiltersWithPagination(
+        return postRepository.findPostsByFiltersWithPagination(
                 beginDateFilter, endDateFilter, organizers, parsedTypes, pageable)
                 .map(postMapper::postDtoFromPost);
-        return ResponseEntity.ok(postsPage);
     }
     @Transactional
     public String deletePost(Long postId, String username) {
