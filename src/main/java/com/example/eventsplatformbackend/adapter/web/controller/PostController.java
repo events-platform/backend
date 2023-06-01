@@ -36,7 +36,7 @@ public class PostController {
             @ApiResponse(responseCode = "404", description = "Not found - issue with filtering or pagination parameters")
     })
     // TODO
-    // Чекбокс для мероприятий, которые уже кончились и тех, что еще не кончились
+    // Чекбокс для мероприятий, которые уже кончились
     @PageableAsQueryParam
     @GetMapping(value = "/search", produces = "application/json; charset=utf-8")
     public Page<PostResponseDto> getPostsPagination(
@@ -44,9 +44,11 @@ public class PostController {
             @RequestParam(required = false) LocalDateTime endDate,
             @RequestParam(required = false) List<String> organizer,
             @RequestParam(required = false) List<String> type,
+            @RequestParam(required = false, defaultValue = "false") Boolean showEnded,
+            @RequestParam(required = false) String name,
             @Parameter(hidden = true)
-            @PageableDefault(sort = {"begin_date", "end_date", "name"}, direction = Sort.Direction.ASC) Pageable pageable){
-        return postService.getPostsPaginationWithFilters(beginDate, endDate, organizer, type, pageable);
+            @PageableDefault(sort = {"beginDate", "name"}, direction = Sort.Direction.ASC) Pageable pageable){
+        return postService.getPostsPaginationWithFilters(beginDate, endDate, organizer, type, showEnded, name, pageable);
     }
 
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE }, produces = "application/json; charset=utf-8")

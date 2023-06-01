@@ -104,21 +104,27 @@ public class PostService {
             LocalDateTime endDateFilter,
             List<String> organizers,
             List<String> types,
+            Boolean showEndedPosts,
+            String name,
             Pageable pageable) throws EventTypeNotExistsException{
 
-        List<String> parsedTypes = new ArrayList<>();
+        List<EType> parsedTypes = new ArrayList<>();
         if (types != null) {
             types.forEach(predicate -> {
                 EType type = EType.findByKey(predicate.toUpperCase());
                 if (type != null) {
-                    parsedTypes.add(type.toString());
+                    parsedTypes.add(type);
                 } else {
                     throw new EventTypeNotExistsException(String.format("Event type '%s' is not present", predicate));
                 }
             });
         }
-        return postRepository.findPostsByFiltersWithPagination(
-                beginDateFilter, endDateFilter, organizers, parsedTypes, pageable)
+        LocalDateTime endedPostsFilter = null;
+        if (Boolean.FALSE.equals(showEndedPosts)){
+            endedPostsFilter = LocalDateTime.now();
+        }
+        return postRepository.findPostsByFilters(
+                beginDateFilter, endDateFilter, organizers, parsedTypes, endedPostsFilter, name, pageable)
                 .map(postMapper::postDtoFromPost);
     }
     @Transactional
