@@ -9,6 +9,7 @@ import com.example.eventsplatformbackend.domain.entity.Post;
 import com.example.eventsplatformbackend.domain.entity.User;
 import com.example.eventsplatformbackend.common.mapper.PostMapper;
 import com.example.eventsplatformbackend.common.mapper.UserMapper;
+import com.example.eventsplatformbackend.domain.enumeration.EFormat;
 import com.example.eventsplatformbackend.domain.enumeration.ERole;
 import com.example.eventsplatformbackend.domain.enumeration.EType;
 import com.example.eventsplatformbackend.service.user.UserService;
@@ -104,18 +105,30 @@ public class PostService {
             LocalDateTime endDateFilter,
             List<String> organizers,
             List<String> types,
+            List<String> formats,
             Boolean showEndedPosts,
             String searchQuery,
             Pageable pageable) throws EventTypeNotExistsException{
 
         List<EType> parsedTypes = new ArrayList<>();
         if (types != null) {
-            types.forEach(predicate -> {
-                EType type = EType.findByKey(predicate.toUpperCase());
+            types.forEach(rawType -> {
+                EType type = EType.findByKey(rawType);
                 if (type != null) {
                     parsedTypes.add(type);
                 } else {
-                    throw new EventTypeNotExistsException(String.format("Event type '%s' is not present", predicate));
+                    throw new EventTypeNotExistsException(String.format("Event type '%s' is not present", rawType));
+                }
+            });
+        }
+        List<EFormat> parsedFormats = new ArrayList<>();
+        if (formats != null) {
+            formats.forEach(rawFormat -> {
+                EFormat format = EFormat.findByKey(rawFormat);
+                if (format != null) {
+                    parsedFormats.add(format);
+                } else {
+                    throw new EventFormatNotExistsException(String.format("Event format '%s' is not present", rawFormat));
                 }
             });
         }
@@ -124,7 +137,8 @@ public class PostService {
             endedPostsFilter = LocalDateTime.now();
         }
         return postRepository.findPostsByFilters(
-                beginDateFilter, endDateFilter, organizers, parsedTypes, endedPostsFilter, searchQuery, pageable)
+                beginDateFilter, endDateFilter, organizers,
+                parsedTypes, parsedFormats, endedPostsFilter, searchQuery, pageable)
                 .map(postMapper::postDtoFromPost);
     }
     @Transactional

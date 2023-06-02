@@ -2,10 +2,12 @@ package com.example.eventsplatformbackend.domain.enumeration;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import java.util.Objects;
+
 public enum EFormat {
-    OFFLINE("ОФЛАЙН"),
-    MIXED("СМЕШАННОЕ"),
-    ONLINE("ОНЛАЙН");
+    OFFLINE("Офлайн"),
+    MIXED("Смешанное"),
+    ONLINE("Онлайн");
     private final String name;
     EFormat(String name) {
         this.name = name;
@@ -13,5 +15,14 @@ public enum EFormat {
     @JsonValue
     public String getName(){
         return name;
+    }
+    public static EFormat findByKey(String key) {
+        EFormat[] enums = EFormat.values();
+        for (EFormat format : enums) {
+            if (Objects.equals(format.name, key)) {
+                return format;
+            }
+        }
+        return null;
     }
 }
