@@ -4,6 +4,7 @@ import com.example.eventsplatformbackend.adapter.objectstorage.S3Adapter;
 import com.example.eventsplatformbackend.domain.dto.request.PostCreationDto;
 import com.example.eventsplatformbackend.domain.dto.response.PostResponseDto;
 import com.example.eventsplatformbackend.domain.entity.Post;
+import com.example.eventsplatformbackend.domain.entity.QPost;
 import org.mapstruct.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

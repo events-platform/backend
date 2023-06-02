@@ -50,7 +50,7 @@ class AuthTest extends TestParent{
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(body))
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated());
+                .andExpect(status().isOk());
 
         verify(s3Adapter).getLink(anyString());
     }

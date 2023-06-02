@@ -8,21 +8,17 @@ import com.example.eventsplatformbackend.domain.dto.response.JwtResponse;
 import com.example.eventsplatformbackend.domain.entity.JwtToken;
 import com.example.eventsplatformbackend.domain.entity.User;
 import com.example.eventsplatformbackend.common.exception.MalformedTokenException;
-import com.example.eventsplatformbackend.common.exception.UserAlreadyExistsException;
-import com.example.eventsplatformbackend.common.exception.UserNotFoundException;
-import com.example.eventsplatformbackend.common.exception.WrongPasswordException;
 import com.example.eventsplatformbackend.security.JwtUtil;
 import com.example.eventsplatformbackend.service.user.UserService;
 import com.example.eventsplatformbackend.service.factory.JwtFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
- * Занимается регистрацией, логином и jwt токенами пользователей
+ * Занимается регистрацией, авторизацией и заменой jwt токенов
  */
 @Slf4j
 @Service
@@ -43,31 +39,26 @@ public class AuthService {
         this.tokenRepository = tokenRepository;
     }
 
-    public ResponseEntity<JwtResponse> signUp(RegistrationDto registrationDto) throws UserAlreadyExistsException {
+    public JwtResponse signUp(RegistrationDto registrationDto) {
         User user = userService.createUser(registrationDto);
-        JwtResponse jwtResponse = jwtFactory.getJwtResponse(user);
-        return ResponseEntity.status(201).body(jwtResponse);
+        return jwtFactory.getJwtResponse(user);
     }
 
-    public ResponseEntity<JwtResponse> login(JwtRequest jwtRequest) throws WrongPasswordException, UserNotFoundException {
+    public JwtResponse login(JwtRequest jwtRequest) {
         User user = userService.login(jwtRequest);
-        JwtResponse jwtResponse = jwtFactory.getJwtResponse(user);
-        return ResponseEntity.ok(jwtResponse);
+        return jwtFactory.getJwtResponse(user);
     }
 
-    public ResponseEntity<String> logout(JwtTokenPair jwtTokenPair){
-        // save used tokens to blacklist
+    public String logout(JwtTokenPair jwtTokenPair){
+        // Save used tokens to redis blacklist
         tokenRepository.saveAll(List.of(
                 new JwtToken(jwtTokenPair.getAccessToken(), accessTokenExpirationTime),
                 new JwtToken(jwtTokenPair.getRefreshToken(), refreshTokenExpirationTime))
         );
-        return ResponseEntity
-                .ok()
-                .header("Content-Type", "text/html; charset=utf-8")
-                .body("Вы вышли из системы");
+        return "Вы вышли из системы";
     }
 
-    public ResponseEntity<JwtResponse> refreshToken(JwtTokenPair jwtTokenPair) throws MalformedTokenException {
+    public JwtResponse refreshToken(JwtTokenPair jwtTokenPair) throws MalformedTokenException {
         User user = userService.findById(jwtUtil.extractUserId(jwtTokenPair.getAccessToken())).orElseThrow(() ->
             new MalformedTokenException("Malformed JWT, cannot extract user data"));
 
@@ -79,8 +70,7 @@ public class AuthService {
                     new JwtToken(jwtTokenPair.getAccessToken(), accessTokenExpirationTime),
                     new JwtToken(jwtTokenPair.getRefreshToken(), refreshTokenExpirationTime)));
             // generate new tokens
-            JwtResponse jwtResponse = jwtFactory.getJwtResponse(user);
-            return ResponseEntity.ok(jwtResponse);
+            return jwtFactory.getJwtResponse(user);
         }
         throw new MalformedTokenException("Malformed JWT, cannot extract user data");
     }
