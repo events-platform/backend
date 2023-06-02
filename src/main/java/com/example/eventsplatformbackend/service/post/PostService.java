@@ -105,7 +105,7 @@ public class PostService {
             List<String> organizers,
             List<String> types,
             Boolean showEndedPosts,
-            String name,
+            String searchQuery,
             Pageable pageable) throws EventTypeNotExistsException{
 
         List<EType> parsedTypes = new ArrayList<>();
@@ -124,7 +124,7 @@ public class PostService {
             endedPostsFilter = LocalDateTime.now();
         }
         return postRepository.findPostsByFilters(
-                beginDateFilter, endDateFilter, organizers, parsedTypes, endedPostsFilter, name, pageable)
+                beginDateFilter, endDateFilter, organizers, parsedTypes, endedPostsFilter, searchQuery, pageable)
                 .map(postMapper::postDtoFromPost);
     }
     @Transactional
