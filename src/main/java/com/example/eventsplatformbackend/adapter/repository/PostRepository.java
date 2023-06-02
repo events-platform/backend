@@ -1,11 +1,15 @@
 package com.example.eventsplatformbackend.adapter.repository;
 
 import com.example.eventsplatformbackend.domain.entity.Post;
+import com.example.eventsplatformbackend.domain.entity.QPost;
+import com.example.eventsplatformbackend.domain.enumeration.EType;
+import com.querydsl.core.BooleanBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -13,32 +17,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface PostRepository extends JpaRepository<Post, Long>{
+public interface PostRepository extends JpaRepository<Post, Long>,
+        QuerydslPredicateExecutor<Post> {
+
     boolean existsPostByBeginDateAndName(LocalDateTime beginDate, String name);
-    // Wrap main query as 't' in select for correct sorting work
-    @Query(value = "SELECT * "+
-            "FROM (SELECT POSTS.* "+
-            "   FROM POSTS INNER JOIN USERS ON POSTS.user_id = USERS.user_id "+
-            "   WHERE "+
-            "       (cast(:fromDate as timestamp) is null or POSTS.begin_date > cast(:fromDate as timestamp)) "+
-            "       AND (cast(:toDate as timestamp) is null or POSTS.end_date < cast(:toDate as timestamp)) "+
-            "       AND (COALESCE(:organizers) IS NULL or USERS.username IN (:organizers)) "+
-            "       AND (COALESCE(:types) IS NULL or POSTS.type IN (:types))) as t",
-            countQuery = "SELECT COUNT(*) "+
-                    "FROM (SELECT POSTS.* "+
-                    "   FROM POSTS INNER JOIN USERS ON POSTS.user_id = USERS.user_id "+
-                    "   WHERE "+
-                    "       (cast(:fromDate as timestamp) is null or POSTS.begin_date > cast(:fromDate as timestamp)) "+
-                    "       AND (cast(:toDate as timestamp) is null or POSTS.end_date < cast(:toDate as timestamp)) "+
-                    "       AND (COALESCE(:organizers) IS NULL or USERS.username IN (:organizers)) "+
-                    "       AND (COALESCE(:types) IS NULL or POSTS.type IN (:types))) as t",
-            nativeQuery = true)
-    Page<Post> findPostsByFiltersWithPagination(
-            @Param("fromDate") LocalDateTime fromDate,
-            @Param("toDate") LocalDateTime toDate,
-            @Param("organizers") List<String> organizers,
-            @Param("types") List<String> types,
-            Pageable pageable);
     // Delete post from join tables and from entity table
     @Modifying
     @Query(value =  "DELETE FROM users_created_posts WHERE created_posts_post_id = :postId ;"+
@@ -47,4 +29,51 @@ public interface PostRepository extends JpaRepository<Post, Long>{
                     "DELETE FROM posts WHERE posts.post_id = :postId ;",
                 nativeQuery = true)
     void deletePostFromAllTables(@Param("postId") Long postId);
+
+    /**
+     *
+     * @param fromDate Минимальная дата начала ивента
+     * @param toDate Максимальная дата окончания ивента
+     * @param organizers Список организаторов ивента (может состоять из одного организатора)
+     * @param types Типы ивентов (митап, день открытых дверей и т.д.)
+     * @param endedDateFilter Фильтр, отсеивающий все прощедшие мероприятия (на самом деле просто текущая дата)
+     * @param searchQuery Поисковый запрос пользователя
+     * @param pageable Параметр для пагинации
+     * @return Результат запроса с пагинацией
+     */
+    default Page<Post> findPostsByFilters(LocalDateTime fromDate, LocalDateTime toDate,
+                                  List<String> organizers,
+                                  List<EType> types,
+                                  LocalDateTime endedDateFilter,
+                                  String searchQuery,
+                                  Pageable pageable) {
+
+        QPost qPost = QPost.post;
+        BooleanBuilder where = new BooleanBuilder();
+        if (fromDate != null) {
+            where.and(qPost.beginDate.after(fromDate));
+        }
+        if (toDate != null) {
+            where.and(qPost.endDate.before(toDate));
+        }
+        if (organizers != null) {
+            where.and(qPost.owner.username.in(organizers));
+        }
+        if (endedDateFilter != null) {
+            where.and(qPost.endDate.after(endedDateFilter));
+        }
+        if (searchQuery != null && !searchQuery.trim().isEmpty()) {
+                where.and(
+                        qPost.name.containsIgnoreCase(searchQuery)
+                        .or(qPost.name.startsWithIgnoreCase(searchQuery))
+                        .or(qPost.description.containsIgnoreCase(searchQuery))
+                        .or(qPost.owner.username.containsIgnoreCase(searchQuery))
+                );
+        }
+        if (types != null && !types.isEmpty()) {
+            where.and(qPost.type.in(types));
+        }
+
+        return findAll(where, pageable);
+    }
 }

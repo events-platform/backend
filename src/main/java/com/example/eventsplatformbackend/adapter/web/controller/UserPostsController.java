@@ -5,7 +5,6 @@ import com.example.eventsplatformbackend.domain.dto.response.PostResponseDto;
 import com.example.eventsplatformbackend.service.user.UserPostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,43 +20,36 @@ import java.util.List;
 public class UserPostsController {
     private final UserPostService userPostService;
 
-    @GetMapping("/created")
-    @SneakyThrows
-    public ResponseEntity<List<PostResponseDto>> getUserCreatedPosts(@RequestParam String username){
+    @GetMapping(value = "/created", produces = "application/json; charset=utf-8")
+    public List<PostResponseDto> getUserCreatedPosts(@RequestParam String username){
         return userPostService.getUserCreatedPosts(username);
     }
-    @PostMapping("/favorite")
+    @PostMapping(value = "/favorite", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @SneakyThrows
-    public ResponseEntity<String> likePost(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
+    public String likePost(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
         return userPostService.addPostToFavorites(postIdDto, principal.getName());
     }
-    @GetMapping(value = "/favorite")
-    @SneakyThrows
+    @GetMapping(value = "/favorite", produces = "application/json; charset=utf-8")
     public List<PostResponseDto> getFavoritePosts(@RequestParam String username){
         return userPostService.getFavoritePosts(username);
     }
-    @DeleteMapping(value = "/favorite")
+    @DeleteMapping(value = "/favorite", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @SneakyThrows
-    public ResponseEntity<String> deleteFromFavoritePosts(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
+    public String deleteFromFavoritePosts(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
         return userPostService.removePostFromFavorites(postIdDto, principal.getName());
     }
-    @PostMapping("/subscriptions")
+    @PostMapping(value = "/subscriptions", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @SneakyThrows
     public ResponseEntity<String> subscribeToPost(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
         return userPostService.subscribeToPost(postIdDto, principal.getName());
     }
-    @GetMapping("/subscriptions")
-    @SneakyThrows
+    @GetMapping(value = "/subscriptions", produces = "application/json; charset=utf-8")
     public List<PostResponseDto> getUserSubscriptions(@RequestParam String username){
         return userPostService.getUserSubscriptions(username);
     }
-    @DeleteMapping("/subscriptions")
+    @DeleteMapping(value = "/subscriptions", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    @SneakyThrows
-    public ResponseEntity<String> unsubscribeFromPost(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
+    public String unsubscribeFromPost(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
         return userPostService.unsubscribeFromPost(postIdDto, principal.getName());
     }
 }

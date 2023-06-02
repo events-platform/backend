@@ -5,7 +5,6 @@ import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.service.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,37 +18,33 @@ import java.security.Principal;
 @Slf4j
 public class UserController {
     private final UserService userService;
-    @SneakyThrows
-    @GetMapping(value = "/{username}")
+    @GetMapping(value = "/{username}", produces = "application/json; charset=utf-8")
     public UserDto getUser(@PathVariable String username){
         return userService.getDtoByUsername(username);
     }
-    @SneakyThrows
-    @GetMapping(value = "/self")
+    @GetMapping(value = "/self", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public UserDto getSelf(Principal principal){
         return userService.getDtoFromPrincipal(principal);
     }
-    @PutMapping("/change-password")
+    @PutMapping(value = "/change-password", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> changePassword(@Valid @RequestBody PasswordChangeDto passwordChangeDto, Principal principal){
         return userService.changePassword(principal, passwordChangeDto);
     }
-    @SneakyThrows
-    @PostMapping("/edit")
+    @PostMapping(value = "/edit", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<UserDto> editUser(@Valid @RequestBody UserEditDto userDto, Principal principal) {
+    public UserDto editUser(@Valid @RequestBody UserEditDto userDto, Principal principal) {
         return userService.editUserInfo(principal, userDto);
     }
-    @SneakyThrows
     @PostMapping("/role")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> setRole(@Valid @RequestBody ChangeRoleDto changeRoleDto) {
+    public String setRole(@Valid @RequestBody ChangeRoleDto changeRoleDto) {
         return userService.setUserRole(changeRoleDto);
     }
     @DeleteMapping("/{username}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> deleteUser(@PathVariable String username){
+    public String deleteUser(@PathVariable String username){
         return userService.deleteUser(username);
     }
 }

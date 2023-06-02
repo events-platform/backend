@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
 import com.example.eventsplatformbackend.adapter.objectstorage.S3Adapter;
 import com.example.eventsplatformbackend.common.exception.EmptyFileException;
+import com.example.eventsplatformbackend.common.exception.InternalFileUploadException;
 import com.example.eventsplatformbackend.common.exception.UnsupportedExtensionException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -31,7 +32,7 @@ public class S3ServiceImpl implements S3Service {
      * Загружает файл в объектное хранилище и возвращает ссылку на его скачивание.
      */
     @Override
-    public String uploadImageAndGetUrl(String path, MultipartFile file) throws IOException, EmptyFileException, UnsupportedExtensionException {
+    public String uploadImageAndGetUrl(String path, MultipartFile file) {
         if (file.isEmpty())
             throw new EmptyFileException("Невозможно загрузить пустой файл");
 
@@ -43,8 +44,13 @@ public class S3ServiceImpl implements S3Service {
         objectMetadata.setContentLength(file.getSize());
         objectMetadata.setContentType(file.getContentType());
 
-        s3Adapter.uploadFile(
-                path, objectMetadata, file.getInputStream());
+        try {
+            s3Adapter.uploadFile(
+                    path, objectMetadata, file.getInputStream());
+        } catch (IOException e){
+            log.error(e.getMessage());
+            throw new InternalFileUploadException("Невозможно загрузить этот файл");
+        }
         log.info("Uploaded file {}", path);
         return s3Adapter.getLink(path);
     }

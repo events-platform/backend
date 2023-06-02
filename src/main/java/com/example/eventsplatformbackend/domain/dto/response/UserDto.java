@@ -1,11 +1,12 @@
 package com.example.eventsplatformbackend.domain.dto.response;
 
-import com.example.eventsplatformbackend.domain.entity.User;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 @Getter
 public class UserDto {
     final String username;
@@ -13,12 +14,4 @@ public class UserDto {
     final String email;
     final String phone;
     final String avatar;
-
-    public UserDto(User user){
-        this.username = user.getUsername();
-        this.about = user.getAbout();
-        this.email = user.getEmail();
-        this.phone = user.getPhone();
-        this.avatar = user.getAvatar();
-    }
 }

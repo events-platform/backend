@@ -28,9 +28,10 @@ public class UserFileController {
      * @return Ссылка на файл
      */
     @PostMapping(path = "/avatar",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<String> uploadImage(@RequestParam("file") MultipartFile uploadedFile, Principal principal){
+    public String uploadImage(@RequestParam("file") MultipartFile uploadedFile, Principal principal){
         return userFileService.setUserAvatarAndGetLink(uploadedFile, principal);
     }
 }
