@@ -1,8 +1,6 @@
 package com.example.eventsplatformbackend.adapter.web.advice;
 
-import com.example.eventsplatformbackend.common.exception.InvalidDateException;
-import com.example.eventsplatformbackend.common.exception.PostAccessDeniedException;
-import com.example.eventsplatformbackend.common.exception.PostAlreadyExistsException;
+import com.example.eventsplatformbackend.common.exception.*;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -49,6 +47,18 @@ public class PostServiceExceptionHandler {
         return ResponseEntity
                 .status(403)
                 .header(CONTENT_TYPE, CONTENT_TYPE_VALUE)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(EventFormatNotExistsException.class)
+    public ResponseEntity<String> handleEventFormatNotExistsException(EventFormatNotExistsException e){
+        return ResponseEntity
+                .status(400)
+                .body(e.getMessage());
+    }
+    @ExceptionHandler(EventTypeNotExistsException.class)
+    public ResponseEntity<String> handleEventTypeNotExistsException(EventTypeNotExistsException e){
+        return ResponseEntity
+                .status(400)
                 .body(e.getMessage());
     }
 }

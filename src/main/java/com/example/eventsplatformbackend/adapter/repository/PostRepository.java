@@ -2,6 +2,7 @@ package com.example.eventsplatformbackend.adapter.repository;
 
 import com.example.eventsplatformbackend.domain.entity.Post;
 import com.example.eventsplatformbackend.domain.entity.QPost;
+import com.example.eventsplatformbackend.domain.enumeration.EFormat;
 import com.example.eventsplatformbackend.domain.enumeration.EType;
 import com.querydsl.core.BooleanBuilder;
 import org.springframework.data.domain.Page;
@@ -43,6 +44,7 @@ public interface PostRepository extends JpaRepository<Post, Long>,
     default Page<Post> findPostsByFilters(LocalDateTime fromDate, LocalDateTime toDate,
                                   List<String> organizers,
                                   List<EType> types,
+                                  List<EFormat> formats,
                                   LocalDateTime endedDateFilter,
                                   String searchQuery,
                                   Pageable pageable) {
@@ -71,6 +73,9 @@ public interface PostRepository extends JpaRepository<Post, Long>,
         }
         if (types != null && !types.isEmpty()) {
             where.and(qPost.type.in(types));
+        }
+        if(formats != null && !formats.isEmpty()){
+            where.and(qPost.format.in(formats));
         }
 
         return findAll(where, pageable);
