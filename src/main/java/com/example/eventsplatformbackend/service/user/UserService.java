@@ -154,4 +154,19 @@ public class UserService{
     public List<User> getPostSubscribers(Post post){
         return userRepository.getUsersBySubscribedPosts(post);
     }
+    public void saveUser(User user){
+        userRepository.save(user);
+    }
+    public Optional<User> getUserById(Long id){
+        return userRepository.findById(id);
+    }
+    public Optional<User> findUserByUsername(String username){
+        return userRepository.findUserByUsername(username);
+    }
+    public User getUserByUsername(String username){
+        return userRepository.getUserByUsername(username);
+    }
+    public List<User> getPostSubscribers(Post post){
+        return userRepository.getUsersBySubscribedPosts(post);
+    }
 }

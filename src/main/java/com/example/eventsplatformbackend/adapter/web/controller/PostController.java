@@ -35,6 +35,8 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved"),
             @ApiResponse(responseCode = "404", description = "Not found - issue with filtering or pagination parameters")
     })
+    // TODO
+    // Чекбокс для мероприятий, которые уже кончились и тех, что еще не кончились
     @PageableAsQueryParam
     @GetMapping(value = "/search", produces = "application/json; charset=utf-8")
     public Page<PostResponseDto> findPostsWithPagination(

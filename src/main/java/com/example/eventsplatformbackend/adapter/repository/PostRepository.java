@@ -29,7 +29,6 @@ public interface PostRepository extends JpaRepository<Post, Long>,
                     "DELETE FROM posts WHERE posts.post_id = :postId ;",
                 nativeQuery = true)
     void deletePostFromAllTables(@Param("postId") Long postId);
-
     /**
      *
      * @param fromDate Минимальная дата начала ивента
