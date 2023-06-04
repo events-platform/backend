@@ -30,6 +30,7 @@ public class PostCreationDto {
     @NotNull(message = "Выберите тип мероприятия")
     @Schema(description = "Case sensitive", example = "МИТАП")
     EType type;
+    @NotNull(message = "Введите количество мест для регистрации")
     Integer registrationLimit;
     String email;
     String externalLink;

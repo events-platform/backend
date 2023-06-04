@@ -50,8 +50,10 @@ public class UserPostService {
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
                 new UserNotFoundException(USER_NOT_FOUND));
 
-        user.getFavoritePosts().add(post);
-        userRepository.save(user);
+        if(!user.getFavoritePosts().contains(post)){
+            user.getFavoritePosts().add(post);
+            userRepository.save(user);
+        }
         log.info("{} added {} to favorites", username, postIdDto.getPostId());
         return "Мероприятие добавлено в избранное";
     }
