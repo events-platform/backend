@@ -51,13 +51,15 @@ public class User {
     @JoinTable(
             name = "users_subscriptions",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "post_id"))
+            inverseJoinColumns = @JoinColumn(name = "post_id"),
+            uniqueConstraints = {@UniqueConstraint(columnNames={"user_id", "post_id"})})
     Set<Post> subscribedPosts;
     @Column(name = "favorite_posts")
     @ManyToMany
     @JoinTable(
             name = "users_favorite_posts",
             joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "post_id"))
+            inverseJoinColumns = @JoinColumn(name = "post_id"),
+            uniqueConstraints = {@UniqueConstraint(columnNames={"user_id", "post_id"})})
     Set<Post> favoritePosts;
 }

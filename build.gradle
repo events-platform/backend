@@ -7,7 +7,7 @@ plugins {
 
 group = 'com.example'
 
-version = '0.0.968'
+version = '0.0.969'
 sourceCompatibility = '17'
 
 configurations {
