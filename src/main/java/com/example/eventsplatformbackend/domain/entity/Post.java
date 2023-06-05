@@ -50,6 +50,8 @@ public class Post {
     String externalLink;
     @Column(name = "image")
     String image;
+    @Column(name = "form_link")
+    String formLink;
     @ManyToOne
     @NotNull
     @JoinColumn(name = "user_id")
