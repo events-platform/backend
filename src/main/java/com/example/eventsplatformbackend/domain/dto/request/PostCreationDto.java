@@ -32,6 +32,7 @@ public class PostCreationDto {
     EType type;
     @NotNull(message = "Введите количество мест для регистрации")
     Integer registrationLimit;
+    String formLink;
     String email;
     String externalLink;
     String description;

@@ -23,6 +23,7 @@ public class PostResponseDto {
     String location;
     String description;
     String email;
+    String formLink;
     String externalLink;
     String image;
     String ownerName;
