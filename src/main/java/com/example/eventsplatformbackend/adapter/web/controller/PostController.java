@@ -2,7 +2,7 @@ package com.example.eventsplatformbackend.adapter.web.controller;
 
 import com.example.eventsplatformbackend.domain.dto.request.PostCreationDto;
 import com.example.eventsplatformbackend.domain.dto.request.PostIdDto;
-import com.example.eventsplatformbackend.domain.dto.response.PostResponseDto;
+import com.example.eventsplatformbackend.domain.dto.response.PostResponseDtoImpl;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.service.post.PostService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,7 +37,7 @@ public class PostController {
     })
     @PageableAsQueryParam
     @GetMapping(value = "/search", produces = "application/json; charset=utf-8")
-    public Page<PostResponseDto> findPostsWithPagination(
+    public Page<PostResponseDtoImpl> findPostsWithPagination(
             @RequestParam(required = false) LocalDateTime beginDate,
             @RequestParam(required = false) LocalDateTime endDate,
             @RequestParam(required = false) List<String> organizer,
@@ -69,7 +69,7 @@ public class PostController {
         return postService.deletePost(postIdDto.getPostId(), principal.getName());
     }
     @GetMapping(value = "/{postId}", produces = "application/json; charset=utf-8")
-    public PostResponseDto getPostById(@PathVariable Long postId){
+    public PostResponseDtoImpl getPostById(@PathVariable Long postId){
         return postService.getPostById(postId);
     }
     @GetMapping(value = "/subscribers/{postId}", produces = "application/json; charset=utf-8")
@@ -77,7 +77,7 @@ public class PostController {
         return postService.getPostSubscribers(postId);
     }
     @GetMapping(value = "/all", produces = "application/json; charset=utf-8")
-    public List<PostResponseDto> getAllPosts(){
+    public List<PostResponseDtoImpl> getAllPosts(){
         return postService.getAllPosts();
     }
 }
