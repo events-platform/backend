@@ -3,13 +3,14 @@ package com.example.eventsplatformbackend.domain.dto.response;
 import com.example.eventsplatformbackend.domain.enumeration.EFormat;
 import com.example.eventsplatformbackend.domain.enumeration.EType;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AccessLevel;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class PostResponseDto {
     Long id;
     String name;

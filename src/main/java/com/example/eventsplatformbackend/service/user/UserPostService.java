@@ -2,7 +2,8 @@ package com.example.eventsplatformbackend.service.user;
 
 import com.example.eventsplatformbackend.adapter.repository.UserRepository;
 import com.example.eventsplatformbackend.domain.dto.request.PostIdDto;
-import com.example.eventsplatformbackend.domain.dto.response.PostResponseDto;
+import com.example.eventsplatformbackend.domain.dto.response.PersonalizedPostResponseDtoImpl;
+import com.example.eventsplatformbackend.domain.dto.response.PostResponseDtoImpl;
 import com.example.eventsplatformbackend.domain.entity.Post;
 import com.example.eventsplatformbackend.domain.entity.User;
 import com.example.eventsplatformbackend.common.exception.PostNotFoundException;
@@ -14,12 +15,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.List;
 
 /**
  * Работает с мероприятиями пользователей
  */
 @Service
+@Transactional
 @Slf4j
 public class UserPostService {
     public static final String USER_NOT_FOUND = "Пользователь не найден";
@@ -33,9 +36,7 @@ public class UserPostService {
         this.postService = postService;
         this.postMapper = postMapper;
     }
-
-    @Transactional
-    public List<PostResponseDto> getUserCreatedPosts(String username) {
+    public List<PostResponseDtoImpl> getUserCreatedPosts(String username) {
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
                 new UserNotFoundException(USER_NOT_FOUND));
 
@@ -43,7 +44,6 @@ public class UserPostService {
                 .map(postMapper::postDtoFromPost)
                 .toList();
     }
-    @Transactional
     public String addPostToFavorites(PostIdDto postIdDto, String username) {
         Post post = postService.findById(postIdDto.getPostId()).orElseThrow(() ->
                 new PostNotFoundException(POST_NOT_FOUND));
@@ -57,7 +57,6 @@ public class UserPostService {
         log.info("{} added {} to favorites", username, postIdDto.getPostId());
         return "Мероприятие добавлено в избранное";
     }
-    @Transactional
     public String removePostFromFavorites(PostIdDto postIdDto, String username) {
         Post post = postService.findById(postIdDto.getPostId()).orElseThrow(() ->
                 new PostNotFoundException(POST_NOT_FOUND));
@@ -69,8 +68,7 @@ public class UserPostService {
         log.info("{} removed {} from favorites", username, postIdDto.getPostId());
         return "Мероприятие удалено из избранного";
     }
-    @Transactional
-    public List<PostResponseDto> getFavoritePosts(String username) {
+    public List<PostResponseDtoImpl> getFavoritePosts(String username) {
         log.info(username);
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
                 new UserNotFoundException(USER_NOT_FOUND));
@@ -79,7 +77,6 @@ public class UserPostService {
                 .map(postMapper::postDtoFromPost)
                 .toList();
     }
-    @Transactional
     public ResponseEntity<String> subscribeToPost(PostIdDto postIdDto, String username) {
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
                 new UserNotFoundException(USER_NOT_FOUND));
@@ -109,8 +106,7 @@ public class UserPostService {
                     .body("Невозможно записаться, на это мероприятие больше нет свободных мест");
         }
     }
-    @Transactional
-    public List<PostResponseDto> getUserSubscriptions(String username) throws UserNotFoundException {
+    public List<PostResponseDtoImpl> getUserSubscriptions(String username) {
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
                 new UserNotFoundException(USER_NOT_FOUND));
 
@@ -118,9 +114,7 @@ public class UserPostService {
                 .map(postMapper::postDtoFromPost)
                 .toList();
     }
-    @Transactional
-    public String unsubscribeFromPost(PostIdDto postIdDto, String username)
-            throws PostNotFoundException, UserNotFoundException {
+    public String unsubscribeFromPost(PostIdDto postIdDto, String username) {
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
                 new UserNotFoundException(USER_NOT_FOUND));
         Post toUnsubscribe = postService.findById(postIdDto.getPostId()).orElseThrow(() ->
@@ -130,5 +124,16 @@ public class UserPostService {
         userRepository.save(user);
         log.info("{} unsubscribed from {}", username, postIdDto.getPostId());
         return "Вы больше не подписаны на это мероприятие";
+    }
+    public PersonalizedPostResponseDtoImpl getPersonalizedPost(Long postId, Principal principal) {
+        Post post = postService.findById(postId).orElseThrow(() ->
+                new PostNotFoundException(POST_NOT_FOUND));
+        User user = userRepository.findUserByUsername(principal.getName()).orElseThrow(() ->
+                new UserNotFoundException(USER_NOT_FOUND));
+
+        PersonalizedPostResponseDtoImpl responseDto = postMapper.personalizedPostDtoFromPost(post);
+        responseDto.setIsSubscribed(user.getSubscribedPosts().contains(post));
+        responseDto.setIsFavorite(user.getFavoritePosts().contains(post));
+        return responseDto;
     }
 }

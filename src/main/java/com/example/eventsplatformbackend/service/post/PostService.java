@@ -3,7 +3,7 @@ package com.example.eventsplatformbackend.service.post;
 import com.example.eventsplatformbackend.common.exception.*;
 import com.example.eventsplatformbackend.domain.dto.request.PostCreationDto;
 import com.example.eventsplatformbackend.adapter.repository.PostRepository;
-import com.example.eventsplatformbackend.domain.dto.response.PostResponseDto;
+import com.example.eventsplatformbackend.domain.dto.response.PostResponseDtoImpl;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
 import com.example.eventsplatformbackend.domain.entity.Post;
 import com.example.eventsplatformbackend.domain.entity.User;
@@ -76,7 +76,7 @@ public class PostService {
         return "Мероприятие успешно сохранено";
     }
     @Transactional
-    public List<PostResponseDto> getAllPosts() {
+    public List<PostResponseDtoImpl> getAllPosts() {
         return postRepository.findAll().stream()
                 .map(postMapper::postDtoFromPost)
                 .toList();
@@ -86,7 +86,7 @@ public class PostService {
         return postRepository.findById(postId);
     }
 
-    public PostResponseDto getPostById(Long postId) {
+    public PostResponseDtoImpl getPostById(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(() ->
                 new PostNotFoundException("Мероприятие с таким id не найдено"));
         return postMapper.postDtoFromPost(post);
@@ -100,7 +100,7 @@ public class PostService {
                 .toList();
     }
 
-    public Page<PostResponseDto> getPostsPaginationWithFilters(
+    public Page<PostResponseDtoImpl> getPostsPaginationWithFilters(
             LocalDateTime beginDateFilter,
             LocalDateTime endDateFilter,
             List<String> organizers,
