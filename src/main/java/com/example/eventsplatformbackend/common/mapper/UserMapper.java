@@ -19,7 +19,7 @@ public abstract class UserMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     public abstract void updateUserFromUserEditDto(UserEditDto dto, @MappingTarget User entity);
-    @Mapping(target = "avatar", expression = "java(s3Service.pickRandomObject(defaultAvatarDir))")
+    @Mapping(target = "avatar", expression = "java(s3Service.pickRandomObjectFromDirectory(defaultAvatarDir))")
     public abstract User registrationDtoToUser(RegistrationDto registrationDto);
     public abstract UserDto userToUserDto(User user);
 }
