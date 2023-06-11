@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 /**
  * Выполняет CRUD операции с S3 хранилищем.
@@ -22,9 +23,11 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class S3ServiceImpl implements S3Service {
+    private final Random random;
     private final S3Adapter s3Adapter;
 
     public S3ServiceImpl(S3Adapter s3Adapter) {
+        this.random = new Random();
         this.s3Adapter = s3Adapter;
     }
 
@@ -63,6 +66,17 @@ public class S3ServiceImpl implements S3Service {
     @Override
     public void delete(String path) {
         s3Adapter.deleteFile(path);
+    }
+
+    /**
+     * Берет из директории рандомный файл и отдает ссылку на него
+     * @param prefix Путь до директории с файлами
+     * @return Ссылка на объект
+     */
+    public String pickRandomObjectFromDirectory(String prefix){
+        List<String> objects = s3Adapter.getObjectSummaries(prefix);
+        String objectLocation = objects.get(random.nextInt(objects.size()-1));
+        return s3Adapter.getLink(objectLocation);
     }
 
     private boolean checkFileExtension(String filename, List<String> acceptedExtensions){

@@ -5,6 +5,7 @@ import com.example.eventsplatformbackend.config.AwsConfig;
 import com.example.eventsplatformbackend.config.AwsCredentials;
 import com.example.eventsplatformbackend.domain.dto.response.JwtResponse;
 import com.example.eventsplatformbackend.security.JwtUtil;
+import com.example.eventsplatformbackend.service.s3.S3ServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -28,8 +29,9 @@ class AuthTest extends TestParent{
     private AwsConfig awsConfig;
     @MockBean
     private AwsCredentials awsCredentials;
+    @MockBean S3Adapter s3Adapter;
     @MockBean
-    private S3Adapter s3Adapter;
+    private S3ServiceImpl s3Service;
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -52,7 +54,7 @@ class AuthTest extends TestParent{
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        verify(s3Adapter).getLink(anyString());
+        verify(s3Service).pickRandomObjectFromDirectory(anyString());
     }
     @Test
     void loginWithMalformedEmail_get422() throws Exception {
