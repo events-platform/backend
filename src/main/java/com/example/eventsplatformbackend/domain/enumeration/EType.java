@@ -23,6 +23,7 @@ public enum EType {
     SPORTS_EVENT("Спортивное мероприятие"),
     FORUM("Форум"),
     HACKATHON("Хакатон"),
+    PARTY("Вечеринка"),
     CONCERT("Концерт");
     private final String name;
     EType(String name) {
