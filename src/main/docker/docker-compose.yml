@@ -21,3 +21,8 @@ services:
   redis:
     image: "redis/redis-stack-server"
     container_name: redis
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: "-i 3600 --cleanup"
