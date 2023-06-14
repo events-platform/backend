@@ -11,7 +11,7 @@ aws:
   users-root-directory: events-platform-files/test/users
   posts-root-directory: events-platform-files/test/posts
   default-post-avatar-dir: events-platform-files/default/default-post-avatar.jpg
-  default-avatar-dir: events-platform-files/default/avatar/
+  default-avatar-dir: events-platform-files/default/avatar/default-avatar
 
 
 spring:
