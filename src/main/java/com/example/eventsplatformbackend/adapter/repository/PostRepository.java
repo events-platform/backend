@@ -22,6 +22,7 @@ public interface PostRepository extends JpaRepository<Post, Long>,
         QuerydslPredicateExecutor<Post> {
 
     boolean existsPostByBeginDateAndName(LocalDateTime beginDate, String name);
+    List<Post> findPostsByBeginDateAndName(LocalDateTime beginDate, String name);
     // Delete post from join tables and from entity table
     @Modifying
     @Query(value =  "DELETE FROM users_created_posts WHERE created_posts_post_id = :postId ;"+

@@ -127,9 +127,7 @@ public class UserService{
                 && userRepository.existsUserByPhone(dto.getPhone())){
             throw new UserAlreadyExistsException("Пользователь с таким номером телефона уже существует");
         }
-
         userMapper.updateUserFromUserEditDto(dto, user);
-        userRepository.save(user);
 
         log.info("Update user {}", user.getUsername());
         return userMapper.userToUserDto(user);
