@@ -1,6 +1,7 @@
 package com.example.eventsplatformbackend.adapter.web.controller;
 
 import com.example.eventsplatformbackend.domain.dto.request.PostCreationDto;
+import com.example.eventsplatformbackend.domain.dto.request.PostEditDto;
 import com.example.eventsplatformbackend.domain.dto.request.PostIdDto;
 import com.example.eventsplatformbackend.domain.dto.response.PostResponseDtoImpl;
 import com.example.eventsplatformbackend.domain.dto.response.UserDto;
@@ -56,7 +57,7 @@ public class PostController {
             @RequestPart(value = "data") @Valid PostCreationDto postCreationDto,
             @RequestPart(value = "file", required = false) MultipartFile file,
             Principal principal){
-        return postService.savePost(postCreationDto, file, principal);
+        return postService.savePost(postCreationDto, file, principal.getName());
     }
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully deleted"),
@@ -67,6 +68,16 @@ public class PostController {
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public String deletePost(@RequestBody PostIdDto postIdDto, Principal principal){
         return postService.deletePost(postIdDto.getPostId(), principal.getName());
+    }
+    @PostMapping(value = "/edit",
+            consumes = { MediaType.MULTIPART_FORM_DATA_VALUE },
+            produces = "application/json; charset=utf-8")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public PostResponseDtoImpl editPost(
+            @RequestPart(value = "data") @Valid PostEditDto postEditDto,
+            @RequestPart(value = "file", required = false) MultipartFile multipartFile,
+            Principal principal) {
+        return postService.editPost(postEditDto, multipartFile, principal.getName());
     }
     @GetMapping(value = "/{postId}", produces = "application/json; charset=utf-8")
     public PostResponseDtoImpl getPostById(@PathVariable Long postId){

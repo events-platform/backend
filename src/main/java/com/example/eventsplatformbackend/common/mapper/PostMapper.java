@@ -2,6 +2,7 @@ package com.example.eventsplatformbackend.common.mapper;
 
 import com.example.eventsplatformbackend.adapter.objectstorage.S3Adapter;
 import com.example.eventsplatformbackend.domain.dto.request.PostCreationDto;
+import com.example.eventsplatformbackend.domain.dto.request.PostEditDto;
 import com.example.eventsplatformbackend.domain.dto.response.PersonalizedPostResponseDtoImpl;
 import com.example.eventsplatformbackend.domain.dto.response.PostResponseDtoImpl;
 import com.example.eventsplatformbackend.domain.entity.Post;
@@ -24,4 +25,6 @@ public abstract class PostMapper {
     @Mapping(target = "ownerName", expression = "java(post.getOwner().getUsername())")
     @Mapping(target = "ownerAvatar", expression = "java(post.getOwner().getAvatar())")
     public abstract PersonalizedPostResponseDtoImpl personalizedPostDtoFromPost(Post post);
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    public abstract Post postFromPostEditDto(PostEditDto postEditDto, @MappingTarget Post post);
 }
