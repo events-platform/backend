@@ -4,15 +4,20 @@ import com.example.eventsplatformbackend.domain.dto.request.PostIdDto;
 import com.example.eventsplatformbackend.domain.dto.response.PersonalizedPostResponseDtoImpl;
 import com.example.eventsplatformbackend.domain.dto.response.PostResponseDtoImpl;
 import com.example.eventsplatformbackend.service.user.UserPostService;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.converters.models.PageableAsQueryParam;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
 
 @RestController
 @RequestMapping(path = "user/post")
@@ -25,18 +30,26 @@ public class UserPostsController {
     public PersonalizedPostResponseDtoImpl getPersonalizedPostByToken(@PathVariable Long postId, Principal principal){
         return userPostService.getPersonalizedPost(postId, principal);
     }
+    @PageableAsQueryParam
     @GetMapping(value = "/created", produces = "application/json; charset=utf-8")
-    public List<PostResponseDtoImpl> getUserCreatedPosts(@RequestParam String username){
-        return userPostService.getUserCreatedPosts(username);
+    public Page<PostResponseDtoImpl> getUserCreatedPosts(
+            @RequestParam String username,
+            @Parameter(hidden = true)
+            @PageableDefault(sort = {"beginDate", "name"}, direction = Sort.Direction.ASC) Pageable pageable){
+        return userPostService.getUserCreatedPostsPagination(username, pageable);
     }
     @PostMapping(value = "/favorite", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public String likePost(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
+    public String addPostToFavorites(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
         return userPostService.addPostToFavorites(postIdDto, principal.getName());
     }
+    @PageableAsQueryParam
     @GetMapping(value = "/favorite", produces = "application/json; charset=utf-8")
-    public List<PostResponseDtoImpl> getFavoritePosts(@RequestParam String username){
-        return userPostService.getFavoritePosts(username);
+    public Page<PostResponseDtoImpl> getFavoritePosts(
+            @RequestParam String username,
+            @Parameter(hidden = true)
+            @PageableDefault(sort = {"beginDate", "name"}, direction = Sort.Direction.ASC) Pageable pageable){
+        return userPostService.getFavoritePosts(username, pageable);
     }
     @DeleteMapping(value = "/favorite", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -48,9 +61,13 @@ public class UserPostsController {
     public ResponseEntity<String> subscribeToPost(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
         return userPostService.subscribeToPost(postIdDto, principal.getName());
     }
+    @PageableAsQueryParam
     @GetMapping(value = "/subscriptions", produces = "application/json; charset=utf-8")
-    public List<PostResponseDtoImpl> getUserSubscriptions(@RequestParam String username){
-        return userPostService.getUserSubscriptions(username);
+    public Page<PostResponseDtoImpl> getUserSubscriptions(
+            @RequestParam String username,
+            @Parameter(hidden = true)
+            @PageableDefault(sort = {"beginDate", "name"}, direction = Sort.Direction.ASC) Pageable pageable){
+        return userPostService.getUserSubscriptions(username, pageable);
     }
     @DeleteMapping(value = "/subscriptions", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
