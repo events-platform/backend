@@ -9,6 +9,7 @@ import com.example.eventsplatformbackend.domain.entity.User;
 import com.example.eventsplatformbackend.common.exception.PostNotFoundException;
 import com.example.eventsplatformbackend.common.exception.UserNotFoundException;
 import com.example.eventsplatformbackend.common.mapper.PostMapper;
+import com.example.eventsplatformbackend.domain.enumeration.EUserPostType;
 import com.example.eventsplatformbackend.service.post.PostService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 
 /**
  * Работает с мероприятиями пользователей
@@ -37,12 +39,32 @@ public class UserPostService {
         this.postService = postService;
         this.postMapper = postMapper;
     }
-    public Page<PostResponseDtoImpl> getUserCreatedPostsPagination(String username, Pageable pageable) {
+    public Page<PostResponseDtoImpl> getUserProfilePosts
+            (EUserPostType userPostType, String username, Boolean showEnded, Pageable pageable){
+
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
                 new UserNotFoundException(USER_NOT_FOUND));
+        LocalDateTime beginDateFilter = showEnded
+                ? null
+                : LocalDateTime.now();
 
-        return userRepository.findAllUserCreatedPosts(user.getId(), pageable)
-                .map(postMapper::postDtoFromPost);
+        switch (userPostType){
+            case CREATED -> {
+                return userRepository.findAllUserCreatedPosts(user.getId(), beginDateFilter, pageable)
+                        .map(postMapper::postDtoFromPost);
+            }
+            case FAVORITE -> {
+                return userRepository.findAllUserFavoritePosts(user.getId(), beginDateFilter, pageable)
+                        .map(postMapper::postDtoFromPost);
+            }
+            case SUBSCRIBED -> {
+                return userRepository.findAllUserSubscribedPosts(user.getId(), beginDateFilter, pageable)
+                        .map(postMapper::postDtoFromPost);
+            }
+            default -> {
+                return null;
+            }
+        }
     }
     public String addPostToFavorites(PostIdDto postIdDto, String username) {
         Post post = postService.findById(postIdDto.getPostId()).orElseThrow(() ->
@@ -64,13 +86,6 @@ public class UserPostService {
         user.getFavoritePosts().remove(post);
         log.info("{} removed {} from favorites", username, postIdDto.getPostId());
         return "Мероприятие удалено из избранного";
-    }
-    public Page<PostResponseDtoImpl> getFavoritePosts(String username, Pageable pageable) {
-        User user = userRepository.findUserByUsername(username).orElseThrow(() ->
-                new UserNotFoundException(USER_NOT_FOUND));
-
-        return userRepository.findAllUserFavoritePosts(user.getId(), pageable)
-                .map(postMapper::postDtoFromPost);
     }
     public ResponseEntity<String> subscribeToPost(PostIdDto postIdDto, String username) {
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->
@@ -99,13 +114,6 @@ public class UserPostService {
                     .header("Content-Type", "text/html; charset=utf-8")
                     .body("Невозможно записаться, на это мероприятие больше нет свободных мест");
         }
-    }
-    public Page<PostResponseDtoImpl> getUserSubscriptions(String username, Pageable pageable) {
-        User user = userRepository.findUserByUsername(username).orElseThrow(() ->
-                new UserNotFoundException(USER_NOT_FOUND));
-
-        return userRepository.findAllUserSubscribedPosts(user.getId(), pageable)
-                .map(postMapper::postDtoFromPost);
     }
     public String unsubscribeFromPost(PostIdDto postIdDto, String username) {
         User user = userRepository.findUserByUsername(username).orElseThrow(() ->

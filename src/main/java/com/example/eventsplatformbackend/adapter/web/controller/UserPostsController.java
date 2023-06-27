@@ -3,6 +3,7 @@ package com.example.eventsplatformbackend.adapter.web.controller;
 import com.example.eventsplatformbackend.domain.dto.request.PostIdDto;
 import com.example.eventsplatformbackend.domain.dto.response.PersonalizedPostResponseDtoImpl;
 import com.example.eventsplatformbackend.domain.dto.response.PostResponseDtoImpl;
+import com.example.eventsplatformbackend.domain.enumeration.EUserPostType;
 import com.example.eventsplatformbackend.service.user.UserPostService;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -34,9 +35,10 @@ public class UserPostsController {
     @GetMapping(value = "/created", produces = "application/json; charset=utf-8")
     public Page<PostResponseDtoImpl> getUserCreatedPosts(
             @RequestParam String username,
+            @RequestParam(defaultValue = "false") Boolean showEnded,
             @Parameter(hidden = true)
             @PageableDefault(sort = {"beginDate", "name"}, direction = Sort.Direction.ASC) Pageable pageable){
-        return userPostService.getUserCreatedPostsPagination(username, pageable);
+        return userPostService.getUserProfilePosts(EUserPostType.CREATED, username, showEnded, pageable);
     }
     @PostMapping(value = "/favorite", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -47,9 +49,10 @@ public class UserPostsController {
     @GetMapping(value = "/favorite", produces = "application/json; charset=utf-8")
     public Page<PostResponseDtoImpl> getFavoritePosts(
             @RequestParam String username,
+            @RequestParam(defaultValue = "false") Boolean showEnded,
             @Parameter(hidden = true)
             @PageableDefault(sort = {"beginDate", "name"}, direction = Sort.Direction.ASC) Pageable pageable){
-        return userPostService.getFavoritePosts(username, pageable);
+        return userPostService.getUserProfilePosts(EUserPostType.FAVORITE, username, showEnded, pageable);
     }
     @DeleteMapping(value = "/favorite", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -65,9 +68,10 @@ public class UserPostsController {
     @GetMapping(value = "/subscriptions", produces = "application/json; charset=utf-8")
     public Page<PostResponseDtoImpl> getUserSubscriptions(
             @RequestParam String username,
+            @RequestParam(defaultValue = "false") Boolean showEnded,
             @Parameter(hidden = true)
             @PageableDefault(sort = {"beginDate", "name"}, direction = Sort.Direction.ASC) Pageable pageable){
-        return userPostService.getUserSubscriptions(username, pageable);
+        return userPostService.getUserProfilePosts(EUserPostType.SUBSCRIBED, username, showEnded, pageable);
     }
     @DeleteMapping(value = "/subscriptions", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")

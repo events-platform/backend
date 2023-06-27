@@ -63,6 +63,9 @@ public class PostService {
         User user = userService.getUserByUsername(username);
         user.getCreatedPosts().add(post);
         post.setOwner(user);
+
+        postRepository.save(post);
+        userService.saveUser(user);
         return "Мероприятие успешно сохранено";
     }
 
