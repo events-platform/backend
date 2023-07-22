@@ -26,56 +26,64 @@ import java.security.Principal;
 @Slf4j
 public class UserPostsController {
     private final UserPostService userPostService;
+
     @GetMapping(value = "/{postId}", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public PersonalizedPostResponseDtoImpl getPersonalizedPostByToken(@PathVariable Long postId, Principal principal){
+    public PersonalizedPostResponseDtoImpl getPersonalizedPostByToken(@PathVariable Long postId, Principal principal) {
         return userPostService.getPersonalizedPost(postId, principal);
     }
+
     @PageableAsQueryParam
     @GetMapping(value = "/created", produces = "application/json; charset=utf-8")
     public Page<PostResponseDtoImpl> getUserCreatedPosts(
             @RequestParam String username,
             @RequestParam(defaultValue = "false") Boolean showEnded,
             @Parameter(hidden = true)
-            @PageableDefault(sort = {"beginDate", "name"}, direction = Sort.Direction.ASC) Pageable pageable){
+            @PageableDefault(sort = {"beginDate", "name"}, direction = Sort.Direction.ASC) Pageable pageable) {
         return userPostService.getUserProfilePosts(EUserPostType.CREATED, username, showEnded, pageable);
     }
+
     @PostMapping(value = "/favorite", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public String addPostToFavorites(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
+    public String addPostToFavorites(@Valid @RequestBody PostIdDto postIdDto, Principal principal) {
         return userPostService.addPostToFavorites(postIdDto, principal.getName());
     }
+
     @PageableAsQueryParam
     @GetMapping(value = "/favorite", produces = "application/json; charset=utf-8")
     public Page<PostResponseDtoImpl> getFavoritePosts(
             @RequestParam String username,
             @RequestParam(defaultValue = "false") Boolean showEnded,
             @Parameter(hidden = true)
-            @PageableDefault(sort = {"beginDate", "name"}, direction = Sort.Direction.ASC) Pageable pageable){
+            @PageableDefault(sort = {"beginDate", "name"}, direction = Sort.Direction.ASC) Pageable pageable) {
         return userPostService.getUserProfilePosts(EUserPostType.FAVORITE, username, showEnded, pageable);
     }
+
     @DeleteMapping(value = "/favorite", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public String deleteFromFavoritePosts(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
+    public String deleteFromFavoritePosts(@Valid @RequestBody PostIdDto postIdDto, Principal principal) {
         return userPostService.removePostFromFavorites(postIdDto, principal.getName());
     }
+
     @PostMapping(value = "/subscriptions", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<String> subscribeToPost(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
+    public ResponseEntity<String> subscribeToPost(@Valid @RequestBody PostIdDto postIdDto, Principal principal) {
         return userPostService.subscribeToPost(postIdDto, principal.getName());
     }
+
     @PageableAsQueryParam
     @GetMapping(value = "/subscriptions", produces = "application/json; charset=utf-8")
     public Page<PostResponseDtoImpl> getUserSubscriptions(
             @RequestParam String username,
             @RequestParam(defaultValue = "false") Boolean showEnded,
             @Parameter(hidden = true)
-            @PageableDefault(sort = {"beginDate", "name"}, direction = Sort.Direction.ASC) Pageable pageable){
+            @PageableDefault(sort = {"beginDate", "name"}, direction = Sort.Direction.ASC) Pageable pageable) {
         return userPostService.getUserProfilePosts(EUserPostType.SUBSCRIBED, username, showEnded, pageable);
     }
+
     @DeleteMapping(value = "/subscriptions", produces = "application/json; charset=utf-8")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public String unsubscribeFromPost(@Valid @RequestBody PostIdDto postIdDto, Principal principal){
+    public String unsubscribeFromPost(@Valid @RequestBody PostIdDto postIdDto, Principal principal) {
         return userPostService.unsubscribeFromPost(postIdDto, principal.getName());
     }
 }

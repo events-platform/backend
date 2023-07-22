@@ -18,19 +18,22 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping(value = "/signup", produces = "application/json; charset=utf-8")
-    public JwtResponse signUp(@Valid @RequestBody RegistrationDto registrationDto){
+    public JwtResponse signUp(@Valid @RequestBody RegistrationDto registrationDto) {
         return authService.signUp(registrationDto);
     }
+
     @PostMapping(value = "/login", produces = "application/json; charset=utf-8")
-    public JwtResponse login(@Valid @RequestBody JwtRequest jwtRequest){
+    public JwtResponse login(@Valid @RequestBody JwtRequest jwtRequest) {
         return authService.login(jwtRequest);
     }
+
     @PostMapping(value = "/logout", produces = "application/json; charset=utf-8")
-    public String logout(@Valid @RequestBody JwtTokenPair jwtTokenPair){
+    public String logout(@Valid @RequestBody JwtTokenPair jwtTokenPair) {
         return authService.logout(jwtTokenPair);
     }
+
     @PostMapping("/refresh")
-    public JwtResponse refreshToken(@RequestBody JwtTokenPair jwtTokenPair){
+    public JwtResponse refreshToken(@RequestBody JwtTokenPair jwtTokenPair) {
         return authService.refreshToken(jwtTokenPair);
     }
 }
